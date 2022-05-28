@@ -19,9 +19,9 @@ importers:
 
   packages/server:
     specifiers:
-      '@donew-innovations/eslint-config': 0.0.1
-      '@donew-innovations/prettier-config': 0.0.1
-      '@donew-innovations/tsconfig': 0.0.1
+      '@donew-innovations/eslint-config': file:../config/eslint
+      '@donew-innovations/prettier-config': file:../config/prettier
+      '@donew-innovations/tsconfig': file:../config/tsconfig
       '@google-cloud/functions-framework': 3.0.0
       '@types/cors': 2.8.12
       '@types/ejs': 3.1.0
@@ -81,9 +81,9 @@ importers:
       redent: 4.0.0
       winston: 3.7.2
     devDependencies:
-      '@donew-innovations/eslint-config': link:../config/eslint
-      '@donew-innovations/prettier-config': link:../config/prettier
-      '@donew-innovations/tsconfig': link:../config/tsconfig
+      '@donew-innovations/eslint-config': file:packages/config/eslint
+      '@donew-innovations/prettier-config': file:packages/config/prettier
+      '@donew-innovations/tsconfig': file:packages/config/tsconfig
       '@types/cors': 2.8.12
       '@types/ejs': 3.1.0
       '@types/express': 4.17.13
@@ -106,9 +106,9 @@ importers:
 
   packages/web:
     specifiers:
-      '@donew-innovations/eslint-config': 0.0.1
-      '@donew-innovations/prettier-config': 0.0.1
-      '@donew-innovations/tsconfig': 0.0.1
+      '@donew-innovations/eslint-config': file:../config/eslint
+      '@donew-innovations/prettier-config': file:../config/prettier
+      '@donew-innovations/tsconfig': file:../config/tsconfig
       del-cli: 4.0.1
       esbuild: 0.14.38
       ky: 0.30.0
@@ -126,9 +126,9 @@ importers:
       preact: 10.7.2
       preact-router: 4.0.1_preact@10.7.2
     devDependencies:
-      '@donew-innovations/eslint-config': link:../config/eslint
-      '@donew-innovations/prettier-config': link:../config/prettier
-      '@donew-innovations/tsconfig': link:../config/tsconfig
+      '@donew-innovations/eslint-config': file:packages/config/eslint
+      '@donew-innovations/prettier-config': file:packages/config/prettier
+      '@donew-innovations/tsconfig': file:packages/config/tsconfig
       del-cli: 4.0.1
       esbuild: 0.14.38
       npm-run-all: 4.1.5
@@ -9618,4 +9618,22 @@ packages:
       archiver-utils: 2.1.0
       compress-commons: 4.1.1
       readable-stream: 3.6.0
+    dev: true
+
+  file:packages/config/eslint:
+    resolution: {directory: packages/config/eslint, type: directory}
+    name: '@donew-innovations/eslint-config'
+    version: 0.0.1
+    dev: true
+
+  file:packages/config/prettier:
+    resolution: {directory: packages/config/prettier, type: directory}
+    name: '@donew-innovations/prettier-config'
+    version: 0.0.1
+    dev: true
+
+  file:packages/config/tsconfig:
+    resolution: {directory: packages/config/tsconfig, type: directory}
+    name: '@donew-innovations/tsconfig'
+    version: 0.0.1
     dev: true
