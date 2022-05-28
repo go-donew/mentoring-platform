@@ -31,9 +31,9 @@
 		"preact-router": "4.0.1"
 	},
 	"devDependencies": {
-		"@donew-innovations/eslint-config": "workspace:0.0.1",
-		"@donew-innovations/prettier-config": "workspace:0.0.1",
-		"@donew-innovations/tsconfig": "workspace:0.0.1",
+		"@donew-innovations/eslint-config": "0.0.1",
+		"@donew-innovations/prettier-config": "0.0.1",
+		"@donew-innovations/tsconfig": "0.0.1",
 		"del-cli": "4.0.1",
 		"esbuild": "0.14.38",
 		"npm-run-all": "4.1.5",

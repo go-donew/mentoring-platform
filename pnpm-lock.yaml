@@ -19,9 +19,9 @@ importers:
 
   packages/server:
     specifiers:
-      '@donew-innovations/eslint-config': workspace:0.0.1
-      '@donew-innovations/prettier-config': workspace:0.0.1
-      '@donew-innovations/tsconfig': workspace:0.0.1
+      '@donew-innovations/eslint-config': 0.0.1
+      '@donew-innovations/prettier-config': 0.0.1
+      '@donew-innovations/tsconfig': 0.0.1
       '@google-cloud/functions-framework': 3.0.0
       '@types/cors': 2.8.12
       '@types/ejs': 3.1.0
@@ -106,9 +106,9 @@ importers:
 
   packages/web:
     specifiers:
-      '@donew-innovations/eslint-config': workspace:0.0.1
-      '@donew-innovations/prettier-config': workspace:0.0.1
-      '@donew-innovations/tsconfig': workspace:0.0.1
+      '@donew-innovations/eslint-config': 0.0.1
+      '@donew-innovations/prettier-config': 0.0.1
+      '@donew-innovations/tsconfig': 0.0.1
       del-cli: 4.0.1
       esbuild: 0.14.38
       ky: 0.30.0
