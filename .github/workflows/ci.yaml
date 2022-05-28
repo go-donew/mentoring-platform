@@ -87,10 +87,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Deploy to sandbox
-        run: pnpm deploy:dev
+        run: pnpm deploy:sdbx
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
       - name: Deploy to production
-        run: pnpm deploy:prd
+        run: pnpm deploy:prod
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
