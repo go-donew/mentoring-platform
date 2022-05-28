@@ -1,15 +1,15 @@
 {
 	"functions": {
-		"source": "./",
+		"source": "packages/server",
 		"predeploy": "npm --prefix \"$RESOURCE_DIR\" run compile"
 	},
 	"hosting": {
-		"rewrites": [
-			{
-				"source": "/api/**",
-				"function": "app"
-			}
-		]
+		"public": "packages/web/public",
+		"cleanUrls": true,
+		"rewrites": [{
+			"source": "/api/**",
+			"function": "app"
+		}]
 	},
 	"emulators": {
 		"auth": {

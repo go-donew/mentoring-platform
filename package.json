@@ -16,14 +16,18 @@
   "scripts": {
     "clean": "pnpm --recursive --stream clean",
     "compile": "pnpm --recursive --stream compile",
-    "develop": "pnpm --recursive --stream develop",
     "lint": "pnpm --recursive --stream lint",
     "format": "pnpm --recursive --stream format",
+    "emulate": "firebase emulators:exec --project donew-mentoring-api-sandbox --ui",
     "test:api": "pnpm --filter ./packages/server test",
-    "test:app": "pnpm --filter ./packages/server sandbox \"pnpm --filter ../web test\"",
-    "test": "pnpm test:api && pnpm test:app",
-    "deploy:dev": "pnpm --recursive --stream deploy:dev",
-    "deploy:prd": "pnpm --recursive --stream deploy:prd",
-    "deploy": "pnpm --recursive --stream deploy"
+    "test:app": "pnpm --filter ./packages/web test",
+    "test": "pnpm emulate \"pnpm test:api && pnpm test:app\"",
+    "develop": "pnpm emulate \"pnpm --recursive --stream develop\"",
+    "deploy:sdbx": "firbase deploy --project donew-mentoring-api-sandbox",
+    "deploy:prod": "firbase deploy --project donew-mentoring-api",
+    "deploy": "pnpm deploy:sdbx && pnpm deploy:prod"
+  },
+  "devDependencies": {
+    "firebase-tools": "10.7.2"
   }
 }

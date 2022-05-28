@@ -23,9 +23,6 @@
 		"test": "run-s test:*",
 		"clean": "del public/**/* !public/index.html !public/404.html !public/assets/**/* !public/favicon.ico *.log",
 		"develop": "run-p 'build:* --watch' start",
-		"deploy:prd": "firebase deploy --only hosting --project donew-mentoring-api",
-		"deploy:dev": "firebase deploy --only hosting --project donew-mentoring-api-sandbox",
-		"deploy": "run-s deploy:*",
 		"prepare": "run-s compile"
 	},
 	"dependencies": {
