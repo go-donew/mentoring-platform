@@ -23,8 +23,8 @@
     "test:app": "pnpm --filter ./packages/web test",
     "test": "pnpm emulate \"pnpm test:api && pnpm test:app\"",
     "develop": "pnpm emulate \"pnpm --recursive --stream develop\"",
-    "deploy:sdbx": "firbase deploy --project donew-mentoring-api-sandbox",
-    "deploy:prod": "firbase deploy --project donew-mentoring-api",
+    "deploy:sdbx": "firebase deploy --project donew-mentoring-api-sandbox",
+    "deploy:prod": "firebase deploy --project donew-mentoring-api",
     "deploy": "pnpm deploy:sdbx && pnpm deploy:prod"
   },
   "devDependencies": {
