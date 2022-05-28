@@ -1,0 +1,31 @@
+{
+	"functions": {
+		"source": "./",
+		"predeploy": "npm --prefix \"$RESOURCE_DIR\" run compile"
+	},
+	"hosting": {
+		"rewrites": [
+			{
+				"source": "/api/**",
+				"function": "app"
+			}
+		]
+	},
+	"emulators": {
+		"auth": {
+			"port": 9099
+		},
+		"functions": {
+			"port": 5001
+		},
+		"firestore": {
+			"port": 8080
+		},
+		"hosting": {
+			"port": 5000
+		},
+		"ui": {
+			"enabled": true
+		}
+	}
+}

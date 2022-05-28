@@ -1,0 +1,6 @@
+{
+	"name": "Daily Updates",
+	"description": "Enables mentees to send daily updates to their mentors in a conversational format.",
+	"once": false,
+	"tags": ["update", "daily"]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@donew-innovations/mentoring-platform",
+  "version": "0.0.0",
+  "description": "The DoNew Mentoring Platform monorepo.",
+  "workspaces": [
+    "packages/config/eslint",
+    "packages/config/prettier",
+    "packages/config/tsconfig",
+    "packages/server",
+    "packages/web"
+  ],
+  "engines": {
+    "node": "16",
+    "pnpm": "7"
+  },
+  "scripts": {
+    "clean": "pnpm --recursive --stream clean",
+    "compile": "pnpm --recursive --stream compile",
+    "develop": "pnpm --recursive --stream develop",
+    "lint": "pnpm --recursive --stream lint",
+    "format": "pnpm --recursive --stream format",
+    "test:api": "pnpm --filter ./packages/server test",
+    "test:app": "pnpm --filter ./packages/server sandbox \"pnpm --filter ../web test\"",
+    "test": "pnpm test:api && pnpm test:app",
+    "deploy:dev": "pnpm --recursive --stream deploy:dev",
+    "deploy:prd": "pnpm --recursive --stream deploy:prd",
+    "deploy": "pnpm --recursive --stream deploy"
+  }
+}

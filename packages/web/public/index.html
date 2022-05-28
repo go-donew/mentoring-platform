@@ -1,0 +1,37 @@
+<!-- public/index.html -->
+<!-- The HTML page in which the Preact application is rendered. -->
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Page description -->
+		<title>DoNew Mentoring</title>
+		<meta name="description" content="The DoNew Mentoring Platform" />
+		<!-- Define the character set we use, as well as the default width. -->
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<!-- Tell the browser which icons to show. -->
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+
+		<!--
+			Preload all the fonts we are going to use. Check out config/tailwind.cjs
+			to know which fonts are used in what capacity.
+		-->
+		<link
+			href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"
+			rel="stylesheet"
+		/>
+
+		<!-- Import the CSS compiled for us by Tailwind. -->
+		<link href="/main.css" rel="stylesheet" />
+		<!-- Run our code. -->
+		<script type="module" src="/main.js"></script>
+	</head>
+	<!-- The Preact application will be injected at runtime into the `body` tag. -->
+	<body></body>
+</html>

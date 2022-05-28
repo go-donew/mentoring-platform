@@ -1,0 +1,12 @@
+{
+	"name": "The Bastards",
+	"participants": {
+		"{bofh}": "supermentor"
+	},
+	"conversations": {
+		"{quiz}": ["supermentor"]
+	},
+	"reports": {},
+	"code": "the-bosses",
+	"tags": ["boss"]
+}

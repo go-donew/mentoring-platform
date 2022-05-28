@@ -1,0 +1,13 @@
+diff --git a/node_modules/firebase-tools/lib/emulator/functionsEmulator.js b/node_modules/firebase-tools/lib/emulator/functionsEmulator.js
+index 2a7c1dd..f0ea50a 100644
+--- a/node_modules/firebase-tools/lib/emulator/functionsEmulator.js
++++ b/node_modules/firebase-tools/lib/emulator/functionsEmulator.js
+@@ -43,7 +43,7 @@ class FunctionsEmulator {
+         this.triggerGeneration = 0;
+         this.logger = emulatorLogger_1.EmulatorLogger.forEmulator(types_1.Emulators.FUNCTIONS);
+         this.multicastTriggers = {};
+-        emulatorLogger_1.EmulatorLogger.verbosity = this.args.quiet ? emulatorLogger_1.Verbosity.QUIET : emulatorLogger_1.Verbosity.DEBUG;
++        emulatorLogger_1.EmulatorLogger.verbosity = emulatorLogger_1.Verbosity.QUIET;
+         if (this.args.debugPort) {
+             this.args.disabledRuntimeFeatures = this.args.disabledRuntimeFeatures || {};
+             this.args.disabledRuntimeFeatures.timeout = true;

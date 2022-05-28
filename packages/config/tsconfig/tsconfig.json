@@ -1,0 +1,15 @@
+// tsconfig.json
+// The Typescript configuration for DoNew projects.
+
+{
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "esnext",
+		"noEmit": true,
+		"sourceMap": false,
+		"strict": true,
+		"strictNullChecks": true,
+		"esModuleInterop": true,
+		"moduleResolution": "node"
+	}
+}

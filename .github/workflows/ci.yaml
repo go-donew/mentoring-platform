@@ -1,0 +1,96 @@
+# .github/workflows/ci.yaml
+# The stuff to run on every push to the repository.
+
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Setup PNPM 7
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 7.0.1
+      - name: Setup Node 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: "https://registry.npmjs.org/"
+          cache: "pnpm"
+      - name: Check for lint/formatting errors
+        run: |
+          pnpm install
+          pnpm lint
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Setup PNPM 7
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 7.0.1
+      - name: Setup Node 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: "https://registry.npmjs.org/"
+          cache: "pnpm"
+      - name: Build the application
+        run: |
+          pnpm install
+          pnpm compile
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Setup PNPM 7
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 7.0.1
+      - name: Setup Node 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: "https://registry.npmjs.org/"
+          cache: "pnpm"
+      - name: Test the application
+        run: |
+          pnpm install
+          pnpm test
+  deploy:
+    name: Deploy
+    needs: [lint, build, test]
+    if: github.ref == 'refs/heads/trunk'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Setup PNPM 7
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 7.0.0
+      - name: Setup Node 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: "https://registry.npmjs.org/"
+          cache: "pnpm"
+      - name: Install dependencies
+        run: pnpm install
+      - name: Deploy to sandbox
+        run: pnpm deploy:dev
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      - name: Deploy to production
+        run: pnpm deploy:prd
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

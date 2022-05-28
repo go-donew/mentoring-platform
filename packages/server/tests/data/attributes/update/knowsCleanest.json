@@ -1,0 +1,6 @@
+{
+	"name": "Knows the Cleanest City of India",
+	"description": "Whether they know the cleanest city of India or not.",
+	"conversations": ["{quiz}"],
+	"tags": ["quiz", "india", "cleanest-city", "observed"]
+}

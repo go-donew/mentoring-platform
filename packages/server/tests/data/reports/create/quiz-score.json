@@ -1,0 +1,7 @@
+{
+	"name": "Quiz Score",
+	"description": "The report that shows your score on the quiz",
+	"tags": ["quiz"],
+	"template": "<h1>Your score is</h1> <h3><strong><%= context.input.{smartness}.value %></strong></h3>",
+	"input": [{ "id": "{smartness}", "optional": false }]
+}

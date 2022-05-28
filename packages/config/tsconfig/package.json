@@ -1,0 +1,10 @@
+{
+	"name": "@donew-innovations/tsconfig",
+	"version": "0.0.1",
+	"description": "The Typescript configuration for all DoNew projects.",
+	"private": true,
+	"main": "tsconfig.json",
+	"files": [
+		"tsconfig.json"
+	]
+}

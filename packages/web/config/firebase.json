@@ -1,0 +1,12 @@
+{
+	"hosting": {
+		"public": "public",
+		"cleanUrls": true,
+		"rewrites": [
+			{
+				"source": "/api/**",
+				"function": "app"
+			}
+		]
+	}
+}

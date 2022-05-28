@@ -1,0 +1,6 @@
+{
+	"name": "Knows the Capital of India",
+	"description": "Whether they know the capital of India or not.",
+	"conversations": ["{quiz}"],
+	"tags": ["quiz", "india", "capital", "observed"]
+}

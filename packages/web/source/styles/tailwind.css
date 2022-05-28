@@ -1,0 +1,8 @@
+/*
+  source/styles/tailwind.css
+  The Tailwind CSS include file.
+*/
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

@@ -1,0 +1,10 @@
+{
+	"extends": "@donew-innovations/tsconfig",
+	"include": ["../source/"],
+	"compilerOptions": {
+		"baseUrl": "..",
+		"paths": {
+			"@/*": ["source/*"]
+		}
+	}
+}

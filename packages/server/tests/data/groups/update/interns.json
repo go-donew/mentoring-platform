@@ -1,0 +1,14 @@
+{
+	"name": "The Interns",
+	"participants": {
+		"{bofh}": "supermentor",
+		"{pfy}": "mentee"
+	},
+	"conversations": {
+		"{quiz}": ["mentee", "supermentor"],
+		"{updates}": ["mentor"]
+	},
+	"reports": {},
+	"code": "the-interns",
+	"tags": ["intern"]
+}

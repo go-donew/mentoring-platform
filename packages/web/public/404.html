@@ -1,0 +1,28 @@
+<!-- public/404.html -->
+<!-- The HTML page that is shown when the user tries to retrieve a file that does not exist. -->
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Page description -->
+		<title>DoNew Mentoring · 404</title>
+		<meta name="description" content="The DoNew Mentoring Platform" />
+		<!-- Define the character set we use, as well as the default width. -->
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<!-- Tell the browser which icons to show. -->
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+
+		<!-- Run our code. -->
+		<script>
+			// Since we do not do static site generation, the actual page (e.g., `/signin.html`)
+			// will not exist. So whenever someone types in the URL instead of clicking a
+			// button that is wired to use preact-router's navigation method, we need to
+			// redirect the user to the right page using the `route` function. This
+			// redirection is done by the `App` component, so the 404 page simply needs
+			// to go to `/?redirect={route}`.
+			window.location.href = `/?redirect=${window.location.pathname}`
+		</script>
+	</head>
+</html>

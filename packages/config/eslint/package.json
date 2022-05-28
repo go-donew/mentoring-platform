@@ -1,0 +1,10 @@
+{
+	"name": "@donew-innovations/eslint-config",
+	"version": "0.0.1",
+	"description": "The ESLint configuration for all DoNew projects.",
+	"private": true,
+	"main": "config.js",
+	"files": [
+		"config.js"
+	]
+}

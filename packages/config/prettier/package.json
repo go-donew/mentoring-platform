@@ -1,0 +1,10 @@
+{
+	"name": "@donew-innovations/prettier-config",
+	"version": "0.0.1",
+	"description": "The Prettier configuration for all DoNew projects.",
+	"private": true,
+	"main": "config.js",
+	"files": [
+		"config.js"
+	]
+}

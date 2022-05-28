@@ -1,0 +1,36 @@
+{
+	"text": "What is the cleanest city in India?",
+	"options": [
+		{
+			"position": 1,
+			"type": "select",
+			"text": "Indore",
+			"attribute": {
+				"id": "{knowsCleanest}",
+				"value": 1
+			}
+		},
+		{
+			"position": 2,
+			"type": "select",
+			"text": "Bhopal",
+			"attribute": {
+				"id": "{knowsCleanest}",
+				"value": 0
+			}
+		},
+		{
+			"position": 3,
+			"type": "select",
+			"text": "Pune",
+			"attribute": {
+				"id": "{knowsCleanest}",
+				"value": 0
+			}
+		}
+	],
+	"first": false,
+	"last": true,
+	"randomizeOptionOrder": false,
+	"tags": ["quiz", "india"]
+}
