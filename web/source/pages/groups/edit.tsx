@@ -18,8 +18,6 @@ import { errors } from '@/utilities/text'
 
 import type { User, Group } from '@/api'
 
-const object = Object
-
 /**
  * The form's state.
  */
@@ -182,7 +180,7 @@ export const GroupEditPage = (props: { groupId: string }) => {
 		if (group.participants) delete group.participants['']
 		else group.participants = {}
 		// And set any blank roles to 'mentee'.
-		for (const userId of object.keys(group.participants)) {
+		for (const userId of Object.keys(group.participants)) {
 			// @ts-expect-error It might be blank sometimes, so handle this case.
 			if (group.participants[userId] === '')
 				group.participants[userId] = 'mentee'
@@ -298,9 +296,8 @@ export const GroupEditPage = (props: { groupId: string }) => {
 									</tr>
 								</thead>
 								<tbody>
-									{object
-										.entries(group?.participants ?? {})
-										.map(([id, role]) => {
+									{Object.entries(group?.participants ?? {}).map(
+										([id, role]) => {
 											return (
 												<tr>
 													<td class="pr-3">
@@ -369,7 +366,8 @@ export const GroupEditPage = (props: { groupId: string }) => {
 													</td>
 												</tr>
 											)
-										})}
+										},
+									)}
 								</tbody>
 							</table>
 						</div>

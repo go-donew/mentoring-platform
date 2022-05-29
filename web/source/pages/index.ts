@@ -16,4 +16,7 @@ export * from './conversations/list'
 export * from './conversations/create'
 export * from './conversations/edit'
 
+export * from './attributes/list'
+export * from './attributes/create'
+
 export * from './not-found'

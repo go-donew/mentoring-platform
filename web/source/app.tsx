@@ -5,20 +5,7 @@ import { Component } from 'preact'
 import { Router, route } from 'preact-router'
 
 import { Navbar } from './components'
-import {
-	HomePage,
-	SignInPage,
-	SignUpPage,
-	UserListPage,
-	ViewUserPage,
-	GroupListPage,
-	GroupEditPage,
-	GroupCreatePage,
-	ConversationListPage,
-	ConversationCreatePage,
-	ConversationEditPage,
-	NotFoundPage,
-} from './pages'
+import * as Pages from './pages'
 
 import { fetch, isErrorResponse } from './utilities/http'
 import { isAuthenticated } from './utilities/auth'
@@ -111,73 +98,85 @@ export class App extends Component {
 			{
 				path: '/',
 				name: 'Home',
-				component: HomePage,
+				component: Pages.HomePage,
 				nav: true,
 			},
 			{
 				path: '/signin',
 				name: 'Sign In',
-				component: SignInPage,
+				component: Pages.SignInPage,
 				nav: false,
 			},
 			{
 				path: '/signup',
 				name: 'Sign Up',
-				component: SignUpPage,
+				component: Pages.SignUpPage,
 				nav: false,
 			},
 			{
 				path: '/users',
 				name: 'Users',
-				component: UserListPage,
+				component: Pages.UserListPage,
 				nav: this.state.groot,
 			},
 			{
 				path: '/users/:userId',
 				name: 'View User',
-				component: ViewUserPage,
+				component: Pages.ViewUserPage,
 				nav: false,
 			},
 			{
 				path: '/groups',
 				name: 'Groups',
-				component: GroupListPage,
+				component: Pages.GroupListPage,
 				nav: true,
 			},
 			{
 				path: '/groups/create',
 				name: 'Create Group',
-				component: GroupCreatePage,
+				component: Pages.GroupCreatePage,
 				nav: false,
 			},
 			{
 				path: '/groups/:groupId/edit',
 				name: 'Edit Group',
-				component: GroupEditPage,
+				component: Pages.GroupEditPage,
 				nav: false,
 			},
 			{
 				path: '/conversations',
 				name: 'Conversations',
-				component: ConversationListPage,
+				component: Pages.ConversationListPage,
 				nav: this.state.groot,
 			},
 			{
 				path: '/conversations/create',
 				name: 'Create Conversation',
-				component: ConversationCreatePage,
+				component: Pages.ConversationCreatePage,
 				nav: false,
 			},
 			{
 				path: '/conversations/:conversationId/edit',
 				name: 'Edit Conversation',
-				component: ConversationEditPage,
+				component: Pages.ConversationEditPage,
+				nav: false,
+			},
+			{
+				path: '/attributes',
+				name: 'Attributes',
+				component: Pages.AttributeListPage,
+				nav: this.state.groot,
+			},
+			{
+				path: '/attributes/create',
+				name: 'Create Attribute',
+				component: Pages.AttributeCreatePage,
 				nav: false,
 			},
 			{
 				path: '/404',
 				name: 'Not Found',
-				component: NotFoundPage,
+				component: Pages.NotFoundPage,
 				nav: false,
 			},
 		]
@@ -188,10 +187,18 @@ export class App extends Component {
 				<Router onChange={this.handleRoute}>
 					{routes.map((route) => {
 						const Component = route.component
+						const props = { path: route.path, groot: this.state.groot }
 
-						// @ts-expect-error The props are injected by the router along with
-						// the below two props.
-						return <Component path={route.path} groot={this.state.groot} />
+						// The route params are injected by the router along with the above
+						// common props.
+						return route.path === '/404' ? (
+							// @ts-expect-error The injection happens at runtime, so we
+							// suppress the compile time errors.
+							<Component {...props} default />
+						) : (
+							// @ts-expect-error Same ;]
+							<Component {...props} />
+						)
 					})}
 				</Router>
 			</div>

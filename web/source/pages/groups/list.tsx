@@ -15,8 +15,6 @@ import { fetch, isErrorResponse } from '@/utilities/http'
 
 import type { User, Group } from '@/api'
 
-const object = Object
-
 /**
  * A item that shows a group in the list.
  *
@@ -81,7 +79,7 @@ const GroupItem = (props: { group: Group; allowEdit: boolean }) => {
 				))}
 			</td>
 			<td class="p-2">
-				{object.entries(group.participants).map(([participant, role]) => {
+				{Object.entries(group.participants).map(([participant, role]) => {
 					// The participants string is packed with user info in the following
 					// format: `<name> (<email>) {<id>}`
 					const userIdMatches = /{(.*?)}/.exec(participant)
