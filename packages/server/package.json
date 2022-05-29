@@ -26,7 +26,7 @@
 		"develop": "run-p watch",
 		"compile": "run-s clean build",
 		"test": "run-s compile lint test:*",
-		"prepare": "bash -c \"[[ -z \\\"$FIREBASE_DEPLOY\\\" ]] && pnpm run-s compile\""
+		"prepare": "bash -c \"[[ -z \\\"$FIREBASE_DEPLOY\\\" ]] && pnpm run-s compile || true\""
 	},
 	"dependencies": {
 		"@google-cloud/functions-framework": "3.0.0",
