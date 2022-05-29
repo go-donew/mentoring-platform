@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "description": "The DoNew Mentoring Platform monorepo.",
   "workspaces": [
-    "packages/config/eslint",
-    "packages/config/prettier",
-    "packages/config/tsconfig",
-    "packages/server",
-    "packages/web"
+    "config/eslint/",
+    "config/prettier/",
+    "config/tsconfig/",
+    "server/",
+    "web/"
   ],
   "engines": {
     "node": "16",
@@ -19,8 +19,8 @@
     "lint": "pnpm --recursive --stream lint",
     "format": "pnpm --recursive --stream format",
     "emulate": "firebase emulators:exec --project donew-mentoring-api-sandbox --ui",
-    "test:api": "pnpm --filter ./packages/server test",
-    "test:app": "pnpm --filter ./packages/web test",
+    "test:api": "pnpm --filter ./server test",
+    "test:app": "pnpm --filter ./web test",
     "test": "pnpm emulate \"pnpm test:api && pnpm test:app\"",
     "develop": "pnpm emulate \"pnpm --recursive --stream develop\"",
     "deploy:sdbx": "firebase deploy --project donew-mentoring-api-sandbox",
