@@ -346,7 +346,7 @@ const answer = async (
 				timestamp: new Date(),
 				message: {
 					in: 'question',
-					id: request.params.questionId,
+					id: request.params.conversationId,
 				},
 			})
 			// Save the attribute
@@ -359,11 +359,11 @@ const answer = async (
 				[
 					{
 						value: answer,
-						observer: request.user!.id,
+						observer: 'questioner',
 						timestamp: new Date(),
 						message: {
 							in: 'question',
-							id: request.params.questionId,
+							id: request.params.conversationId,
 						},
 					},
 				],
