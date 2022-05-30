@@ -7,6 +7,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+	This CSS removes all Tailwind styling when we set the HTML manually.
+*/
 .unreset html {
 	box-sizing: content-box;
 }

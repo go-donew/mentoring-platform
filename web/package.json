@@ -11,7 +11,7 @@
 	"scripts": {
 		"start": "serve public/",
 		"build:app": "tsup",
-		"build:css": "tailwindcss -i source/styles/tailwind.scss -o public/main.css -c config/tailwind.cjs",
+		"build:css": "tailwindcss -i source/styles/tailwind.css -o public/main.css -c config/tailwind.cjs",
 		"compile": "run-s build:*",
 		"lint:code": "xo",
 		"lint:rest": "prettier --check --ignore-path .gitignore .",

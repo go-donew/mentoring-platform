@@ -27,7 +27,11 @@ import type { Option, Question, Conversation } from '@/api'
  * @returns {string} - The HTML.
  */
 const renderMarkdown = (text: string): string => {
-	return sanitize(marked.parse(text))
+	const html = sanitize(marked.parse(text))
+		.replace('<p>', '<span>')
+		.replace('</p>', '</span>')
+
+	return html
 }
 
 /**
@@ -50,17 +54,11 @@ const OptionItem = (props: {
 			{option.type === 'select' && (
 				<RadioButton
 					id={`option-${option.position}`}
+					text={renderMarkdown(option.text)}
 					selected={props.selected}
 					action={() => props.update(option)}
 					class="leading-none text-md text-gray-800 dark:text-gray-300 font-bold"
-				>
-					<div
-						class="text-md text-gray-900 dark:text-white unreset"
-						dangerouslySetInnerHTML={{
-							__html: renderMarkdown(option.text),
-						}}
-					/>
-				</RadioButton>
+				/>
 			)}
 			{option.type === 'input' && (
 				<>
@@ -203,6 +201,7 @@ export const TakeConversationPage = (props: { conversationId: string }) => {
 					{typeof currentQuestion !== 'undefined' && (
 						<>
 							<div class="grid grid-cols-6 gap-1">
+								<hr class="col-span-6 mb-3 dark:border-gray-700" />
 								<div class="col-span-6 pb-4 pt-2">
 									<div
 										class="text-md text-gray-900 dark:text-white unreset"
