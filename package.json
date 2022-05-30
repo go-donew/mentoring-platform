@@ -23,8 +23,8 @@
     "test:app": "pnpm --filter ./web test",
     "test": "pnpm emulate \"pnpm test:api && pnpm test:app\"",
     "develop": "pnpm emulate \"pnpm --recursive --stream develop\"",
-    "deploy:sdbx": "firebase deploy --project donew-mentoring-api-sandbox --message $(git log --oneline -n 1 --format='%s [%h] (%aN <%aE>)')",
-    "deploy:prod": "firebase deploy --project donew-mentoring-api --message $(git log --oneline -n 1 --format='%s [%h] (%aN <%aE>)')",
+    "deploy:sdbx": "firebase deploy --project donew-mentoring-api-sandbox --message \"$(git log --oneline -n 1 --format='%s [%h] (%aN <%aE>)')\"",
+    "deploy:prod": "firebase deploy --project donew-mentoring-api --message \"$(git log --oneline -n 1 --format='%s [%h] (%aN <%aE>)')\"",
     "deploy": "pnpm deploy:sdbx && pnpm deploy:prod"
   },
   "devDependencies": {
