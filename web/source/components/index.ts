@@ -3,8 +3,9 @@
 
 export * from './icon'
 export * from './label'
-export * from './button'
 export * from './chip'
+export * from './button'
+export * from './radio-button'
 export * from './icon-button'
 export * from './text-input'
 export * from './select-input'

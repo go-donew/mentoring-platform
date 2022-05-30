@@ -15,6 +15,7 @@ export * from './groups/edit'
 export * from './conversations/list'
 export * from './conversations/create'
 export * from './conversations/edit'
+export * from './conversations/take'
 
 export * from './attributes/list'
 export * from './attributes/create'

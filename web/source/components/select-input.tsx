@@ -35,6 +35,7 @@ export const SelectInput = (props: {
 		<>
 			<select
 				id={props.id}
+				name={props.id}
 				value={props.selected}
 				class="rounded-lg relative block w-full my-2 px-3 py-2 border border-gray-300 dark:border-background-dark bg-surface dark:bg-surface-dark text-on-surface dark:text-on-surface-dark focus:outline-none focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark focus:z-10 sm:text-sm font-mono"
 				onClick={(event: any) => {

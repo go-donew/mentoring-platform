@@ -13,7 +13,13 @@ import {
 import { fetch, isErrorResponse } from '@/utilities/http'
 import { errors } from '@/utilities/text'
 
-import type { User, Attribute, UserAttribute, AttributeSnapshot } from '@/api'
+import type {
+	User,
+	Attribute,
+	UserAttribute,
+	AttributeSnapshot,
+	Conversation,
+} from '@/api'
 
 /**
  * Show the message due to which the value was set, and the time at which it
@@ -25,14 +31,18 @@ import type { User, Attribute, UserAttribute, AttributeSnapshot } from '@/api'
  */
 const AttributeSnapshotMetadata = (props: { snapshot: AttributeSnapshot }) => {
 	const time = new Date(props.snapshot.timestamp).toLocaleString('IN')
-	const [message] = useState<string | undefined>(props.snapshot.message?.id)
-	const [observer, setObserver] = useState<string | 'bot'>(
+	const [message, setMessage] = useState<string | undefined>(
+		props.snapshot.message?.id,
+	)
+	const [observer, setObserver] = useState<string | undefined>(
 		props.snapshot.observer,
 	)
 
 	useEffect(() => {
-		const fetchUser = async (userId: string): Promise<{ name: string }> => {
-			if (userId === 'bot') return { name: 'Bot' }
+		const fetchUser = async (
+			userId: string,
+		): Promise<{ name: string } | undefined> => {
+			if (userId === 'questioner') return undefined
 
 			const response = await fetch<{ user: User }>({
 				url: `/users/${userId}`,
@@ -45,15 +55,34 @@ const AttributeSnapshotMetadata = (props: { snapshot: AttributeSnapshot }) => {
 			return response.user
 		}
 
-		fetchUser(observer)
-			.then((user) => setObserver(user.name))
+		const fetchConversation = async (
+			conversationId: string,
+		): Promise<{ name: string } | undefined> => {
+			const response = await fetch<{ conversation: Conversation }>({
+				url: `/conversations/${conversationId}`,
+				method: 'get',
+			})
+
+			// Handle any errors that might arise...
+			if (isErrorResponse(response)) throw new Error(response.error.message)
+			// ...and if there are none, return the data.
+			return response.conversation
+		}
+
+		fetchUser(observer!)
+			.then((user) => setObserver(user?.name))
 			.catch((_error) => {})
+
+		if (props.snapshot.message?.in === 'question')
+			fetchConversation(message!)
+				.then((conversation) => setMessage(conversation?.name))
+				.catch((_error) => {})
 	}, [])
 
 	return (
 		<label class="block text-xs text-right font-medium text-gray-700 dark:text-gray-500">
 			<span>
-				{observer} {message} @ {time}
+				{observer ?? message} @ {time}
 			</span>
 		</label>
 	)
@@ -67,8 +96,7 @@ const AttributeSnapshotMetadata = (props: { snapshot: AttributeSnapshot }) => {
  *
  * @component
  */
-// eslint-disable-next-line @typescript-eslint/no-redeclare,no-import-assign
-const AttributeSnapshot = (props: {
+const AttributeSnapshotItem = (props: {
 	attribute: UserAttribute
 	snapshot: AttributeSnapshot
 }) => {
@@ -225,8 +253,8 @@ export const ViewUserPage = (props: { userId: string }) => {
 		return (
 			<div class="col-span-6 sm:col-span-3 pb-3 border-b border-gray-600">
 				<div>
-					<label class="grid grid-cols-4 text-sm font-medium text-on-surface dark:text-on-surface-dark">
-						<span class="pt-1 col-span-1 text-left">{attribute.name}</span>
+					<label class="grid grid-cols-5 text-sm font-medium text-on-surface dark:text-on-surface-dark">
+						<span class="pt-1 col-span-2 text-left">{attribute.name}</span>
 						<div class="block col-span-2"></div>
 						<div class="col-span-1 text-right">
 							<IconButton
@@ -265,7 +293,10 @@ export const ViewUserPage = (props: { userId: string }) => {
 						{[...attribute.history].reverse().map((snap, index) => {
 							if (index !== 0)
 								return (
-									<AttributeSnapshot attribute={attribute} snapshot={snap} />
+									<AttributeSnapshotItem
+										attribute={attribute}
+										snapshot={snap}
+									/>
 								)
 							return <></>
 						})}

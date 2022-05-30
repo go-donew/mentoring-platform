@@ -162,6 +162,12 @@ export class App extends Component {
 				nav: false,
 			},
 			{
+				path: '/conversations/:conversationId',
+				name: 'Take Conversation',
+				component: Pages.TakeConversationPage,
+				nav: false,
+			},
+			{
 				path: '/attributes',
 				name: 'Attributes',
 				component: Pages.AttributeListPage,

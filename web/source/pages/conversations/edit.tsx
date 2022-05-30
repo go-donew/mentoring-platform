@@ -189,7 +189,10 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 			// Remove unnecessary fields like `next` and `attribute` from options if
 			// either of the values in them have been left blank.
 			for (const option of question.options) {
-				if (option.attribute?.id === '' || option.attribute?.value === '')
+				if (
+					(option.attribute?.id === '' || option.attribute?.value === '') &&
+					option.type === 'select'
+				)
 					delete option.attribute
 				if (option.next?.conversation === '' || option.next?.question === '')
 					delete option.next
@@ -315,7 +318,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					/>
 				</div>
 				<div class="col-span-4 mt-1">
-					<Label text="Text" required={true} />
+					<Label for="text-input" text="Text" required={true} />
 					<ExpandableTextInput
 						id="text-input"
 						type="text"
@@ -330,7 +333,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					/>
 				</div>
 				<div class="col-span-4 sm:col-span-2">
-					<Label text="Type" required={true} />
+					<Label for="type-input" text="Type" required={true} />
 					<SelectInput
 						id="type-input"
 						options={[
@@ -363,7 +366,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					/>
 				</div>
 				<div class="col-span-4 sm:col-span-2">
-					<Label text="Attribute" required={false} />
+					<Label for="attribute-id-input" text="Attribute" required={false} />
 					<SelectInput
 						id="attribute-id-input"
 						options={[
@@ -401,7 +404,11 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					/>
 				</div>
 				<div class="col-span-4 sm:col-span-2">
-					<Label text="Next Conversation" required={false} />
+					<Label
+						for="next-conversation-input"
+						text="Next Conversation"
+						required={false}
+					/>
 					<SelectInput
 						id="next-conversation-input"
 						options={[
@@ -426,7 +433,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					/>
 				</div>
 				<div class="col-span-4 sm:col-span-2">
-					<Label text="Next Question" required={false} />
+					<Label for="question-input" text="Next Question" required={false} />
 					<SelectInput
 						id="next-question-input"
 						options={[
@@ -509,7 +516,11 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					/>
 				</div>
 				<div class="col-span-6 sm:col-span-2">
-					<Label text="Randomize Options" required={true} />
+					<Label
+						for="randomize-input"
+						text="Randomize Options"
+						required={true}
+					/>
 					<SelectInput
 						id="randomize-input"
 						options={['true', 'false']}
@@ -523,7 +534,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					/>
 				</div>
 				<div class="col-span-6 sm:col-span-2">
-					<Label text="First Question" required={true} />
+					<Label for="first-input" text="First Question" required={true} />
 					<SelectInput
 						id="first-input"
 						options={['true', 'false']}
@@ -537,7 +548,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					/>
 				</div>
 				<div class="col-span-6 sm:col-span-2">
-					<Label text="Last Question" required={true} />
+					<Label for="last-input" text="Last Question" required={true} />
 					<SelectInput
 						id="last-input"
 						options={['true', 'false']}
@@ -631,7 +642,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 								/>
 							</div>
 							<div class="col-span-6 sm:col-span-3">
-								<Label text="Once" required={true} />
+								<Label for="once-input" text="Once" required={true} />
 								<SelectInput
 									id="once-input"
 									options={['true', 'false']}

@@ -129,7 +129,7 @@ export const ConversationCreatePage = () => {
 								/>
 							</div>
 							<div class="col-span-6 sm:col-span-3">
-								<Label text="Once" required={true} />
+								<Label for="once-input" text="Once" required={true} />
 								<SelectInput
 									id="once-input"
 									options={['true', 'false']}

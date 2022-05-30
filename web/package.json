@@ -26,7 +26,9 @@
 		"prepare": "run-s compile"
 	},
 	"dependencies": {
+		"dompurify": "2.3.8",
 		"ky": "0.30.0",
+		"marked": "4.0.16",
 		"preact": "10.7.2",
 		"preact-router": "4.0.1"
 	},
@@ -61,7 +63,9 @@
 		"jsxFactory": "h",
 		"jsxFragment": "Fragment",
 		"noExternal": [
+			"dompurify",
 			"ky",
+			"marked",
 			"preact",
 			"preact-router"
 		]

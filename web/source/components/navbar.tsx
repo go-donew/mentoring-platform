@@ -70,7 +70,7 @@ export const Navbar = (props: { routes: Route[]; currentUrl: string }) => {
 						data-ref="normal-menu"
 					>
 						<span class="flex-shrink-0 flex items-center text-on-surface font-bold">
-							<img class="h-6 h-8" src="/assets/icon.png" />
+							<img alt="DoNew Logo" src="/assets/icon.png" class="h-6 h-8" />
 						</span>
 						<div class="hidden sm:block sm:ml-6">
 							<div class="flex space-x-4">{pages}</div>
