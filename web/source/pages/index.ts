@@ -18,5 +18,6 @@ export * from './conversations/edit'
 
 export * from './attributes/list'
 export * from './attributes/create'
+export * from './attributes/edit'
 
 export * from './not-found'

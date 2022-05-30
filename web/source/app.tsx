@@ -174,6 +174,12 @@ export class App extends Component {
 				nav: false,
 			},
 			{
+				path: '/attributes/:attributeId/edit',
+				name: 'Edit Attribute',
+				component: Pages.AttributeEditPage,
+				nav: false,
+			},
+			{
 				path: '/404',
 				name: 'Not Found',
 				component: Pages.NotFoundPage,

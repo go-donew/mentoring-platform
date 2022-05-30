@@ -75,7 +75,9 @@ const AttributeItem = (props: { attribute: Attribute; allowEdit: boolean }) => {
 				<span class="text-gray-800 dark:text-gray-300">{attribute.name}</span>
 			</td>
 			<td class="p-2">
-				<span class="text-gray-600 dark:text-gray-400">{attribute.code}</span>
+				<span class="text-gray-600 dark:text-gray-400">
+					{attribute.description}
+				</span>
 			</td>
 			<td class="p-2">
 				{attribute.tags.map((tag) => (
@@ -83,7 +85,7 @@ const AttributeItem = (props: { attribute: Attribute; allowEdit: boolean }) => {
 				))}
 			</td>
 			<td class="p-2">
-				{Object.entries(attribute.conversations).map(([conversation, role]) => {
+				{attribute.conversations.map((conversation) => {
 					// The conversations string is packed with conversation info in the following
 					// format: `<name> {<id>}`
 					const conversationIdMatches = /{(.*?)}/.exec(conversation)
@@ -97,7 +99,7 @@ const AttributeItem = (props: { attribute: Attribute; allowEdit: boolean }) => {
 
 					return (
 						<>
-							<a href={`/conversations/${conversationId}`}>
+							<a href={`/conversations/${conversationId}/edit`}>
 								<span class="text-gray-900 dark:text-white">
 									{conversationName}
 								</span>
@@ -182,7 +184,7 @@ export const AttributeListPage = (props: { groot: boolean }) => {
 						<thead class="text-xs text-gray-700 uppercase dark:text-gray-400 text-left">
 							<tr>
 								<th class="p-2">Name</th>
-								<th class="p-2">Code</th>
+								<th class="p-2">Description</th>
 								<th class="p-2">Tags</th>
 								<th class="p-2">Conversations</th>
 								<th class="p-2 text-right">Actions</th>

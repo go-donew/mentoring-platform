@@ -1,5 +1,5 @@
-// source/pages/attributes/create.tsx
-// Defines and exports the attribute create page.
+// source/pages/attributes/edit.tsx
+// Defines and exports the attribute edit page.
 
 import { useState, useEffect, useReducer } from 'preact/hooks'
 import { route } from 'preact-router'
@@ -9,42 +9,51 @@ import {
 	TextInput,
 	SelectInput,
 	Toast,
+	LoadingIndicator,
 	PageWrapper,
 	IconButton,
 } from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
+import { errors } from '@/utilities/text'
 
 import type { Conversation, Attribute } from '@/api'
 
 /**
  * The form's state.
  */
-type AttributeFormState = Partial<Omit<Attribute, 'id'>>
+type AttributeFormState = Partial<Attribute>
 /**
  * The action that is dispatched to the reducer to update the form's state.
  */
-type AttributeCreateFormAction = {
-	type: 'update-field'
-	field: keyof Attribute
-	payload?: any
-}
+type AttributeEditFormAction =
+	| {
+			type: 'update-field'
+			field: keyof Attribute
+			payload?: any
+	  }
+	| {
+			type: 'set-attribute'
+			payload: Attribute
+	  }
 
 /**
- * The attribute create page.
+ * The attribute edit page.
+ *
+ * @prop {string} attributeId - The ID of the attribute to edit.
  *
  * @page
  */
-export const AttributeCreatePage = () => {
+export const AttributeEditPage = (props: { attributeId: string }) => {
 	/**
 	 * The reducer to update the form. The reducer will be called with
 	 * the current values of the form, and the action that was dispatched.
 	 *
 	 * @param {AttributeFormState} state - The current state of the form.
-	 * @param {AttributeCreateFormAction} action - The action to perform.
+	 * @param {AttributeEditFormAction} action - The action to perform.
 	 */
 	const reducer = (
 		state: AttributeFormState,
-		action: AttributeCreateFormAction,
+		action: AttributeEditFormAction,
 	): AttributeFormState => {
 		// Parse the action, and do something with it.
 		switch (action.type) {
@@ -56,6 +65,8 @@ export const AttributeCreatePage = () => {
 					...state,
 					[action.field]: action.payload,
 				}
+			case 'set-attribute':
+				return action.payload
 			default:
 				return state
 		}
@@ -66,7 +77,7 @@ export const AttributeCreatePage = () => {
 	// Create the reducer.
 	const [attribute, dispatch] = useReducer<
 		AttributeFormState,
-		AttributeCreateFormAction
+		AttributeEditFormAction
 	>(reducer, {})
 
 	// Define a state for error messages and the list of conversations.
@@ -74,11 +85,23 @@ export const AttributeCreatePage = () => {
 		undefined,
 	)
 	// This list of conversations is used to fill the dropdown, so Groot can choose which
-	// conversations to add to the attribute.
+	// conversations to associate with the attribute.
 	const [conversations, setConversations] = useState<Conversation[]>([])
 
-	// Fetch the conversations using the API.
+	// Fetch the attribute and the conversations using the API.
 	useEffect(() => {
+		const fetchAttribute = async (): Promise<Attribute> => {
+			const response = await fetch<{ attribute: Attribute }>({
+				url: `/attributes/${props.attributeId}`,
+				method: 'get',
+			})
+
+			// Handle any errors that might arise...
+			if (isErrorResponse(response)) throw new Error(response.error.message)
+			// ...and if there are none, return the data.
+			return response.attribute
+		}
+
 		const fetchConversations = async (): Promise<Conversation[]> => {
 			const response = await fetch<{ conversations: Conversation[] }>({
 				url: '/conversations',
@@ -91,15 +114,24 @@ export const AttributeCreatePage = () => {
 			return response.conversations
 		}
 
+		fetchAttribute()
+			.then((attribute) =>
+				dispatch({
+					type: 'set-attribute',
+					payload: attribute,
+				}),
+			)
+			.catch((error) => setErrorMessage(error.message))
+
 		fetchConversations()
 			.then(setConversations)
 			.catch((error) => setErrorMessage(error.message))
 	}, [])
 
 	/**
-	 * Create the attribute using the API.
+	 * Update the attribute using the API.
 	 */
-	const createAttribute = async () => {
+	const saveAttribute = async (): Promise<void> => {
 		// Reset the error
 		setErrorMessage(undefined)
 		// Delete any blank conversation IDs from the attribute.
@@ -107,16 +139,27 @@ export const AttributeCreatePage = () => {
 			? attribute.conversations.filter((conv) => Boolean(conv))
 			: []
 
-		// Make the API call to create the attribute.
+		// Make the API call to update the attribute.
 		const response = await fetch<{ attribute: Attribute }>({
-			url: '/attributes',
-			method: 'post',
+			url: `/attributes/${attribute.id}`,
+			method: 'put',
 			json: attribute,
 		})
 
 		// Handle any errors that might arise.
-		if (isErrorResponse(response))
-			return setErrorMessage(response.error.message)
+		if (isErrorResponse(response)) {
+			const { error } = response
+
+			switch (error.code) {
+				case 'entity-not-found':
+					setErrorMessage(errors.get('attribute-does-not-exist'))
+					break
+				default:
+					setErrorMessage(error.message)
+			}
+
+			return
+		}
 
 		// Then route the conversation to the attribute list page.
 		route('/attributes')
@@ -127,10 +170,15 @@ export const AttributeCreatePage = () => {
 			<div class="mx-auto p-8 max-w-4xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
 				<div class="flex justify-between items-center mb-4">
 					<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
-						Create Attribute
+						Edit Attribute
 					</h5>
 				</div>
-				<div>
+				<LoadingIndicator
+					isLoading={
+						typeof attribute === 'undefined' && currentError === undefined
+					}
+				/>
+				<div class={typeof attribute === 'undefined' ? 'hidden' : ''}>
 					<div class="overflow-x-auto sm:rounded-lg">
 						<div class="grid grid-cols-6 gap-6">
 							<div class="col-span-6 sm:col-span-3">
@@ -151,22 +199,6 @@ export const AttributeCreatePage = () => {
 							</div>
 							<div class="col-span-6 sm:col-span-3">
 								<TextInput
-									id="description-input"
-									label="Description"
-									type="description"
-									value={attribute?.description}
-									required={true}
-									update={(value: string) =>
-										dispatch({
-											type: 'update-field',
-											field: 'description',
-											payload: value,
-										})
-									}
-								/>
-							</div>
-							<div class="col-span-6">
-								<TextInput
 									id="tags-input"
 									label="Tags"
 									type="tags"
@@ -180,6 +212,22 @@ export const AttributeCreatePage = () => {
 												.split(', ')
 												.map((tag) => tag.trim())
 												.filter((tag) => Boolean(tag)),
+										})
+									}
+								/>
+							</div>
+							<div class="col-span-6">
+								<TextInput
+									id="description-input"
+									label="Description"
+									type="description"
+									value={attribute?.description}
+									required={true}
+									update={(value: string) =>
+										dispatch({
+											type: 'update-field',
+											field: 'description',
+											payload: value,
 										})
 									}
 								/>
@@ -276,8 +324,8 @@ export const AttributeCreatePage = () => {
 						/>
 						<Button
 							id="save-button"
-							text="Create"
-							action={async () => createAttribute()}
+							text="Save"
+							action={async () => saveAttribute()}
 							type="filled"
 							class="col-span-2 md:col-span-1"
 						/>
