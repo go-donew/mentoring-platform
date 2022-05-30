@@ -43,10 +43,11 @@ export const RadioButton = (props: {
 		}}
 	>
 		<Radio id={props.id} selected={props.selected} />
-		<label class={`ml-2 text-md font-normal ${props.class}`}
-				dangerouslySetInnerHTML={{
-					__html: props.text,
-				}}
-			/>
+		<label
+			class={`ml-2 text-md font-normal ${props.class}`}
+			dangerouslySetInnerHTML={{
+				__html: props.text,
+			}}
+		/>
 	</div>
 )
