@@ -103,7 +103,7 @@ export const ConversationCreatePage = () => {
 
 	return (
 		<PageWrapper>
-			<div class="mx-auto p-8 max-w-4xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
+			<div class="mx-auto p-8 max-w-7xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
 				<div class="flex justify-between items-center mb-4">
 					<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
 						Create Conversation
@@ -116,7 +116,7 @@ export const ConversationCreatePage = () => {
 								<TextInput
 									id="name-input"
 									label="Name"
-									type="name"
+									type="conversation-name"
 									value={conversation?.name}
 									required={true}
 									update={(value: string) =>
@@ -132,7 +132,10 @@ export const ConversationCreatePage = () => {
 								<Label for="once-input" text="Once" required={true} />
 								<SelectInput
 									id="once-input"
-									options={['true', 'false']}
+									options={[
+										{ text: 'No', value: 'false' },
+										{ text: 'Yes', value: 'true' },
+									]}
 									selected={conversation?.once ? 'true' : 'false'}
 									update={(value: string) => {
 										dispatch({
@@ -147,7 +150,7 @@ export const ConversationCreatePage = () => {
 								<TextInput
 									id="description-input"
 									label="Description"
-									type="description"
+									type="conversation-description"
 									value={conversation?.description}
 									required={true}
 									update={(value: string) =>
@@ -163,7 +166,7 @@ export const ConversationCreatePage = () => {
 								<TextInput
 									id="tags-input"
 									label="Tags"
-									type="tags"
+									type="conversation-tags"
 									value={conversation?.tags?.join(', ')}
 									required={true}
 									update={(value: string) =>

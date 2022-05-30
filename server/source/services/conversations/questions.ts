@@ -328,49 +328,51 @@ const answer = async (
 				'Could not find that option in the question.',
 			)
 
-		// If it does, get the value to set as the attribute
-		const answer =
-			selectedOption.type === 'input' // If the option was of type `input`, then set whatever the user has written
-				? request.body.input ?? selectedOption.attribute.value // Fall back to the default if the user hasn't provided any input
-				: selectedOption.attribute.value // Else set the value as given
+		// If it does and has an attribute to set, get the value to set as the attribute
+		if (selectedOption.attribute) {
+			const answer =
+				selectedOption.type === 'input' // If the option was of type `input`, then set whatever the user has written
+					? request.body.input ?? selectedOption.attribute.value // Fall back to the default if the user hasn't provided any input
+					: selectedOption.attribute.value // Else set the value as given
 
-		attributes.userId = request.user!.id
-		try {
-			// Retrieve the attribute, check if it exists
-			const attribute = await attributes.get(selectedOption.attribute.id)
-			// If it does, update the value
-			attribute.value = answer
-			attribute.history.push({
-				value: answer,
-				observer: 'questioner',
-				timestamp: new Date(),
-				message: {
-					in: 'question',
-					id: request.params.conversationId,
-				},
-			})
-			// Save the attribute
-			await attributes.update(attribute)
-		} catch {
-			// If the attribute does not exist, create it.
-			const attribute = new UserAttribute(
-				selectedOption.attribute.id,
-				answer,
-				[
-					{
-						value: answer,
-						observer: 'questioner',
-						timestamp: new Date(),
-						message: {
-							in: 'question',
-							id: request.params.conversationId,
-						},
+			attributes.userId = request.user!.id
+			try {
+				// Retrieve the attribute, check if it exists
+				const attribute = await attributes.get(selectedOption.attribute.id)
+				// If it does, update the value
+				attribute.value = answer
+				attribute.history.push({
+					value: answer,
+					observer: 'questioner',
+					timestamp: new Date(),
+					message: {
+						in: 'question',
+						id: request.params.conversationId,
 					},
-				],
-				request.user!.id,
-			)
-			// Save the attribute
-			await attributes.create(attribute)
+				})
+				// Save the attribute
+				await attributes.update(attribute)
+			} catch {
+				// If the attribute does not exist, create it.
+				const attribute = new UserAttribute(
+					selectedOption.attribute.id,
+					answer,
+					[
+						{
+							value: answer,
+							observer: 'questioner',
+							timestamp: new Date(),
+							message: {
+								in: 'question',
+								id: request.params.conversationId,
+							},
+						},
+					],
+					request.user!.id,
+				)
+				// Save the attribute
+				await attributes.create(attribute)
+			}
 		}
 
 		// If there is a next question specified, return that to the user
@@ -391,6 +393,8 @@ const answer = async (
 			data,
 		}
 	} catch (error: unknown) {
+		console.trace(error)
+
 		return {
 			error:
 				error instanceof ServerError ? error : new ServerError('server-crash'),

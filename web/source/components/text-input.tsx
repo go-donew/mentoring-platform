@@ -65,6 +65,7 @@ export const TextInput = (props: {
  * @prop {string?} value - The text to display in the element.
  * @prop {boolean?} required - Whether the field is required or not.
  * @prop {boolean?} disabled - Whether the field can be edited by the user or not.
+ * @prop {number?} rows - The height of the field.
  * @prop {Function?} update - The function to call when the text in the element changes.
  * @prop {Function?} focus - The function to call when the user focuses the element.
  *
@@ -77,6 +78,7 @@ export const ExpandableTextInput = (props: {
 	value?: string
 	required?: boolean
 	disabled?: boolean
+	rows?: number
 	update?: (value: string) => void
 	focus?: () => void
 }) => (
@@ -87,10 +89,14 @@ export const ExpandableTextInput = (props: {
 		placeholder={props.placeholder}
 		value={props.value}
 		disabled={props.disabled ?? false}
-		rows={1}
+		rows={props.rows ?? 1}
 		class="appearance-none rounded-lg relative block w-full my-2 px-3 py-2 border border-gray-300 dark:border-background-dark bg-surface dark:bg-surface-dark text-on-surface dark:text-on-surface-dark focus:outline-none focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark focus:z-10 sm:text-sm font-mono"
 		style={{
-			resize: (props.value?.length ?? 0) > 40 ? 'vertical' : 'none',
+			resize:
+				(props.value?.length ?? 0) > 40 ||
+				props.value?.toString().includes('\n')
+					? 'vertical'
+					: 'none',
 		}}
 		onChange={(event: any) => {
 			if (typeof props.update === 'function') props.update(event.target.value)

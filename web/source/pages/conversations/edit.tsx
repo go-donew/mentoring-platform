@@ -152,7 +152,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 		fetchAttributes()
 			.then(setAttributes)
 			.catch((error) => setErrorMessage(error.message))
-	}, [])
+	}, [currentSuccess]) // Refresh these lists when the save button is pressed.
 
 	/**
 	 * Update the conversation using the API.
@@ -321,7 +321,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					<Label for="text-input" text="Text" required={true} />
 					<ExpandableTextInput
 						id="text-input"
-						type="text"
+						type="option-text"
 						value={option.text}
 						required={true}
 						update={(value: string) =>
@@ -388,20 +388,22 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					/>
 				</div>
 				<div class="col-span-4 sm:col-span-2">
-					<TextInput
-						id="attribute-value-input"
-						label="Value"
-						type="text"
-						value={option.attribute?.value?.toString()}
-						update={(value: string) => {
-							// Remove the attribute if the value is set to blank.
-							const id = value === '' ? '' : option.attribute!.id
-							props.save({
-								...option,
-								attribute: { id, value },
-							})
-						}}
-					/>
+					{option.type === 'select' && (
+						<TextInput
+							id="attribute-value-input"
+							label="Value"
+							type="text"
+							value={option.attribute?.value?.toString()}
+							update={(value: string) => {
+								// Remove the attribute if the value is set to blank.
+								const id = value === '' ? '' : option.attribute!.id
+								props.save({
+									...option,
+									attribute: { id, value },
+								})
+							}}
+						/>
+					)}
 				</div>
 				<div class="col-span-4 sm:col-span-2">
 					<Label
@@ -486,7 +488,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 				<div class="col-span-6">
 					<ExpandableTextInput
 						id="text-input"
-						type="text"
+						type="question-text"
 						value={question.text}
 						required={true}
 						update={(value: string) =>
@@ -500,7 +502,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 				<div class="col-span-6">
 					<TextInput
 						id="tags-input"
-						type="tags"
+						type="question-tags"
 						label="Tags"
 						value={question.tags?.join(', ')}
 						required={false}
@@ -523,7 +525,10 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					/>
 					<SelectInput
 						id="randomize-input"
-						options={['true', 'false']}
+						options={[
+							{ text: 'No', value: 'false' },
+							{ text: 'Yes', value: 'true' },
+						]}
 						selected={question.randomizeOptionOrder ? 'true' : 'false'}
 						update={(value: string) => {
 							props.save({
@@ -537,7 +542,10 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					<Label for="first-input" text="First Question" required={true} />
 					<SelectInput
 						id="first-input"
-						options={['true', 'false']}
+						options={[
+							{ text: 'No', value: 'false' },
+							{ text: 'Yes', value: 'true' },
+						]}
 						selected={question.first ? 'true' : 'false'}
 						update={(value: string) => {
 							props.save({
@@ -551,7 +559,10 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					<Label for="last-input" text="Last Question" required={true} />
 					<SelectInput
 						id="last-input"
-						options={['true', 'false']}
+						options={[
+							{ text: 'No', value: 'false' },
+							{ text: 'Yes', value: 'true' },
+						]}
 						selected={question.last ? 'true' : 'false'}
 						update={(value: string) => {
 							props.save({
@@ -611,7 +622,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 
 	return (
 		<PageWrapper>
-			<div class="mx-auto p-8 max-w-4xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
+			<div class="mx-auto p-8 max-w-7xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
 				<div class="flex justify-between items-center mb-4">
 					<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
 						Edit Conversation
@@ -645,7 +656,10 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 								<Label for="once-input" text="Once" required={true} />
 								<SelectInput
 									id="once-input"
-									options={['true', 'false']}
+									options={[
+										{ text: 'No', value: 'false' },
+										{ text: 'Yes', value: 'true' },
+									]}
 									selected={conversation?.once ? 'true' : 'false'}
 									update={(value: string) => {
 										handleConversationEdit({

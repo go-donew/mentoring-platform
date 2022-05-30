@@ -167,7 +167,7 @@ export const AttributeEditPage = (props: { attributeId: string }) => {
 
 	return (
 		<PageWrapper>
-			<div class="mx-auto p-8 max-w-4xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
+			<div class="mx-auto p-8 max-w-7xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
 				<div class="flex justify-between items-center mb-4">
 					<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
 						Edit Attribute
@@ -185,7 +185,7 @@ export const AttributeEditPage = (props: { attributeId: string }) => {
 								<TextInput
 									id="name-input"
 									label="Name"
-									type="name"
+									type="attribute-name"
 									value={attribute?.name}
 									required={true}
 									update={(value: string) =>
@@ -201,7 +201,7 @@ export const AttributeEditPage = (props: { attributeId: string }) => {
 								<TextInput
 									id="tags-input"
 									label="Tags"
-									type="tags"
+									type="attribute-tags"
 									value={attribute?.tags?.join(', ')}
 									required={true}
 									update={(value: string) =>
@@ -220,7 +220,7 @@ export const AttributeEditPage = (props: { attributeId: string }) => {
 								<TextInput
 									id="description-input"
 									label="Description"
-									type="description"
+									type="attribute-description"
 									value={attribute?.description}
 									required={true}
 									update={(value: string) =>

@@ -351,7 +351,7 @@ export const GroupEditPage = (props: { groupId: string }) => {
 
 	return (
 		<PageWrapper>
-			<div class="mx-auto p-8 max-w-4xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
+			<div class="mx-auto p-8 max-w-7xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
 				<div class="flex justify-between items-center mb-4">
 					<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
 						Edit Group
@@ -367,7 +367,7 @@ export const GroupEditPage = (props: { groupId: string }) => {
 								<TextInput
 									id="name-input"
 									label="Name"
-									type="name"
+									type="group-name"
 									value={group?.name}
 									required={true}
 									update={(value: string) =>
@@ -383,7 +383,7 @@ export const GroupEditPage = (props: { groupId: string }) => {
 								<TextInput
 									id="code-input"
 									label="Code"
-									type="code"
+									type="group-code"
 									value={group?.code}
 									required={true}
 									update={(value: string) =>
@@ -399,7 +399,7 @@ export const GroupEditPage = (props: { groupId: string }) => {
 								<TextInput
 									id="tags-input"
 									label="Tags"
-									type="tags"
+									type="group-tags"
 									value={group?.tags?.join(', ')}
 									required={true}
 									update={(value: string) =>

@@ -109,7 +109,10 @@ const AttributeSnapshotItem = (props: {
 				class="appearance-none rounded-lg relative block w-full my-2 px-3 py-2 border border-gray-300 dark:border-background-dark bg-surface dark:bg-surface-dark text-on-surface dark:text-on-surface-dark focus:outline-none focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark focus:z-10 sm:text-sm font-mono"
 				style={{
 					resize:
-						props.snapshot.value.toString().length > 40 ? 'vertical' : 'none',
+						props.snapshot.value.toString().length > 40 ||
+						props.snapshot.value.toString().includes('\n')
+							? 'vertical'
+							: 'none',
 				}}
 			/>
 			<AttributeSnapshotMetadata snapshot={props.snapshot} />
@@ -280,7 +283,11 @@ export const ViewUserPage = (props: { userId: string }) => {
 						rows={1}
 						class="appearance-none rounded-lg relative block w-full my-2 px-3 py-2 border border-gray-300 dark:border-background-dark bg-surface dark:bg-surface-dark text-on-surface dark:text-on-surface-dark focus:outline-none focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark focus:z-10 sm:text-sm font-mono"
 						style={{
-							resize: currentValue.toString().length > 40 ? 'vertical' : 'none',
+							resize:
+								currentValue.toString().length > 40 ||
+								currentValue.toString().includes('\n')
+									? 'vertical'
+									: 'none',
 						}}
 						onChange={(event: any) => setCurrentValue(event.target.value)}
 						onFocus={() => toggleFocus(true)}
@@ -308,7 +315,7 @@ export const ViewUserPage = (props: { userId: string }) => {
 
 	return (
 		<PageWrapper>
-			<div class="mx-auto p-8 max-w-4xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
+			<div class="mx-auto p-8 max-w-7xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
 				<div class="flex justify-between items-center mb-4">
 					<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
 						User Details

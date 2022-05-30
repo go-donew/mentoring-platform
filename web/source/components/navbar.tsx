@@ -55,7 +55,7 @@ export const Navbar = (props: { routes: Route[]; currentUrl: string }) => {
 					: 'block'
 			} bg-surface dark:bg-surface-dark`}
 		>
-			<div class="max-w-4xl mx-auto px-2 sm:px-6">
+			<div class="max-w-7xl mx-auto px-2 sm:px-6">
 				<div class="relative flex items-center justify-center h-16">
 					<div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
 						<IconButton

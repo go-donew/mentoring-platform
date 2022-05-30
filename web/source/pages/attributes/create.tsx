@@ -124,7 +124,7 @@ export const AttributeCreatePage = () => {
 
 	return (
 		<PageWrapper>
-			<div class="mx-auto p-8 max-w-4xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
+			<div class="mx-auto p-8 max-w-7xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
 				<div class="flex justify-between items-center mb-4">
 					<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
 						Create Attribute
@@ -137,7 +137,7 @@ export const AttributeCreatePage = () => {
 								<TextInput
 									id="name-input"
 									label="Name"
-									type="name"
+									type="attribute-name"
 									value={attribute?.name}
 									required={true}
 									update={(value: string) =>
@@ -151,25 +151,9 @@ export const AttributeCreatePage = () => {
 							</div>
 							<div class="col-span-6 sm:col-span-3">
 								<TextInput
-									id="description-input"
-									label="Description"
-									type="description"
-									value={attribute?.description}
-									required={true}
-									update={(value: string) =>
-										dispatch({
-											type: 'update-field',
-											field: 'description',
-											payload: value,
-										})
-									}
-								/>
-							</div>
-							<div class="col-span-6">
-								<TextInput
 									id="tags-input"
 									label="Tags"
-									type="tags"
+									type="attribute-tags"
 									value={attribute?.tags?.join(', ')}
 									required={true}
 									update={(value: string) =>
@@ -180,6 +164,22 @@ export const AttributeCreatePage = () => {
 												.split(', ')
 												.map((tag) => tag.trim())
 												.filter((tag) => Boolean(tag)),
+										})
+									}
+								/>
+							</div>
+							<div class="col-span-6">
+								<TextInput
+									id="description-input"
+									label="Description"
+									type="attribute-description"
+									value={attribute?.description}
+									required={true}
+									update={(value: string) =>
+										dispatch({
+											type: 'update-field',
+											field: 'description',
+											payload: value,
 										})
 									}
 								/>
