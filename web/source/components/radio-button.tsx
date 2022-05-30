@@ -44,7 +44,7 @@ export const RadioButton = (props: {
 	>
 		<Radio id={props.id} selected={props.selected} />
 		<label for={props.id} class={`ml-2 text-md font-normal ${props.class}`}>
-			{props.text}
+			{props.children ?? props.text}
 		</label>
 	</div>
 )

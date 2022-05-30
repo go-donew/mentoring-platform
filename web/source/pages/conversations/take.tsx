@@ -3,6 +3,8 @@
 
 import { useState, useEffect } from 'preact/hooks'
 import { route } from 'preact-router'
+import { marked } from 'marked'
+import { sanitize } from 'dompurify'
 
 import {
 	Button,
@@ -16,6 +18,17 @@ import { fetch, isErrorResponse } from '@/utilities/http'
 import { errors } from '@/utilities/text'
 
 import type { Option, Question, Conversation } from '@/api'
+
+/**
+ * Render Markdown text as HTML.
+ *
+ * @param {string} text - The markdown text to convert to HTML.
+ *
+ * @returns {string} - The HTML.
+ */
+const renderMarkdown = (text: string): string => {
+	return sanitize(marked.parse(text))
+}
 
 /**
  * An option for a question.
@@ -37,11 +50,17 @@ const OptionItem = (props: {
 			{option.type === 'select' && (
 				<RadioButton
 					id={`option-${option.position}`}
-					text={option.text}
 					selected={props.selected}
 					action={() => props.update(option)}
 					class="leading-none text-md text-gray-800 dark:text-gray-300 font-bold"
-				/>
+				>
+					<div
+						class="text-md text-gray-900 dark:text-white unreset"
+						dangerouslySetInnerHTML={{
+							__html: renderMarkdown(option.text),
+						}}
+					/>
+				</RadioButton>
 			)}
 			{option.type === 'input' && (
 				<>
@@ -185,9 +204,12 @@ export const TakeConversationPage = (props: { conversationId: string }) => {
 						<>
 							<div class="grid grid-cols-6 gap-1">
 								<div class="col-span-6 pb-4 pt-2">
-									<h6 class="text-md font-medium leading-none text-gray-900 dark:text-white">
-										{currentQuestion.text}
-									</h6>
+									<div
+										class="text-md text-gray-900 dark:text-white unreset"
+										dangerouslySetInnerHTML={{
+											__html: renderMarkdown(currentQuestion.text),
+										}}
+									/>
 								</div>
 								<hr class="col-span-6 mb-3 dark:border-gray-700" />
 								{currentQuestion.options.map((option) => (
