@@ -4,7 +4,14 @@
 import { useReducer, useState } from 'preact/hooks'
 import { route } from 'preact-router'
 
-import { Button, TextInput, Toast, AuthHeader, PageWrapper } from '@/components'
+import {
+	Button,
+	TextInput,
+	Toast,
+	LoadingIndicator,
+	AuthHeader,
+	PageWrapper,
+} from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
 import { errors } from '@/utilities/text'
 import { storage } from '@/utilities/storage'
@@ -82,11 +89,16 @@ export const SignInPage = () => {
 	const [currentError, setErrorMessage] = useState<string | undefined>(
 		passedOnError ? errors.get(passedOnError) : undefined,
 	)
+	// Define a state for the loading indicator too.
+	const [isLoading, setLoading] = useState<boolean>(false)
 
 	/**
 	 * Sign the user into their account.
 	 */
 	const signIn = async (): Promise<void> => {
+		// Show the loading indicator.
+		setLoading(true)
+
 		// First, validate the form's fields.
 		const validation = {
 			email: /^\S+@\S+$/, // Make sure the string contains an @
@@ -96,8 +108,12 @@ export const SignInPage = () => {
 		// Reset the error
 		setErrorMessage(undefined)
 		// Then show a new one, if needed
-		if (!validation.email.test(signInForm.email ?? ''))
-			return setErrorMessage(errors.get('invalid-email-address'))
+		if (!validation.email.test(signInForm.email ?? '')) {
+			setLoading(false)
+			setErrorMessage(errors.get('invalid-email-address'))
+
+			return
+		}
 
 		// If the validation tests pass, then make the API call to sign the user in.
 		const response = await fetch<{ user: User; tokens: Tokens }>({
@@ -124,6 +140,7 @@ export const SignInPage = () => {
 					setErrorMessage(error.message)
 			}
 
+			setLoading(false)
 			return
 		}
 
@@ -132,6 +149,7 @@ export const SignInPage = () => {
 		storage.set('tokens', response.tokens)
 
 		// Then route the user to the home page.
+		setLoading(false)
 		route('/', true)
 	}
 
@@ -179,8 +197,9 @@ export const SignInPage = () => {
 										text="Sign In"
 										action={signIn}
 										type="filled"
-										class="w-full"
+										class={isLoading ? 'hidden' : 'w-full'}
 									/>
+									<LoadingIndicator isLoading={isLoading} />
 								</div>
 							</form>
 						</div>

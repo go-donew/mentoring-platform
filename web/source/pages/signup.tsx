@@ -4,7 +4,14 @@
 import { useReducer, useState } from 'preact/hooks'
 import { route } from 'preact-router'
 
-import { Button, TextInput, Toast, AuthHeader, PageWrapper } from '@/components'
+import {
+	Button,
+	TextInput,
+	Toast,
+	LoadingIndicator,
+	AuthHeader,
+	PageWrapper,
+} from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
 import { errors } from '@/utilities/text'
 import { storage } from '@/utilities/storage'
@@ -85,11 +92,16 @@ export const SignUpPage = () => {
 	const [currentError, setErrorMessage] = useState(
 		passedOnError ? errors.get(passedOnError) : undefined,
 	)
+	// Define a state for the loading indicator too.
+	const [isLoading, setLoading] = useState<boolean>(false)
 
 	/**
 	 * Create an account for the user.
 	 */
 	const signUp = async () => {
+		// Show the loading indicator.
+		setLoading(true)
+
 		// First, validate the form's fields.
 		const validation = {
 			name: /^(?!\s*$).+/, // Make sure the string isn't blank.
@@ -100,12 +112,26 @@ export const SignUpPage = () => {
 		// Reset the error
 		setErrorMessage(undefined)
 		// Then show a new one, if needed
-		if (!validation.name.test(signUpForm.name ?? ''))
-			return setErrorMessage(errors.get('incomplete-input'))
-		if (!validation.email.test(signUpForm.email ?? ''))
-			return setErrorMessage(errors.get('invalid-email-address'))
-		if (!validation.password.test(signUpForm.password ?? ''))
-			return setErrorMessage(errors.get('weak-password'))
+		if (!validation.name.test(signUpForm.name ?? '')) {
+			setLoading(false)
+			setErrorMessage(errors.get('incomplete-input'))
+
+			return
+		}
+
+		if (!validation.email.test(signUpForm.email ?? '')) {
+			setLoading(false)
+			setErrorMessage(errors.get('invalid-email-address'))
+
+			return
+		}
+
+		if (!validation.password.test(signUpForm.password ?? '')) {
+			setLoading(false)
+			setErrorMessage(errors.get('weak-password'))
+
+			return
+		}
 
 		// If the validation tests pass, then make the API call to create an account.
 		const response = await fetch<{ user: User; tokens: Tokens }>({
@@ -133,6 +159,7 @@ export const SignUpPage = () => {
 					setErrorMessage(error.message)
 			}
 
+			setLoading(false)
 			return
 		}
 
@@ -141,6 +168,7 @@ export const SignUpPage = () => {
 		storage.set('tokens', response.tokens)
 
 		// Then route the user to the home page.
+		setLoading(false)
 		route('/', true)
 	}
 
@@ -202,8 +230,9 @@ export const SignUpPage = () => {
 									text="Sign Up"
 									action={signUp}
 									type="filled"
-									class="w-full"
+									class={isLoading ? 'hidden' : 'w-full'}
 								/>
+								<LoadingIndicator isLoading={isLoading} />
 							</form>
 						</div>
 					</div>
