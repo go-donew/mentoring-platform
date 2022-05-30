@@ -13,7 +13,7 @@ import {
 } from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
 
-import type { User, Group } from '@/api'
+import type { User, Group, Conversation, Report } from '@/api'
 
 /**
  * A item that shows a group in the list.
@@ -40,17 +40,64 @@ const GroupItem = (props: { group: Group; allowEdit: boolean }) => {
 			return response.user
 		}
 
+		const fetchConversation = async (
+			id: string,
+		): Promise<Conversation | undefined> => {
+			const response = await fetch<{ conversation: Conversation }>({
+				url: `/conversations/${id}`,
+				method: 'get',
+			})
+
+			// If an error occurs, skip over.
+			if (isErrorResponse(response)) return
+			// And if there are none, return the data.
+			return response.conversation
+		}
+
+		const fetchReport = async (id: string): Promise<Report | undefined> => {
+			const response = await fetch<{ report: Report }>({
+				url: `/reports/${id}`,
+				method: 'get',
+			})
+
+			// If an error occurs, skip over.
+			if (isErrorResponse(response)) return
+			// And if there are none, return the data.
+			return response.report
+		}
+
 		const replaceIds = async (): Promise<Group> => {
+			// Replace the user IDs with the name and email.
 			const participantsByIds = group.participants
 			group.participants = {}
-
-			// Replace the IDs with the name and email.
 			for (const userId of Object.keys(participantsByIds)) {
 				const user = await fetchUser(userId)
 
 				if (user)
 					group.participants[`${user.name} (${user.email}) {${user.id}}`] =
 						participantsByIds[userId]
+			}
+
+			// Replace the conversation IDs with the name.
+			const conversationsByIds = group.conversations
+			group.conversations = {}
+			for (const conversationId of Object.keys(conversationsByIds)) {
+				const conversation = await fetchConversation(conversationId)
+
+				if (conversation)
+					group.conversations[`${conversation.name} {${conversation.id}}`] =
+						conversationsByIds[conversationId]
+			}
+
+			// Replace the report IDs with the name.
+			const reportsByIds = group.reports
+			group.reports = {}
+			for (const reportId of Object.keys(reportsByIds)) {
+				const report = await fetchReport(reportId)
+
+				if (report)
+					group.reports[`${report.name} {${report.id}}`] =
+						reportsByIds[reportId]
 			}
 
 			return group
@@ -94,6 +141,58 @@ const GroupItem = (props: { group: Group; allowEdit: boolean }) => {
 							<a href={`/users/${userId}`}>
 								<span class="text-gray-900 dark:text-white">{userName} </span>
 								<span class="text-gray-500 dark:text-gray-400">{role}</span>
+							</a>
+							<br />
+						</>
+					)
+				})}
+			</td>
+			<td class="p-2">
+				{Object.entries(group.conversations).map(([conversation, roles]) => {
+					// The conversations string is packed with user info in the following
+					// format: `<name> {<id>}`
+					const conversationIdMatches = /{(.*?)}/.exec(conversation)
+					const conversationId = conversationIdMatches
+						? conversationIdMatches[1]
+						: conversation
+					const conversationName = conversation
+						.replace(conversationId, '')
+						.replace('{}', '')
+						.trim()
+
+					return (
+						<>
+							<a href={`/conversations/${conversationId}`}>
+								<span class="text-gray-900 dark:text-white">
+									{conversationName}{' '}
+								</span>
+								<span class="text-gray-500 dark:text-gray-400">
+									{roles.join(', ')}
+								</span>
+							</a>
+							<br />
+						</>
+					)
+				})}
+			</td>
+			<td class="p-2">
+				{Object.entries(group.reports).map(([report, roles]) => {
+					// The reports string is packed with user info in the following
+					// format: `<name> {<id>}`
+					const reportIdMatches = /{(.*?)}/.exec(report)
+					const reportId = reportIdMatches ? reportIdMatches[1] : report
+					const reportName = report
+						.replace(reportId, '')
+						.replace('{}', '')
+						.trim()
+
+					return (
+						<>
+							<a href={`/reports/${reportId}`}>
+								<span class="text-gray-900 dark:text-white">{reportName} </span>
+								<span class="text-gray-500 dark:text-gray-400">
+									{roles.join(', ')}
+								</span>
 							</a>
 							<br />
 						</>
@@ -176,6 +275,8 @@ export const GroupListPage = (props: { groot: boolean }) => {
 								<th class="p-2">Code</th>
 								<th class="p-2">Tags</th>
 								<th class="p-2">Participants</th>
+								<th class="p-2">Conversations</th>
+								<th class="p-2">Reports</th>
 								<th class="p-2 text-right">Actions</th>
 							</tr>
 						</thead>
