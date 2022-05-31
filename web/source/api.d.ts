@@ -259,6 +259,28 @@ export declare interface ComputedAttribute {
 }
 
 /**
+ * An interface representing a script.
+ *
+ * @typedef {object} Script
+ * @property {string} id.required - The script ID.
+ * @property {string} name.required - The script name.
+ * @property {string} description.required - The script description.
+ * @property {array<string>} tags.required - The list of tags to enhance searchability of the script.
+ * @property {array<DependentAttribute>} input.required - The list of attributes required to run the script.
+ * @property {array<ComputedAttribute>} computed.required - The list of attributes computed and set by this script.
+ * @property {string} content.required - The base64 encoded lua code to run.
+ */
+export declare interface Script {
+	id: string
+	name: string
+	description: string
+	tags: string[]
+	input: DependentAttribute[]
+	computed: ComputedAttribute[]
+	content: string
+}
+
+/**
  * An interface representing a report.
  *
  * @typedef {object} Report

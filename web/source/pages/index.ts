@@ -21,4 +21,7 @@ export * from './attributes/list'
 export * from './attributes/create'
 export * from './attributes/edit'
 
+export * from './scripts/list'
+export * from './scripts/create'
+
 export * from './not-found'

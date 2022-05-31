@@ -142,7 +142,6 @@ class ScriptProvider implements DataProvider<Script> {
 			// If the transaction was successful, return the created script
 			return data
 		} catch (error: unknown) {
-			console.log(error)
 			// Pass on any error as a backend error
 			console.trace(error)
 			throw new ServerError('backend-error')

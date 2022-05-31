@@ -22,6 +22,7 @@ const text: Record<'label' | 'error' | 'info', Record<string, string>> = {
 		'could-not-save-question':
 			'An unexpected error occurred while saving the question.',
 		'option-was-not-selected': 'Please select an option to continue.',
+		'script-attribute-not-found': 'Could not find attribute with name ',
 		'server-crash':
 			'An unexpected error occurred. Please try again in a few seconds or report this issue.',
 		'network-error':

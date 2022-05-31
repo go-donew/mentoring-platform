@@ -28,6 +28,6 @@
     "deploy": "pnpm deploy:sdbx && pnpm deploy:prod"
   },
   "devDependencies": {
-    "firebase-tools": "10.7.2"
+    "firebase-tools": "11.0.1"
   }
 }

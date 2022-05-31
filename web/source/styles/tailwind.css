@@ -8,6 +8,14 @@
 @tailwind utilities;
 
 /*
+	Set the tab size to two spaces.
+*/
+* {
+	-moz-tab-size: 2;
+	tab-size: 2;
+}
+
+/*
 	This CSS removes all Tailwind styling when we set the HTML manually.
 */
 .unreset html {

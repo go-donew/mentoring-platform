@@ -186,6 +186,18 @@ export class App extends Component {
 				nav: false,
 			},
 			{
+				path: '/scripts',
+				name: 'Scripts',
+				component: Pages.ScriptListPage,
+				nav: this.state.groot,
+			},
+			{
+				path: '/scripts/create',
+				name: 'Create Script',
+				component: Pages.ScriptCreatePage,
+				nav: false,
+			},
+			{
 				path: '/404',
 				name: 'Not Found',
 				component: Pages.NotFoundPage,

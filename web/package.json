@@ -30,7 +30,8 @@
 		"ky": "0.30.0",
 		"marked": "4.0.16",
 		"preact": "10.7.2",
-		"preact-router": "4.0.1"
+		"preact-router": "4.0.1",
+		"shiki": "0.10.1"
 	},
 	"devDependencies": {
 		"@donew-innovations/eslint-config": "file:../config/eslint",
@@ -69,7 +70,8 @@
 			"ky",
 			"marked",
 			"preact",
-			"preact-router"
+			"preact-router",
+			"shiki"
 		]
 	},
 	"xo": {
