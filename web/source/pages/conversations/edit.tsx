@@ -512,7 +512,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 								tags: value
 									.split(', ')
 									.map((tag) => tag.trim())
-									.filter((tag) => Boolean(tag)),
+									.filter(Boolean),
 							})
 						}
 					/>
@@ -700,7 +700,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 											payload: value
 												.split(', ')
 												.map((tag) => tag.trim())
-												.filter((tag) => Boolean(tag)),
+												.filter(Boolean),
 										})
 									}
 								/>

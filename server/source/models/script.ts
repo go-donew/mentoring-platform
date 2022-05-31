@@ -38,29 +38,13 @@ export interface ComputedAttribute {
  * @property {string} content.required - The base64 encoded lua code to run.
  */
 export class Script {
-	id: string
-	name: string
-	description: string
-	tags: string[]
-	input: DependentAttribute[]
-	computed: ComputedAttribute[]
-	content: string
-
 	constructor(
-		id: string,
-		name: string,
-		description: string,
-		tags: string[],
-		input: DependentAttribute[],
-		computed: ComputedAttribute[],
-		content: string,
-	) {
-		this.id = id
-		this.name = name
-		this.description = description
-		this.tags = tags
-		this.input = input
-		this.computed = computed
-		this.content = content
-	}
+		public id: string,
+		public name: string,
+		public description: string,
+		public tags: string[],
+		public input: DependentAttribute[],
+		public computed: ComputedAttribute[],
+		public content: string,
+	) {}
 }

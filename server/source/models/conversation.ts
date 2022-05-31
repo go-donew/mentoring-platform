@@ -12,23 +12,11 @@
  * @property {array<string>} tags.required - Tags to enhance searchability of the conversation.
  */
 export class Conversation {
-	id: string
-	name: string
-	description: string
-	once: boolean
-	tags: string[]
-
 	constructor(
-		id: string,
-		name: string,
-		description: string,
-		once: boolean,
-		tags: string[],
-	) {
-		this.id = id
-		this.name = name
-		this.description = description
-		this.once = once
-		this.tags = tags
-	}
+		public id: string,
+		public name: string,
+		public description: string,
+		public once: boolean,
+		public tags: string[],
+	) {}
 }

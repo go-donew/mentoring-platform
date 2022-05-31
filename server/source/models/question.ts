@@ -58,34 +58,14 @@ export type Option = {
  * @property {array<string>} tags.required - Tags to enhance searchability of the question.
  */
 export class Question {
-	id: string
-	text: string
-	options: Option[]
-	first: boolean
-	last: boolean
-	randomizeOptionOrder: boolean
-	tags: string[]
-
-	readonly _conversationId: string
-
 	constructor(
-		id: string,
-		text: string,
-		options: Option[],
-		first: boolean,
-		last: boolean,
-		randomizeOptionOrder: boolean,
-		tags: string[],
-		_conversationId: string,
-	) {
-		this.id = id
-		this.text = text
-		this.options = options
-		this.first = first
-		this.last = last
-		this.randomizeOptionOrder = randomizeOptionOrder
-		this.tags = tags
-
-		this._conversationId = _conversationId
-	}
+		public id: string,
+		public text: string,
+		public options: Option[],
+		public first: boolean,
+		public last: boolean,
+		public randomizeOptionOrder: boolean,
+		public tags: string[],
+		public readonly _conversationId: string,
+	) {}
 }

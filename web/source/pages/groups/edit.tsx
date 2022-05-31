@@ -116,6 +116,8 @@ export const GroupEditPage = (props: { groupId: string }) => {
 				return {
 					...state,
 					// @ts-expect-error We insert blank values instead of valid ones here.
+					// Also, ESLint has a problem with blank object keys.
+					// eslint-disable-next-line @typescript-eslint/naming-convention
 					participants: { ...state.participants, '': '' },
 				}
 			case 'update-participant': {
@@ -142,6 +144,8 @@ export const GroupEditPage = (props: { groupId: string }) => {
 			case 'add-conversation':
 				return {
 					...state,
+					// ESLint has a problem with blank object keys.
+					// eslint-disable-next-line @typescript-eslint/naming-convention
 					conversations: { ...state.conversations, '': [] },
 				}
 			case 'update-conversation': {
@@ -171,6 +175,8 @@ export const GroupEditPage = (props: { groupId: string }) => {
 			case 'add-report':
 				return {
 					...state,
+					// ESLint has a problem with blank object keys.
+					// eslint-disable-next-line @typescript-eslint/naming-convention
 					reports: { ...state.reports, '': [] },
 				}
 			case 'update-report': {
@@ -409,7 +415,7 @@ export const GroupEditPage = (props: { groupId: string }) => {
 											payload: value
 												.split(', ')
 												.map((tag) => tag.trim())
-												.filter((tag) => Boolean(tag)),
+												.filter(Boolean),
 										})
 									}
 								/>

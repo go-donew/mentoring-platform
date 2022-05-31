@@ -41,7 +41,7 @@ export const fetch = async (
 	}
 
 	// Parse the response
-	const body = rawBody.toString('utf-8')
+	const body = rawBody.toString('utf8')
 	if (body) {
 		try {
 			return { body: JSON.parse(body), status: statusCode }

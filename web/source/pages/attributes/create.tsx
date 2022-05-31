@@ -104,7 +104,7 @@ export const AttributeCreatePage = () => {
 		setErrorMessage(undefined)
 		// Delete any blank conversation IDs from the attribute.
 		attribute.conversations = attribute.conversations
-			? attribute.conversations.filter((conv) => Boolean(conv))
+			? attribute.conversations.filter(Boolean)
 			: []
 
 		// Make the API call to create the attribute.
@@ -163,7 +163,7 @@ export const AttributeCreatePage = () => {
 											payload: value
 												.split(', ')
 												.map((tag) => tag.trim())
-												.filter((tag) => Boolean(tag)),
+												.filter(Boolean),
 										})
 									}
 								/>
@@ -231,9 +231,7 @@ export const AttributeCreatePage = () => {
 																		...(attribute.conversations ?? []),
 																		selectedValue,
 																	]),
-																].filter((conversationId) =>
-																	Boolean(conversationId),
-																),
+																].filter(Boolean),
 															})
 
 															id = selectedValue

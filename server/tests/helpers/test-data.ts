@@ -16,7 +16,7 @@ export const testData = async (
 	let json = JSON.parse(
 		await readFile(
 			`tests/data/${/\.[json]$/.test(path) ? path : path + '.json'}`,
-			'utf-8',
+			'utf8',
 		),
 	) as Record<string, unknown>
 

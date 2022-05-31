@@ -53,6 +53,7 @@ const signUp = async (
 		const user = await users.create({
 			...request.body,
 			id: userId,
+			phone: undefined,
 			lastSignedIn: new Date(),
 		})
 

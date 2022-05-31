@@ -325,10 +325,12 @@ const run = async (
 					attribute.value = snapshot.value
 					attribute.history.push({
 						value: snapshot.value,
-						observer: 'bot', // FIXME: Should this be `request.user!.id`?
+						observer: 'bot',
 						timestamp: new Date(),
-						// @ts-expect-error Firebase doesn't like `undefined`
-						message: snapshot.message ?? null,
+						message: {
+							in: 'script',
+							id: script.id,
+						},
 					})
 					await attributes.update(attribute)
 					computedAttributes.push(attribute)
@@ -343,8 +345,10 @@ const run = async (
 									value: snapshot.value,
 									observer: 'bot',
 									timestamp: new Date(),
-									// @ts-expect-error Firebase doesn't like `undefined`
-									message: snapshot.message ?? null,
+									message: {
+										in: 'script',
+										id: script.id,
+									},
 								},
 							],
 							_userId: user.id,

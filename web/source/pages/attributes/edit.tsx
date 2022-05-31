@@ -136,7 +136,7 @@ export const AttributeEditPage = (props: { attributeId: string }) => {
 		setErrorMessage(undefined)
 		// Delete any blank conversation IDs from the attribute.
 		attribute.conversations = attribute.conversations
-			? attribute.conversations.filter((conv) => Boolean(conv))
+			? attribute.conversations.filter(Boolean)
 			: []
 
 		// Make the API call to update the attribute.
@@ -211,7 +211,7 @@ export const AttributeEditPage = (props: { attributeId: string }) => {
 											payload: value
 												.split(', ')
 												.map((tag) => tag.trim())
-												.filter((tag) => Boolean(tag)),
+												.filter(Boolean),
 										})
 									}
 								/>
@@ -279,9 +279,7 @@ export const AttributeEditPage = (props: { attributeId: string }) => {
 																		...(attribute.conversations ?? []),
 																		selectedValue,
 																	]),
-																].filter((conversationId) =>
-																	Boolean(conversationId),
-																),
+																].filter(Boolean),
 															})
 
 															id = selectedValue

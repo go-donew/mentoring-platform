@@ -265,7 +265,7 @@ export const ScriptCreatePage = () => {
 		// abort.
 		const originalContents = script.content
 		// False positive, so disabling it (_match)
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 		for (const [_match, attributeName] of attributeNameMatches) {
 			// Find the attribute.
 			const attribute = attributes.find((attr) => attr.name === attributeName)
@@ -343,7 +343,7 @@ export const ScriptCreatePage = () => {
 											payload: value
 												.split(', ')
 												.map((tag) => tag.trim())
-												.filter((tag) => Boolean(tag)),
+												.filter(Boolean),
 										})
 									}
 								/>

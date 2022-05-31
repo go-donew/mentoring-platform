@@ -19,6 +19,7 @@ import type {
 	UserAttribute,
 	AttributeSnapshot,
 	Conversation,
+	Script,
 } from '@/api'
 
 /**
@@ -69,13 +70,31 @@ const AttributeSnapshotMetadata = (props: { snapshot: AttributeSnapshot }) => {
 			return response.conversation
 		}
 
+		const fetchScript = async (
+			scriptId: string,
+		): Promise<{ name: string } | undefined> => {
+			const response = await fetch<{ script: Script }>({
+				url: `/scripts/${scriptId}`,
+				method: 'get',
+			})
+
+			// Handle any errors that might arise...
+			if (isErrorResponse(response)) throw new Error(response.error.message)
+			// ...and if there are none, return the data.
+			return response.script
+		}
+
 		fetchUser(observer!)
 			.then((user) => setObserver(user?.name))
 			.catch((_error) => {})
 
-		if (props.snapshot.message?.in === 'question')
+		if (props.snapshot.message?.in === 'conversation')
 			fetchConversation(message!)
 				.then((conversation) => setMessage(conversation?.name))
+				.catch((_error) => {})
+		else if (props.snapshot.message?.in === 'script')
+			fetchScript(message!)
+				.then((script) => setMessage(script?.name))
 				.catch((_error) => {})
 	}, [])
 

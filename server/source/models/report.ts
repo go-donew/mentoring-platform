@@ -18,26 +18,12 @@ export { DependentAttribute } from '@/models/script'
  * @property {array<DependentAttribute>} input.required - The list of attribute IDs required to generate the report.
  */
 export class Report {
-	id: string
-	name: string
-	description: string
-	tags: string[]
-	template: string
-	input: DependentAttribute[]
-
 	constructor(
-		id: string,
-		name: string,
-		description: string,
-		tags: string[],
-		template: string,
-		input: DependentAttribute[],
-	) {
-		this.id = id
-		this.name = name
-		this.description = description
-		this.tags = tags
-		this.template = template
-		this.input = input
-	}
+		public id: string,
+		public name: string,
+		public description: string,
+		public tags: string[],
+		public template: string,
+		public input: DependentAttribute[],
+	) {}
 }

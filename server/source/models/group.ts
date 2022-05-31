@@ -47,29 +47,13 @@ export type ReportList = Record<
  * @property {array<string>} tags.required - Tags to enhance the searchability of the group.
  */
 export class Group {
-	id: string
-	name: string
-	participants: ParticipantList
-	conversations: ConversationList
-	reports: ReportList
-	code: string
-	tags: string[]
-
 	constructor(
-		id: string,
-		name: string,
-		participants: ParticipantList,
-		conversations: ConversationList,
-		reports: ReportList,
-		code: string,
-		tags: string[],
-	) {
-		this.id = id
-		this.name = name
-		this.participants = participants
-		this.conversations = conversations
-		this.reports = reports
-		this.code = code
-		this.tags = tags
-	}
+		public id: string,
+		public name: string,
+		public participants: ParticipantList,
+		public conversations: ConversationList,
+		public reports: ReportList,
+		public code: string,
+		public tags: string[],
+	) {}
 }

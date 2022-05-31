@@ -346,7 +346,7 @@ const answer = async (
 					observer: 'questioner',
 					timestamp: new Date(),
 					message: {
-						in: 'question',
+						in: 'conversation',
 						id: request.params.conversationId,
 					},
 				})
@@ -363,7 +363,7 @@ const answer = async (
 							observer: 'questioner',
 							timestamp: new Date(),
 							message: {
-								in: 'question',
+								in: 'conversation',
 								id: request.params.conversationId,
 							},
 						},

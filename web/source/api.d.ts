@@ -107,15 +107,15 @@ export declare interface Attribute {
 
 /**
  * Where this change was observed or what triggered the change. Could be the ID
- * of a message or a question, answering which, the value of the attribute was
+ * of a message or a conversation, answering which, the value of the attribute was
  * changed.
  *
- * @typedef {object} BlamedMessage
- * @property {string} in.required - Whether the change was observed in a message or question. - enum:question,message
- * @property {string} id.required - The ID of the message/question.
+ * @typedef {object} SnapshotBlame
+ * @property {string} in.required - Whether the change was observed in a message or conversation. - enum:conversation,message,script
+ * @property {string} id.required - The ID of the message/conversation/script.
  */
-export declare type BlamedMessage = {
-	in: 'question' | 'message'
+export declare type SnapshotBlame = {
+	in: 'conversation' | 'message' | 'script'
 	id: string
 }
 
@@ -127,13 +127,13 @@ export declare type BlamedMessage = {
  * @property {string | number | boolean} value.required - The attribute's value.
  * @property {string} observer.required - The ID of the user who made this change.
  * @property {string} timestamp.required - When the change occurred. - date
- * @property {BlamedMessage} message - Where this change was observed or what triggered the change.
+ * @property {SnapshotBlame} message - Where this change was observed or what triggered the change.
  */
 export declare type AttributeSnapshot = {
 	value: string | number | boolean
-	observer: string | 'bot'
+	observer: string
 	timestamp: Date
-	message?: BlamedMessage
+	message?: SnapshotBlame
 }
 
 /**

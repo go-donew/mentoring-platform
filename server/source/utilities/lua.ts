@@ -6,7 +6,7 @@ import { runWithGlobals } from 'flua'
 import redent from 'redent'
 
 import { User } from '@/models/user'
-import { UserAttribute, BlamedMessage } from '@/models/attribute'
+import { UserAttribute } from '@/models/attribute'
 
 /**
  * The context a script runs in.
@@ -23,10 +23,7 @@ interface ScriptContext {
  */
 interface ScriptOutput {
 	// The computed attributes
-	attributes?: Record<
-		string,
-		{ value: string | number | boolean; message?: BlamedMessage }
-	>
+	attributes?: Record<string, { value: string | number | boolean }>
 }
 
 /**

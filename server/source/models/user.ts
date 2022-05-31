@@ -12,23 +12,11 @@
  * @property {string} lastSignedIn.required - The time the user last signed in to their account. - date
  */
 export class User {
-	id: string
-	name: string
-	email?: string
-	phone?: string
-	lastSignedIn: Date
-
 	constructor(
-		id: string,
-		name: string,
-		email: string | undefined,
-		phone: string | undefined,
-		lastSignedIn: Date,
-	) {
-		this.id = id
-		this.name = name
-		this.email = email
-		this.phone = phone
-		this.lastSignedIn = lastSignedIn
-	}
+		public id: string,
+		public name: string,
+		public email: string | undefined,
+		public phone: string | undefined,
+		public lastSignedIn: Date,
+	) {}
 }

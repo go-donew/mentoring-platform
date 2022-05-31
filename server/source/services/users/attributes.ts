@@ -4,7 +4,7 @@
 import type { ServiceRequest, ServiceResponse } from '@/types'
 
 import { ServerError } from '@/errors'
-import { UserAttribute, BlamedMessage } from '@/models/attribute'
+import { UserAttribute, SnapshotBlame } from '@/models/attribute'
 import { provider as attributes } from '@/provider/data/users/attributes'
 
 /**
@@ -70,12 +70,12 @@ const find = async (
  * @typedef {object} CreateUserAttributePayload
  * @property {string} id.required - The ID of the attribute (from the global attribute list).
  * @property {string | number | boolean} value.required - The value to set for the attribute.
- * @property {BlamedMessage} message - The message/question, answering which, this attribute was observed.
+ * @property {SnapshotBlame} message - The message/question, answering which, this attribute was observed.
  */
 export type CreateUserAttributePayload = {
 	id: string
 	value: string | number | boolean
-	message: BlamedMessage
+	message: SnapshotBlame
 }
 
 /**
@@ -171,11 +171,11 @@ const get = async (
  *
  * @typedef {object} UpdateUserAttributePayload
  * @property {string | number | boolean} value.required - The value to set for the attribute.
- * @property {BlamedMessage} message - The message/question, answering which, this attribute was observed.
+ * @property {SnapshotBlame} message - The message/question, answering which, this attribute was observed.
  */
 export type UpdateUserAttributePayload = {
 	value: string | number | boolean
-	message: BlamedMessage
+	message: SnapshotBlame
 }
 
 /**

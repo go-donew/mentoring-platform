@@ -106,7 +106,9 @@ export const GroupCreatePage = () => {
 			case 'add-participant':
 				return {
 					...state,
-					// @ts-expect-error We insert blanks here instead of valid values.
+					// @ts-expect-error We insert blanks here instead of valid values,
+					// and both TSC and ESLint have a problem with that.
+					// eslint-disable-next-line @typescript-eslint/naming-convention
 					participants: { ...state.participants, '': '' },
 				}
 			case 'update-participant': {
@@ -133,6 +135,8 @@ export const GroupCreatePage = () => {
 			case 'add-conversation':
 				return {
 					...state,
+					// ESLint has a problem with blank object keys.
+					// eslint-disable-next-line @typescript-eslint/naming-convention
 					conversations: { ...state.conversations, '': [] },
 				}
 			case 'update-conversation': {
@@ -162,6 +166,8 @@ export const GroupCreatePage = () => {
 			case 'add-report':
 				return {
 					...state,
+					// ESLint has a problem with blank object keys.
+					// eslint-disable-next-line @typescript-eslint/naming-convention
 					reports: { ...state.reports, '': [] },
 				}
 			case 'update-report': {
@@ -379,7 +385,7 @@ export const GroupCreatePage = () => {
 											payload: value
 												.split(', ')
 												.map((tag) => tag.trim())
-												.filter((tag) => Boolean(tag)),
+												.filter(Boolean),
 										})
 									}
 								/>
