@@ -78,7 +78,7 @@ export const ConversationCreatePage = () => {
 	 * Create the conversation using the API.
 	 */
 	const createConversation = async () => {
-		// Reset the error
+		// Clear the error message.
 		setErrorMessage(undefined)
 
 		// Make sure the `once` field is set.

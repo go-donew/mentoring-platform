@@ -89,6 +89,10 @@ export const ConversationListPage = (props: { groot: boolean }) => {
 		}
 
 		fetchConversations()
+			.then((conversations) =>
+				// Sort the conversations in ascending order by their names.
+				conversations.sort((a, b) => a.name.localeCompare(b.name)),
+			)
 			.then(setConversations)
 			.catch((error) => setErrorMessage(error.message))
 	}, [])

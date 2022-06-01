@@ -270,7 +270,7 @@ export const GroupCreatePage = () => {
 	 * Create the group using the API.
 	 */
 	const createGroup = async () => {
-		// Reset the error
+		// Clear the error message.
 		setErrorMessage(undefined)
 		// Delete any blank participant IDs from the group.
 		if (group.participants) delete group.participants['']

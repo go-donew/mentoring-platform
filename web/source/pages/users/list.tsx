@@ -67,6 +67,14 @@ export const UserListPage = () => {
 		}
 
 		fetchUsers()
+			.then((users) =>
+				// Sort the users in ascending order by the time they last signed in..
+				users.sort(
+					(a, b) =>
+						new Date(a.lastSignedIn).valueOf() -
+						new Date(b.lastSignedIn).valueOf(),
+				),
+			)
 			.then(setUsers)
 			.catch((error) => setErrorMessage(error.message))
 	}, [])

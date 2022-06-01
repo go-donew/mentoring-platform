@@ -300,7 +300,7 @@ export const GroupEditPage = (props: { groupId: string }) => {
 	 * Update the group using the API.
 	 */
 	const saveGroup = async (): Promise<void> => {
-		// Reset the error
+		// Clear the error message.
 		setErrorMessage(undefined)
 		// Delete any blank participant IDs from the group.
 		if (group.participants) delete group.participants['']

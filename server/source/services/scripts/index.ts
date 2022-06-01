@@ -249,24 +249,22 @@ const _delete = async (
 }
 
 /**
- * The payload needed to run a script for a certain user.
+ * The payload needed to run a script for certain users.
  *
  * @typedef {object} RunScriptPayload
- * @property {string} userId - The user to run the script for. Defaults to the current user.
+ * @property {array<string>} users - The users to run the script for. Defaults to only the current user.
  */
 export type RunScriptPayload = {
-	userId?: string
+	users?: string[]
 }
 
 /**
  * The response from the run script endpoint.
  *
  * @typedef {object} RunScriptResponse
- * @property {array<UserAttribute>} attributes - The attributes computed by the script.
+ * @property {array<UserAttribute>} userId - The attributes computed by the script for the given user.
  */
-export type RunScriptResponse = {
-	attributes: UserAttribute[]
-}
+export type RunScriptResponse = Record<string, UserAttribute[]>
 
 /**
  * Method to run a script for the specified user.
@@ -279,92 +277,101 @@ const run = async (
 	request: ServiceRequest<RunScriptPayload, { scriptId: string }>,
 ): Promise<ServiceResponse<RunScriptResponse>> => {
 	try {
+		// Fetch the script
 		const script = await scripts.get(request.params.scriptId)
-		// Get the current user so the script can access it, but do not let the
-		// script get their access token
-		const user = await users.get(request.body.userId ?? request.user!.id)
-		// Decode the script (it is stored in base64)
-		script.content = Buffer.from(script.content, 'base64').toString('ascii')
+		// Loop through the users
+		const userQueue = request.body.users ?? [request.user!.id]
+		const data: RunScriptResponse = {}
+		for (const userId of userQueue) {
+			// Get the current user so the script can access it, but do not let the
+			// script get their access token
+			const user = await users.get(userId)
+			// Decode the script (it is stored in base64)
+			script.content = Buffer.from(script.content, 'base64').toString('ascii')
 
-		attributes.userId = user.id
+			// The attributes that we set and get are for this user now
+			attributes.userId = user.id
 
-		// Retrieve all the attributes the script needs to run
-		const input: Record<string, UserAttribute> = {}
-		for (const { id, optional } of script.input) {
-			try {
-				input[id] = await attributes.get(id)
-			} catch (error: unknown) {
-				// If we can't find the attribute for the user, and it is a required attribute,
-				// throw a Precondition Failed error.
-				if ((error as ServerError).code === 'entity-not-found') {
-					if (optional) continue
-					else
-						throw new ServerError(
-							'precondition-failed',
-							`Could not find the required attribute ${id} for the user.`,
-						)
-				}
-			}
-		}
-
-		const computedAttributes = []
-		try {
-			// TODO: This should be able to handle groups, reports, etc too.
-			// Run the lua script
-			let { attributes: computed } = await runLua(script.content, {
-				input,
-				user,
-			})
-			if (!computed) computed = {}
-
-			// Store the computed attribute(s)
-			for (const [id, snapshot] of Object.entries(computed)) {
+			// Retrieve all the attributes the script needs to run
+			const input: Record<string, UserAttribute> = {}
+			for (const { id, optional } of script.input) {
 				try {
-					// Retrieve the attribute and update it if it exists
-					const attribute = await attributes.get(id)
-					attribute.value = snapshot.value
-					attribute.history.push({
-						value: snapshot.value,
-						observer: 'bot',
-						timestamp: new Date(),
-						message: {
-							in: 'script',
-							id: script.id,
-						},
-					})
-					await attributes.update(attribute)
-					computedAttributes.push(attribute)
+					input[id] = await attributes.get(id)
 				} catch (error: unknown) {
-					// If it does not exist, then create it
+					// If we can't find the attribute for the user, and it is a required attribute,
+					// throw a Precondition Failed error.
 					if ((error as ServerError).code === 'entity-not-found') {
-						const attribute = await attributes.create({
-							id,
-							value: snapshot.value,
-							history: [
-								{
-									value: snapshot.value,
-									observer: 'bot',
-									timestamp: new Date(),
-									message: {
-										in: 'script',
-										id: script.id,
-									},
-								},
-							],
-							_userId: user.id,
-						})
-						computedAttributes.push(attribute)
-					} else {
-						throw error
+						if (optional) continue
+						else
+							throw new ServerError(
+								'precondition-failed',
+								`Could not find the required attribute ${id} for the user.`,
+							)
 					}
 				}
 			}
-		} catch (error: unknown) {
-			console.trace(error)
-			throw new ServerError('backend-error')
+
+			const computedAttributes = []
+			try {
+				// TODO: This should be able to handle groups, reports, etc too.
+				// Run the lua script
+				let { attributes: computed } = await runLua(script.content, {
+					input,
+					user,
+				})
+				if (!computed) computed = {}
+
+				// Store the computed attribute(s)
+				for (const [id, snapshot] of Object.entries(computed)) {
+					try {
+						// Retrieve the attribute and update it if it exists
+						const attribute = await attributes.get(id)
+						attribute.value = snapshot.value
+						attribute.history.push({
+							value: snapshot.value,
+							observer: 'bot',
+							timestamp: new Date(),
+							message: {
+								in: 'script',
+								id: script.id,
+							},
+						})
+						await attributes.update(attribute)
+						computedAttributes.push(attribute)
+					} catch (error: unknown) {
+						// If it does not exist, then create it
+						if ((error as ServerError).code === 'entity-not-found') {
+							const attribute = await attributes.create({
+								id,
+								value: snapshot.value,
+								history: [
+									{
+										value: snapshot.value,
+										observer: 'bot',
+										timestamp: new Date(),
+										message: {
+											in: 'script',
+											id: script.id,
+										},
+									},
+								],
+								_userId: user.id,
+							})
+							computedAttributes.push(attribute)
+						} else {
+							throw error
+						}
+					}
+				}
+			} catch (error: unknown) {
+				console.trace(error)
+				throw new ServerError('backend-error')
+			}
+
+			// Save the attributes
+			data[userId] = computedAttributes
 		}
 
-		const data = { attributes: computedAttributes }
 		return {
 			status: 200,
 			data,

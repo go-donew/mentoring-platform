@@ -51,7 +51,7 @@ const OptionItem = (props: {
 
 	return (
 		<div class="col-span-6 my-1 p-3 rounded-lg border dark:bg-background-dark dark:border-gray-700 text-sm">
-			{option.type === 'select' && (
+			{option.type === 'select' ? (
 				<RadioButton
 					id={`option-${option.position}`}
 					text={renderMarkdown(option.text)}
@@ -59,8 +59,7 @@ const OptionItem = (props: {
 					action={() => props.update(option)}
 					class="leading-none text-md text-gray-800 dark:text-gray-300 font-bold"
 				/>
-			)}
-			{option.type === 'input' && (
+			) : (
 				<>
 					<RadioButton
 						id={`option-${option.position}`}
@@ -151,7 +150,7 @@ export const TakeConversationPage = (props: { conversationId: string }) => {
 	 * Save the user's answer, and retrieve the next question.
 	 */
 	const answerQuestion = async () => {
-		// Reset the error, the current question and the current option.
+		// Clear the error message., the current question and the current option.
 		setErrorMessage(undefined)
 
 		// If there is no option selected, return an error.

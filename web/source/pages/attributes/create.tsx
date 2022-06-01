@@ -100,7 +100,7 @@ export const AttributeCreatePage = () => {
 	 * Create the attribute using the API.
 	 */
 	const createAttribute = async () => {
-		// Reset the error
+		// Clear the error message.
 		setErrorMessage(undefined)
 		// Delete any blank conversation IDs from the attribute.
 		attribute.conversations = attribute.conversations

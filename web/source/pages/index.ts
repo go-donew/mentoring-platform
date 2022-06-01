@@ -23,5 +23,6 @@ export * from './attributes/edit'
 
 export * from './scripts/list'
 export * from './scripts/create'
+export * from './scripts/edit'
 
 export * from './not-found'

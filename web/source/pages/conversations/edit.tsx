@@ -158,7 +158,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 	 * Update the conversation using the API.
 	 */
 	const saveConversation = async (): Promise<void> => {
-		// Reset the error
+		// Clear the error message.
 		setErrorMessage(undefined)
 
 		// Make the API call to update the conversation.
@@ -397,6 +397,14 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 							update={(value: string) => {
 								// Remove the attribute if the value is set to blank.
 								const id = value === '' ? '' : option.attribute!.id
+								// Check if the value is a boolean or a number or a string, and
+								// save it accordingly.
+								let castValue: string | number | boolean = value
+								if (Number.isNaN(Number(castValue)))
+									castValue = Number.parseFloat(castValue)
+								else if (castValue === 'true' || castValue === 'false')
+									castValue = castValue === 'true'
+
 								props.save({
 									...option,
 									attribute: { id, value },

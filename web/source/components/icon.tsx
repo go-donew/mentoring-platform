@@ -26,7 +26,7 @@ const icons = {
 		<>
 			<span class="sr-only">Up</span>
 			<svg
-				class="block pt-1"
+				class="pt-1"
 				viewBox="0 0 24 24"
 				height="25"
 				width="25"
@@ -44,7 +44,7 @@ const icons = {
 		<>
 			<span class="sr-only">Down</span>
 			<svg
-				class="block pt-1"
+				class="pt-1"
 				viewBox="0 0 24 24"
 				height="25"
 				width="25"
@@ -62,7 +62,7 @@ const icons = {
 		<>
 			<span class="sr-only">Close</span>
 			<svg
-				class="block h-6 w-6"
+				class="h-6 w-6"
 				fill="none"
 				viewBox="0 0 24 24"
 				stroke="currentColor"
@@ -78,7 +78,7 @@ const icons = {
 		<>
 			<span class="sr-only">Menu</span>
 			<svg
-				class="block h-6 w-6"
+				class="h-6 w-6"
 				fill="none"
 				viewBox="0 0 24 24"
 				stroke="currentColor"
@@ -94,7 +94,7 @@ const icons = {
 		<>
 			<span class="sr-only">Settings</span>
 			<svg
-				class="block h-6 w-6"
+				class="h-6 w-6"
 				fill="none"
 				viewBox="0 0 24 24"
 				stroke="currentColor"
@@ -136,7 +136,7 @@ const icons = {
 		<>
 			<span class="sr-only">Add</span>
 			<svg
-				class="block h-6 w-6"
+				class="h-6 w-6"
 				fill="none"
 				viewBox="0 0 24 24"
 				stroke="currentColor"
@@ -151,7 +151,7 @@ const icons = {
 		<>
 			<span class="sr-only">Edit</span>
 			<svg
-				class="block h-6 w-6"
+				class="h-6 w-6"
 				fill="none"
 				viewBox="0 0 24 24"
 				stroke="currentColor"
@@ -167,7 +167,7 @@ const icons = {
 		<>
 			<span class="sr-only">Remove</span>
 			<svg
-				class="block h-5 w-5"
+				class="h-5 w-5"
 				fill="none"
 				viewBox="0 0 24 24"
 				stroke="currentColor"

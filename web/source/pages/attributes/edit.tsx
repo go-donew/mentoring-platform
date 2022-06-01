@@ -132,7 +132,7 @@ export const AttributeEditPage = (props: { attributeId: string }) => {
 	 * Update the attribute using the API.
 	 */
 	const saveAttribute = async (): Promise<void> => {
-		// Reset the error
+		// Clear the error message.
 		setErrorMessage(undefined)
 		// Delete any blank conversation IDs from the attribute.
 		attribute.conversations = attribute.conversations

@@ -105,7 +105,7 @@ export const SignInPage = () => {
 			// We don't need to check the password, do that only on the sign up page.
 		}
 
-		// Reset the error
+		// Clear the error message.
 		setErrorMessage(undefined)
 		// Then show a new one, if needed
 		if (!validation.email.test(signInForm.email ?? '')) {

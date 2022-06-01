@@ -1,5 +1,5 @@
-// source/pages/scripts/create.tsx
-// Defines and exports the script create page.
+// source/pages/scripts/edit.tsx
+// Defines and exports the script edit page.
 
 import { useState, useEffect, useReducer } from 'preact/hooks'
 import { route } from 'preact-router'
@@ -11,6 +11,7 @@ import {
 	TextInput,
 	CodeEditor,
 	SelectInput,
+	LoadingIndicator,
 	Toast,
 	PageWrapper,
 } from '@/components'
@@ -27,15 +28,19 @@ import type {
 /**
  * The form's state.
  */
-type ScriptFormState = Partial<Omit<Script, 'id'>>
+type ScriptFormState = Partial<Script>
 /**
  * The action that is dispatched to the reducer to update the form's state.
  */
-type ScriptCreateFormAction =
+type ScriptEditFormAction =
 	| {
 			type: 'update-field'
 			field: keyof Script
 			payload?: any
+	  }
+	| {
+			type: 'set-script'
+			payload: Script
 	  }
 	| {
 			type: 'add-input-attribute'
@@ -69,59 +74,23 @@ type ScriptCreateFormAction =
 	  }
 
 /**
- * An example script that Groot can edit.
- */
-const exampleScript = `
--- scripts/example
--- An example script that calculates the score of a user in a quiz.
-
--- The computation of the attribute must be done in a \`compute\` function, that
--- is called with context.
-function compute(context)
-  -- The \`context.input\` variable contains the attributes requested as script as
-  -- input. If the input attribute is required and not present, the script will
-  -- not be run, so you can safely assume that the attribute exists. If the attribute
-  -- is optional, it may or may not exist, please do a null check before using it.
-  -- context.input["{Attribute Name}"] = { id, value, history, _userId }
-
-  -- The \`context.user\` variable contains information about the current user (name,
-  -- email, user ID, etc.) that you can use:
-  -- context.user = { id, name, email, phone, lastSignedIn }
-  
-  -- The smartness can be calculated by taking the average of their scores
-  -- in the quiz.
-  knowsCleanestCity = context.input["{Knows Cleanest City}"].value
-  knowsCapitalCity = context.input["{Knows Capital City}"].value
-  quizScore = (knowsCapitalCity + knowsCleanestCity) / 2
-
-  -- The returned object must be a lua table containing the user attributes to set.
-  -- The attributes will be set on the user passed in as \`context.user\`.
-  return {
-    attributes = {
-      "{Smartness}" = {
-        value = quizScore
-      }
-    }
-  }
-end
-`.trim()
-
-/**
- * The script create page.
+ * The script edit page.
+ *
+ * @prop {string} scriptId - The ID of the script to edit.
  *
  * @page
  */
-export const ScriptCreatePage = () => {
+export const ScriptEditPage = (props: { scriptId: string }) => {
 	/**
 	 * The reducer to update the form. The reducer will be called with
 	 * the current values of the form, and the action that was dispatched.
 	 *
 	 * @param {ScriptFormState} state - The current state of the form.
-	 * @param {ScriptCreateFormAction} action - The action to perform.
+	 * @param {ScriptEditFormAction} action - The action to perform.
 	 */
 	const reducer = (
 		state: ScriptFormState,
-		action: ScriptCreateFormAction,
+		action: ScriptEditFormAction,
 	): ScriptFormState => {
 		// Parse the action, and do something with it.
 		switch (action.type) {
@@ -133,6 +102,8 @@ export const ScriptCreatePage = () => {
 					...state,
 					[action.field]: action.payload,
 				}
+			case 'set-script':
+				return action.payload
 			case 'add-input-attribute':
 				return {
 					...state,
@@ -210,13 +181,11 @@ export const ScriptCreatePage = () => {
 		return state
 	}
 
-	// Create the reducer.
-	const [script, dispatch] = useReducer<
-		ScriptFormState,
-		ScriptCreateFormAction
-	>(reducer, {
-		content: exampleScript,
-	})
+	// Edit the reducer.
+	const [script, dispatch] = useReducer<ScriptFormState, ScriptEditFormAction>(
+		reducer,
+		{},
+	)
 
 	// Define a state for error messages and the list of attributes.
 	const [currentError, setErrorMessage] = useState<string | undefined>(
@@ -227,6 +196,18 @@ export const ScriptCreatePage = () => {
 
 	// Fetch the attributes using the API.
 	useEffect(() => {
+		const fetchScript = async (): Promise<Script> => {
+			const response = await fetch<{ script: Script }>({
+				url: `/scripts/${props.scriptId}`,
+				method: 'get',
+			})
+
+			// Handle any errors that might arise...
+			if (isErrorResponse(response)) throw new Error(response.error.message)
+			// ...and if there are none, return the data.
+			return response.script
+		}
+
 		const fetchAttributes = async (): Promise<Attribute[]> => {
 			const response = await fetch<{ attributes: Attribute[] }>({
 				url: '/attributes',
@@ -239,15 +220,56 @@ export const ScriptCreatePage = () => {
 			return response.attributes
 		}
 
-		fetchAttributes()
-			.then(setAttributes)
+		const decodeScriptContent = async (
+			fetchedScript: Script,
+			fetchedAttributes: Attribute[],
+		): Promise<Script> => {
+			// First, decode the code from its base64 form.
+			fetchedScript.content = atob(fetchedScript.content)
+
+			// Then, replace all the attribute IDs with attribute names.
+			const attributeIdMatches = [
+				...fetchedScript.content.matchAll(/(\w{28})/g),
+			]
+			for (const [_match, attributeId] of attributeIdMatches) {
+				// Find the attribute.
+				const attribute = fetchedAttributes.find(
+					(attr) => attr.id === attributeId,
+				)
+				// If it does not exist, error out.
+				if (!attribute) {
+					throw new Error(
+						errors.get('script-attribute-not-found') + attributeId,
+					)
+				}
+
+				// Else replace the attribute name with the ID.
+				fetchedScript.content = fetchedScript.content.replace(
+					new RegExp(`"${attribute.id}"`, 'g'),
+					`"{${attribute.name}}"`,
+				)
+			}
+
+			return fetchedScript
+		}
+
+		Promise.all([fetchAttributes(), fetchScript()])
+			.then(async ([fetchedAttributes, fetchedScript]) => {
+				const decodedScript = await decodeScriptContent(
+					fetchedScript,
+					fetchedAttributes,
+				)
+				dispatch({ type: 'set-script', payload: decodedScript })
+
+				setAttributes(fetchedAttributes)
+			})
 			.catch((error) => setErrorMessage(error.message))
 	}, [])
 
 	/**
-	 * Create the script using the API.
+	 * Update the script using the API.
 	 */
-	const createScript = async () => {
+	const saveScript = async () => {
 		// Clear the error message.
 		setErrorMessage(undefined)
 		// Delete any blank attribute IDs from the script.
@@ -283,10 +305,10 @@ export const ScriptCreatePage = () => {
 		// Base64 encode the script's contents.
 		script.content = btoa(script.content!)
 
-		// Make the API call to create the script.
+		// Make the API call to edit the script.
 		const response = await fetch<{ script: Script }>({
-			url: '/scripts',
-			method: 'post',
+			url: `/scripts/${script.id}`,
+			method: 'put',
 			json: script,
 		})
 
@@ -303,10 +325,15 @@ export const ScriptCreatePage = () => {
 			<div class="mx-auto p-8 max-w-7xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
 				<div class="flex justify-between items-center mb-4">
 					<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
-						Create Script
+						Edit Script
 					</h5>
 				</div>
-				<div>
+				<LoadingIndicator
+					isLoading={
+						typeof script === 'undefined' && currentError === undefined
+					}
+				/>
+				<div class={typeof script === 'undefined' ? 'hidden' : ''}>
 					<div class="overflow-x-auto sm:rounded-lg">
 						<div class="grid grid-cols-6 gap-6">
 							<div class="col-span-6 sm:col-span-3">
@@ -557,8 +584,8 @@ export const ScriptCreatePage = () => {
 						/>
 						<Button
 							id="save-button"
-							text="Create"
-							action={async () => createScript()}
+							text="Save"
+							action={async () => saveScript()}
 							type="filled"
 							class="col-span-2 md:col-span-1"
 						/>

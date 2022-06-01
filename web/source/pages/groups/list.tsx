@@ -243,6 +243,10 @@ export const GroupListPage = (props: { groot: boolean }) => {
 		}
 
 		fetchGroups()
+			.then((groups) =>
+				// Sort the groups in ascending order by their names.
+				groups.sort((a, b) => a.name.localeCompare(b.name)),
+			)
 			.then(setGroups)
 			.catch((error) => setErrorMessage(error.message))
 	}, [])

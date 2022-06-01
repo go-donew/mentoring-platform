@@ -155,6 +155,10 @@ export const AttributeListPage = (props: { groot: boolean }) => {
 		}
 
 		fetchAttributes()
+			.then((attributes) =>
+				// Sort the attributes in ascending order by their names.
+				attributes.sort((a, b) => a.name.localeCompare(b.name)),
+			)
 			.then(setAttributes)
 			.catch((error) => setErrorMessage(error.message))
 	}, [])

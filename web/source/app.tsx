@@ -198,6 +198,12 @@ export class App extends Component {
 				nav: false,
 			},
 			{
+				path: '/scripts/:scriptId/edit',
+				name: 'Edit Script',
+				component: Pages.ScriptEditPage,
+				nav: false,
+			},
+			{
 				path: '/404',
 				name: 'Not Found',
 				component: Pages.NotFoundPage,

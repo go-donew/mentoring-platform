@@ -109,7 +109,7 @@ export const SignUpPage = () => {
 			password: /^.{6,256}$/, // Make sure the password is longer than 6 chars.
 		}
 
-		// Reset the error
+		// Clear the error message.
 		setErrorMessage(undefined)
 		// Then show a new one, if needed
 		if (!validation.name.test(signUpForm.name ?? '')) {

@@ -1,8 +1,8 @@
-// source/components/radio-button.tsx
-// Defines and exports a radio button component.
+// source/components/checkbox.tsx
+// Defines and exports a checkbox component.
 
 /**
- * A radio button.
+ * A checkbox.
  *
  * @prop {string} id - An ID to refer to the button in tests.
  * @prop {string} text - The text to display on the button.
@@ -11,30 +11,27 @@
  *
  * @component
  */
-export const RadioButton = (props: {
+export const Checkbox = (props: {
 	id: string
 	text: string
 	selected: boolean
-	action: () => void
+	action: (checked: boolean) => void
 	class?: string
 }) => (
 	<div
-		onClick={() => {
-			if (typeof props.action === 'function') props.action()
+		onClick={(event: any) => {
+			if (typeof props.action === 'function') props.action(event.target.checked)
 		}}
 	>
 		<input
 			id={props.id}
 			name={props.id}
 			checked={props.selected}
-			type="radio"
+			type="checkbox"
 			class="w-3 h-3 dark:border-background-dark bg-surface dark:bg-surface-dark text-on-surface dark:text-on-surface-dark focus:outline-none focus:ring-primary dark:focus:ring-primary-dark focus:border-primary dark:focus:border-primary-dark focus:z-10"
 		/>
-		<label
-			class={`ml-2 text-md font-normal ${props.class}`}
-			dangerouslySetInnerHTML={{
-				__html: props.text,
-			}}
-		/>
+		<label class={`ml-2 text-md font-normal ${props.class}`}>
+			{props.text}
+		</label>
 	</div>
 )

@@ -7,23 +7,30 @@ import { route } from 'preact-router'
 import {
 	Chip,
 	Button,
+	Checkbox,
 	Toast,
 	LoadingIndicator,
+	Modal,
 	PageWrapper,
 } from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
 
-import type { Script, Attribute } from '@/api'
+import type { Script, Attribute, User } from '@/api'
 
 /**
  * A item that shows a script in the list.
  *
  * @prop {Script} script - The script to render.
+ * @prop {User[]} users - The users for whom the script can be run.
  *
  * @component
  */
-const ScriptItem = (props: { script: Script }) => {
+const ScriptItem = (props: { script: Script; users: User[] }) => {
+	// Define a state for the script and for the opening or closing of the user
+	// list modal.
 	const [script, setScript] = useState<Script>(props.script)
+	const [userModalState, toggleModalState] = useState<boolean>(false)
+	const [scriptSubjects, setScriptSubjects] = useState<string[]>([])
 
 	useEffect(() => {
 		const fetchAttribute = async (
@@ -157,6 +164,35 @@ const ScriptItem = (props: { script: Script }) => {
 					type="text"
 					class="col-span-1 w-fit text-secondary dark:text-secondary-dark font-semibold"
 				/>
+				<Button
+					id="run-script-button"
+					text="Run"
+					action={() => toggleModalState(true)}
+					type="text"
+					class="col-span-1 w-fit text-secondary dark:text-secondary-dark font-semibold"
+				/>
+				<Modal
+					title="Select Users"
+					description="Select a list of users for whom the script should run."
+					isVisible={userModalState}
+				>
+					{props.users.map((user) => (
+						<Checkbox
+							id="select-user"
+							text={`${user.name} (${user.email})`}
+							selected={scriptSubjects.includes(user.id)}
+							action={(checked: boolean) => {
+								setScriptSubjects(
+									checked
+										? [...scriptSubjects, user.id]
+										: scriptSubjects.filter((id) => id !== user.id),
+								)
+							}}
+							class="leading-none text-md text-gray-800 dark:text-gray-200 font-bold"
+						/>
+					))}
+					{/* TODO: Add run script button here */}
+				</Modal>
 			</td>
 		</tr>
 	)
@@ -173,6 +209,7 @@ export const ScriptListPage = () => {
 		undefined,
 	)
 	const [scripts, setScripts] = useState<Script[] | undefined>(undefined)
+	const [users, setUsers] = useState<User[]>([])
 
 	// Fetch the scripts using the API.
 	useEffect(() => {
@@ -188,8 +225,28 @@ export const ScriptListPage = () => {
 			return response.scripts
 		}
 
+		const fetchUsers = async (): Promise<User[]> => {
+			const response = await fetch<{ users: User[] }>({
+				url: '/users',
+				method: 'get',
+			})
+
+			// Handle any errors that might arise...
+			if (isErrorResponse(response)) throw new Error(response.error.message)
+			// ...and if there are none, return the data.
+			return response.users
+		}
+
 		fetchScripts()
+			.then((scripts) =>
+				// Sort the scripts in ascending order by their names.
+				scripts.sort((a, b) => a.name.localeCompare(b.name)),
+			)
 			.then(setScripts)
+			.catch((error) => setErrorMessage(error.message))
+
+		fetchUsers()
+			.then(setUsers)
 			.catch((error) => setErrorMessage(error.message))
 	}, [])
 
@@ -226,7 +283,7 @@ export const ScriptListPage = () => {
 						</thead>
 						<tbody class="p-4">
 							{scripts?.map((script: Script) => (
-								<ScriptItem script={script} />
+								<ScriptItem script={script} users={users} />
 							))}
 						</tbody>
 					</table>
