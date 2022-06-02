@@ -1,6 +1,8 @@
 // source/components/modal.tsx
 // Defines and exports a simple modal.
 
+import { useState } from 'preact/hooks'
+
 import { IconButton } from './icon-button'
 
 /**
@@ -9,6 +11,7 @@ import { IconButton } from './icon-button'
  * @prop {string} title - The title of the modal.
  * @prop {string} description - The text that explains to the user what to do.
  * @prop {boolean} isVisible - Whether the modal is visible or not.
+ * @prop {Function} toggleModal - A function to close the modal when the close button is pressed.
  *
  * @component
  */
@@ -16,6 +19,7 @@ export const Modal = (props: {
 	title: string
 	description: string
 	isVisible: boolean
+	toggleModal: (open: boolean) => void
 	children: any
 }) => (
 	<div
@@ -29,6 +33,7 @@ export const Modal = (props: {
 			<div class="relative bg-white rounded-lg shadow dark:bg-background-dark">
 				<IconButton
 					id="close-user-modal-button"
+					action={() => props.toggleModal(false)}
 					icon="close"
 					class="absolute top-3 right-2.5"
 				/>

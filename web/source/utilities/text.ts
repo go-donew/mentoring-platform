@@ -36,6 +36,7 @@ const text: Record<'label' | 'error' | 'info', Record<string, string>> = {
 		'signed-up': 'Welcome to the DoNew Mentoring Platform!',
 		'saved-conversation':
 			'Successfully saved the conversation and all its questions!',
+		'script-ran-successfully': 'Successfully ran the script!',
 	},
 }
 

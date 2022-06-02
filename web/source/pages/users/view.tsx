@@ -43,7 +43,7 @@ const AttributeSnapshotMetadata = (props: { snapshot: AttributeSnapshot }) => {
 		const fetchUser = async (
 			userId: string,
 		): Promise<{ name: string } | undefined> => {
-			if (userId === 'questioner') return undefined
+			if (userId === 'questioner' || userId === 'bot') return undefined
 
 			const response = await fetch<{ user: User }>({
 				url: `/users/${userId}`,

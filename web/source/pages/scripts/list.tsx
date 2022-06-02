@@ -14,6 +14,7 @@ import {
 	PageWrapper,
 } from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
+import { messages } from '@/utilities/text'
 
 import type { Script, Attribute, User } from '@/api'
 
@@ -31,6 +32,14 @@ const ScriptItem = (props: { script: Script; users: User[] }) => {
 	const [script, setScript] = useState<Script>(props.script)
 	const [userModalState, toggleModalState] = useState<boolean>(false)
 	const [scriptSubjects, setScriptSubjects] = useState<string[]>([])
+	// Define a state for error and success messages and the loading indicator.
+	const [currentError, setErrorMessage] = useState<string | undefined>(
+		undefined,
+	)
+	const [currentMessage, setSuccessMessage] = useState<string | undefined>(
+		undefined,
+	)
+	const [isLoading, setIsLoading] = useState<boolean>(false)
 
 	useEffect(() => {
 		const fetchAttribute = async (
@@ -82,8 +91,39 @@ const ScriptItem = (props: { script: Script; users: User[] }) => {
 					...script,
 				}),
 			)
-			.catch((_error) => {})
+			.catch((error) => setErrorMessage(error.message))
 	}, [])
+
+	/**
+	 * Run the script by making an API  call.
+	 */
+	const runScript = async (): Promise<void> => {
+		// Clear the current messages.
+		setErrorMessage(undefined)
+		setSuccessMessage(undefined)
+		// Display the loading indicator.
+		setIsLoading(true)
+
+		const response = await fetch({
+			url: `/scripts/${script.id}/run`,
+			method: 'put',
+			json: {
+				users: scriptSubjects,
+			},
+		})
+
+		// Hide the loading indicator.
+		setIsLoading(false)
+
+		// If an error occurs, throw it.
+		if (isErrorResponse(response))
+			return setErrorMessage(response.error.message)
+		// And if there are none, show a success message.
+		setSuccessMessage(
+			messages.get('script-ran-successfully') +
+				` (for ${scriptSubjects.length} users)`,
+		)
+	}
 
 	return (
 		<tr class="border-b dark:border-gray-700 text-sm">
@@ -175,6 +215,7 @@ const ScriptItem = (props: { script: Script; users: User[] }) => {
 					title="Select Users"
 					description="Select a list of users for whom the script should run."
 					isVisible={userModalState}
+					toggleModal={toggleModalState}
 				>
 					{props.users.map((user) => (
 						<Checkbox
@@ -191,7 +232,16 @@ const ScriptItem = (props: { script: Script; users: User[] }) => {
 							class="leading-none text-md text-gray-800 dark:text-gray-200 font-bold"
 						/>
 					))}
-					{/* TODO: Add run script button here */}
+					<Button
+						id="run-script-button"
+						text="Run"
+						action={async () => runScript()}
+						type="filled"
+						class={`mt-6 ${isLoading ? 'hidden' : 'block w-full'}`}
+					/>
+					<LoadingIndicator isLoading={isLoading} class="mt-6" />
+					<Toast id="error-message" type="error" text={currentError} />
+					<Toast id="success-message" type="info" text={currentMessage} />
 				</Modal>
 			</td>
 		</tr>

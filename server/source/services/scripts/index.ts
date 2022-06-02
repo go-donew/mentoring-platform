@@ -279,13 +279,26 @@ const run = async (
 	try {
 		// Fetch the script
 		const script = await scripts.get(request.params.scriptId)
-		// Loop through the users
+		// Get the list of users to run the script for.
+		if (
+			typeof request.body.users?.length !== 'undefined' &&
+			request.body.users.length === 0
+		)
+			throw new ServerError(
+				'improper-payload',
+				'Please specify one or more users to run the script for.',
+			)
 		const userQueue = request.body.users ?? [request.user!.id]
+
+		// Loop through the users
 		const data: RunScriptResponse = {}
 		for (const userId of userQueue) {
 			// Get the current user so the script can access it, but do not let the
 			// script get their access token
 			const user = await users.get(userId)
+			// @ts-expect-error Lua doesn't have a Date equivalent, so make it easier for
+			// the interpreter by giving it a string
+			user.lastSignedIn = user.lastSignedIn.toISOString()
 			// Decode the script (it is stored in base64)
 			script.content = Buffer.from(script.content, 'base64').toString('ascii')
 
@@ -296,7 +309,8 @@ const run = async (
 			const input: Record<string, UserAttribute> = {}
 			for (const { id, optional } of script.input) {
 				try {
-					input[id] = await attributes.get(id)
+					const attribute = await attributes.get(id)
+					input[id] = attribute
 				} catch (error: unknown) {
 					// If we can't find the attribute for the user, and it is a required attribute,
 					// throw a Precondition Failed error.
@@ -305,7 +319,7 @@ const run = async (
 						else
 							throw new ServerError(
 								'precondition-failed',
-								`Could not find the required attribute ${id} for the user.`,
+								`Could not find the required attribute ${id} for user ${user.id}.`,
 							)
 					}
 				}

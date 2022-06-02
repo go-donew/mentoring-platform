@@ -26,7 +26,8 @@
 		"develop": "run-p watch",
 		"compile": "run-s clean build",
 		"test": "run-s compile lint test:*",
-		"prepare": "bash -c \"[[ -z \\\"$FIREBASE_DEPLOY\\\" ]] && pnpm run-s compile || true\""
+		"patch": "patch-package",
+		"prepare": "bash -c \"[[ -z \\\"$FIREBASE_DEPLOY\\\" ]] && pnpm run-s patch compile || true\""
 	},
 	"dependencies": {
 		"@google-cloud/functions-framework": "3.1.1",
@@ -53,6 +54,7 @@
 		"@donew-innovations/eslint-config": "file:../config/eslint",
 		"@donew-innovations/prettier-config": "file:../config/prettier",
 		"@donew-innovations/tsconfig": "file:../config/tsconfig",
+		"@milahu/patch-package": "6.4.14",
 		"@types/cors": "2.8.12",
 		"@types/ejs": "3.1.1",
 		"@types/express": "4.17.13",

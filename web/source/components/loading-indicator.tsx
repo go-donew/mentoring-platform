@@ -8,9 +8,16 @@
  *
  * @component
  */
-export const LoadingIndicator = (props: { isLoading: boolean }) => (
+export const LoadingIndicator = (props: {
+	isLoading: boolean
+	class?: string
+}) => (
 	<div
-		class={props.isLoading ? 'flex justify-center items-center m-4' : 'hidden'}
+		class={
+			props.isLoading
+				? 'flex justify-center items-center m-4 ' + (props.class ?? '')
+				: 'hidden'
+		}
 	>
 		<span class="sr-only">Loading...</span>
 		<svg
