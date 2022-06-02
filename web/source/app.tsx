@@ -9,6 +9,7 @@ import * as Pages from './pages'
 
 import { fetch, isErrorResponse } from './utilities/http'
 import { isAuthenticated } from './utilities/auth'
+import { storage } from './utilities/storage'
 
 import type { User } from './api'
 
@@ -45,10 +46,7 @@ export class App extends Component {
 		// Fetch user metadata, which includes whether or not the user is Groot.
 		// This allows pages to render some content only if the user is Groot.
 		const response = await fetch<{
-			user: User & {
-				isGroot: boolean
-				token: string
-			}
+			user: User & { isGroot: boolean }
 		}>({
 			url: '/meta',
 			method: 'get',
@@ -57,6 +55,7 @@ export class App extends Component {
 		if (isErrorResponse(response)) return
 
 		// Set whether or not the user is Groot.
+		storage.set('user', response.user)
 		this.setState({ groot: response.user.isGroot })
 	}
 
@@ -202,6 +201,12 @@ export class App extends Component {
 				name: 'Edit Script',
 				component: Pages.ScriptEditPage,
 				nav: false,
+			},
+			{
+				path: '/reports',
+				name: 'Reports',
+				component: Pages.ReportListPage,
+				nav: this.state.groot,
 			},
 			{
 				path: '/404',

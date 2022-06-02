@@ -15,6 +15,7 @@ setupShiki('https://unpkg.com/shiki/')
  *
  * @prop {string} id - An ID to refer to the input in tests.
  * @prop {string} code - The code to render.
+ * @prop {'lua' | 'html'} language - The language of the code to highlight.
  * @prop {Function?} update - The function to call when the text in the element changes.
  *
  * @component
@@ -22,6 +23,7 @@ setupShiki('https://unpkg.com/shiki/')
 export const CodeEditor = (props: {
 	id: string
 	code: string
+	language: 'lua' | 'html'
 	update?: (value: string) => void
 }) => {
 	// Get the current theme.
@@ -32,7 +34,7 @@ export const CodeEditor = (props: {
 	// Instantiate the highlighter.
 	const highlighter = getHighlighter({
 		theme: `github-${theme}`,
-		langs: ['lua'],
+		langs: ['lua', 'html'],
 		themes: ['github-dark', 'github-light'],
 	})
 
@@ -40,7 +42,7 @@ export const CodeEditor = (props: {
 	useEffect(() => {
 		highlighter
 			.then(({ codeToHtml }) =>
-				setHighlightedCode(codeToHtml(props.code, { lang: 'lua' })),
+				setHighlightedCode(codeToHtml(props.code, { lang: props.language })),
 			)
 			.catch((_error) => {})
 	})
@@ -59,7 +61,7 @@ export const CodeEditor = (props: {
 					highlighter
 						.then(({ codeToHtml }) =>
 							setHighlightedCode(
-								codeToHtml(event.target.value, { lang: 'lua' }),
+								codeToHtml(event.target.value, { lang: props.language }),
 							),
 						)
 						.catch((_error) => {})

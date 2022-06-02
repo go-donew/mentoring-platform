@@ -98,7 +98,7 @@ function compute(context)
   -- The attributes will be set on the user passed in as \`context.user\`.
   return {
     attributes = {
-      "{Smartness}" = {
+      ["{Smartness}"] = {
         value = quizScore
       }
     }
@@ -535,6 +535,7 @@ export const ScriptCreatePage = () => {
 								<CodeEditor
 									id="code-input"
 									code={script.content!}
+									language="lua"
 									update={(value: string) => {
 										dispatch({
 											type: 'update-field',

@@ -562,6 +562,7 @@ export const ScriptEditPage = (props: { scriptId: string }) => {
 								<CodeEditor
 									id="code-input"
 									code={script.content!}
+									language="lua"
 									update={(value: string) => {
 										dispatch({
 											type: 'update-field',
