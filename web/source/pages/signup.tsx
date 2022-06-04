@@ -167,9 +167,12 @@ export const SignUpPage = () => {
 		storage.set('user', response.user)
 		storage.set('tokens', response.tokens)
 
-		// Then route the user to the home page.
+		// Then route the user to the home page or whatever page they want to go to.
+		const redirectTo = new URLSearchParams(window.location.search).get(
+			'redirect',
+		)
 		setLoading(false)
-		route('/', true)
+		route(redirectTo ?? '/', true)
 	}
 
 	return (

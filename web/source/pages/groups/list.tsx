@@ -14,6 +14,7 @@ import {
 import { fetch, isErrorResponse } from '@/utilities/http'
 
 import type { User, Group, Conversation, Report } from '@/api'
+import { storage } from '@/utilities/storage'
 
 /**
  * A item that shows a group in the list.
@@ -188,7 +189,11 @@ const GroupItem = (props: { group: Group; allowEdit: boolean }) => {
 
 					return (
 						<>
-							<a href={`/reports/${reportId}`}>
+							<a
+								href={`/users/${
+									storage.get<User>('user')!.id
+								}/reports/${reportId}`}
+							>
 								<span class="text-gray-900 dark:text-white">{reportName} </span>
 								<span class="text-gray-500 dark:text-gray-400">
 									{roles.join(', ')}

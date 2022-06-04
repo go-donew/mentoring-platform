@@ -21,7 +21,7 @@ const endpoint = createRouter()
  *
  * @param {ListOrFindConversationsPayload} request.body - The query to run and find conversations.
  *
- * @returns {ListOrFindConversationsResponse} 200 - The conversations returned from the query. You must be Groot to list or query all conversations.
+ * @returns {ListOrFindConversationsResponse} 200 - The conversations that the user is allowed to take.
  * @returns {ImproperPayloadError} 400 - The query was invalid.
  * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
  * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation.
@@ -38,10 +38,7 @@ const endpoint = createRouter()
  */
 endpoint.get(
 	'/',
-	permit({
-		subject: 'conversation',
-		roles: 'dynamic',
-	}),
+	// => permit('anyone'),
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await conversations.find(request)
 

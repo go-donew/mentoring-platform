@@ -5,6 +5,7 @@ import type { ServiceRequest, ServiceResponse, Query } from '@/types'
 
 import { ServerError } from '@/errors'
 import { Conversation } from '@/models/conversation'
+import { provider as groups } from '@/provider/data/groups'
 import { provider as conversations } from '@/provider/data/conversations'
 import { provider as questions } from '@/provider/data/conversations/questions'
 import { generateId } from '@/utilities'
@@ -54,8 +55,45 @@ const find = async (
 			else query.push({ field, operator: '==', value })
 		}
 
-		const foundConversations = await conversations.find(query)
+		// If the user is Groot, then return all conversations
+		if (request.user!.isGroot) {
+			const foundConversations = await conversations.find(query)
 
+			const data = { conversations: foundConversations }
+			return {
+				status: 200,
+				data,
+			}
+		}
+
+		// Otherwise return all the conversations the user can take
+		// Get the groups the user is part of and which conversations they are
+		// allowed to take
+		const foundGroups = await groups.find([
+			{
+				field: 'participants',
+				operator: 'includes',
+				value: request.user!.id,
+			},
+		])
+
+		const conversationIds = []
+		for (const group of foundGroups) {
+			for (const [conversationId, roles] of Object.entries(
+				group.conversations,
+			)) {
+				if (roles.includes(group.participants[request.user!.id]))
+					conversationIds.push(conversationId)
+			}
+		}
+
+		// Fetch the conversations
+		const foundConversations = []
+		for (const conversationId of conversationIds) {
+			foundConversations.push(await conversations.get(conversationId))
+		}
+
+		// Return the conversations
 		const data = { conversations: foundConversations }
 		return {
 			status: 200,

@@ -329,7 +329,11 @@ endpoint.get(
 		const result = await reports.get(request)
 
 		if (result.error) response.sendError(result.error)
-		else response.status(result.status!).send(result.data)
+		else
+			response
+				.status(result.status!)
+				.header('content-type', 'text/html')
+				.send(result.data)
 	},
 )
 

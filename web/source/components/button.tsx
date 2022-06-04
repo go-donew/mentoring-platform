@@ -21,7 +21,7 @@ export const Button = (props: {
 	<button
 		id={props.id}
 		type="button"
-		class={`px-4 py-2 text-sm font-bold rounded-lg ${
+		class={`px-auto md:px-4 py-2 justify-center items-center text-sm font-bold rounded-lg ${
 			props.type === 'filled'
 				? 'bg-primary dark:bg-primary-dark text-on-primary dark:text-on-primary-dark'
 				: 'text-on-background dark:text-on-background-dark'

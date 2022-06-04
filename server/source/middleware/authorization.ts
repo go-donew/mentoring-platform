@@ -7,6 +7,8 @@ import { ServerError } from '@/errors'
 import { provider as groups } from '@/provider/data/groups'
 import { handleAsyncErrors } from '@/utilities'
 import { logger, stringify } from '@/utilities/logger'
+import { Query } from '@/types'
+import { Group } from '@/models/group'
 
 /**
  * The context in which a request is to be allowed to pass. The `subject` indicates
@@ -242,12 +244,7 @@ export const permit = (context: AuthorizationContext): RequestHandler =>
 			if (context.subject === 'report') {
 				// Query the database and check if the client is part of a group and that
 				// the group members are allowed to view the report
-				const foundGroups = await groups.find([
-					{
-						field: `participants`,
-						operator: 'includes',
-						value: request.params.userId,
-					},
+				const query = [
 					{
 						field: `participants`,
 						operator: 'includes',
@@ -256,16 +253,28 @@ export const permit = (context: AuthorizationContext): RequestHandler =>
 					{
 						field: 'reports',
 						operator: 'includes',
-						value: request.params.reportType,
+						value: request.params.reportId,
 					},
-				])
+				]
+
+				// The user ID can only be found in the URL if the user is making a
+				// render report request, and not when the user is fetching details
+				// about the report
+				if (request.params.userId)
+					query.push({
+						field: `participants`,
+						operator: 'includes',
+						value: request.params.userId,
+					})
+
+				const foundGroups = await groups.find(query as Array<Query<Group>>)
 
 				// Within a group, it is possible to restrict the ability to view the
 				// report to certain roles. Check if the user has the correct role to
 				// view the report
 				if (
 					foundGroups.some((group) =>
-						group.reports[request.params.reportType].includes(
+						group.reports[request.params.reportId].includes(
 							group.participants[request.user!.id],
 						),
 					)

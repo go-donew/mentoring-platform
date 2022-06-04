@@ -1,6 +1,8 @@
 // @/services/users/reports.ts
 // Service that handles user report search, creation, modification, deletion operations.
 
+import { Buffer } from 'node:buffer'
+
 import { render } from 'ejs'
 
 import type { ServiceRequest, ServiceResponse } from '@/types'
@@ -64,7 +66,10 @@ const get = async (
 			}
 		}
 
-		// Render the report
+		// Decode the script (it is stored in base64)
+		report.template = Buffer.from(report.template, 'base64').toString('ascii')
+
+		// Render the report HTML
 		const html = render(report.template, {
 			context: { input, user },
 		})
@@ -75,6 +80,7 @@ const get = async (
 			data,
 		}
 	} catch (error: unknown) {
+		console.trace(error)
 		return {
 			error:
 				error instanceof ServerError ? error : new ServerError('server-crash'),

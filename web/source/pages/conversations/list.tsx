@@ -46,6 +46,13 @@ const ConversationItem = (props: {
 		<td class="p-2">{props.conversation.once.toString()}</td>
 		<td class="h-4 p-2 text-right">
 			<Button
+				id="take-conversation-button"
+				text="Take"
+				action={() => route(`/conversations/${props.conversation.id}`)}
+				type="text"
+				class="col-span-1 w-fit text-secondary dark:text-secondary-dark font-semibold"
+			/>
+			<Button
 				id="edit-conversation-button"
 				text="Edit"
 				action={() => route(`/conversations/${props.conversation.id}/edit`)}

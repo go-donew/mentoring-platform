@@ -1,5 +1,5 @@
-// source/pages/scripts/create.tsx
-// Defines and exports the script create page.
+// source/pages/reports/edit.tsx
+// Defines and exports the report edit page.
 
 import { useState, useEffect, useReducer } from 'preact/hooks'
 import { route } from 'preact-router'
@@ -11,31 +11,32 @@ import {
 	TextInput,
 	CodeEditor,
 	SelectInput,
+	LoadingIndicator,
 	Toast,
 	PageWrapper,
 } from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
 import { errors } from '@/utilities/text'
 
-import type {
-	Attribute,
-	Script,
-	DependentAttribute,
-	ComputedAttribute,
-} from '@/api'
+import { Attribute, Report, DependentAttribute, User } from '@/api'
+import { storage } from '@/utilities/storage'
 
 /**
  * The form's state.
  */
-type ScriptFormState = Partial<Omit<Script, 'id'>>
+type ReportFormState = Partial<Report>
 /**
  * The action that is dispatched to the reducer to update the form's state.
  */
-type ScriptCreateFormAction =
+type ReportEditFormAction =
 	| {
 			type: 'update-field'
-			field: keyof Script
+			field: keyof Report
 			payload?: any
+	  }
+	| {
+			type: 'set-report'
+			payload: Report
 	  }
 	| {
 			type: 'add-input-attribute'
@@ -52,87 +53,26 @@ type ScriptCreateFormAction =
 				optional: boolean
 			}
 	  }
-	| {
-			type: 'add-computed-attribute'
-	  }
-	| {
-			type: 'update-computed-attribute'
-			payload: ComputedAttribute
-	  }
-	| {
-			type: 'replace-computed-attribute'
-			payload: {
-				existing: string
-				new: string
-				optional: boolean
-			}
-	  }
 
 /**
- * An example script that Groot can edit.
- */
-const exampleScript = `
--- scripts/example
--- An example script that calculates the score of a user in a quiz.
-
--- The computation of the attribute must be done in a \`compute\` function, that
--- is called with context.
-function compute(context)
-  -- The \`context.input\` variable contains the attributes requested as script as
-  -- input. If the input attribute is required and not present, the script will
-  -- not be run, so you can safely assume that the attribute exists. If the attribute
-  -- is optional, it may or may not exist, please do a null check before using it.
-	-- Each attribute contains the attribute ID, current value and attribute history,
-	-- that you can use:
-	-- - context.input[<ID>].id
-	-- - context.input[<ID>].value
-	-- - context.input[<ID>].history
-	-- Instead of specifying the attribute ID, you could specify the name in curly
-	-- brackets instead, and we will replace it with the ID of the attribute.
-
-  -- The \`context.user\` variable contains information about the current user (name,
-  -- email, user ID, etc.) that you can use:
-  -- - context.user.id
-	-- - context.user.name
-	-- - context.user.email
-	-- - context.user.lastSignedIn
-  
-  -- The smartness can be calculated by taking the average of their scores
-  -- in the quiz.
-  knowsCleanestCity = context.input["{Knows Cleanest City}"].value
-  knowsCapitalCity = context.input["{Knows Capital City}"].value
-  quizScore = (knowsCapitalCity + knowsCleanestCity) / 2
-	quizScoreAsPercentage = quizScore * 100
-
-  -- The returned object must be a lua table containing the user attributes to set.
-  -- The attributes will be set on the user passed in as \`context.user\`.
-  return {
-    attributes = {
-      ["{Quiz Score}"] = {
-        value = quizScoreAsPercentage
-      }
-    }
-  }
-end
-`.trim()
-
-/**
- * The script create page.
+ * The report edit page.
+ *
+ * @prop {string} reportId - The ID of the report to edit.
  *
  * @page
  */
-export const ScriptCreatePage = () => {
+export const ReportEditPage = (props: { reportId: string }) => {
 	/**
 	 * The reducer to update the form. The reducer will be called with
 	 * the current values of the form, and the action that was dispatched.
 	 *
-	 * @param {ScriptFormState} state - The current state of the form.
-	 * @param {ScriptCreateFormAction} action - The action to perform.
+	 * @param {ReportFormState} state - The current state of the form.
+	 * @param {ReportEditFormAction} action - The action to perform.
 	 */
 	const reducer = (
-		state: ScriptFormState,
-		action: ScriptCreateFormAction,
-	): ScriptFormState => {
+		state: ReportFormState,
+		action: ReportEditFormAction,
+	): ReportFormState => {
 		// Parse the action, and do something with it.
 		switch (action.type) {
 			case 'update-field':
@@ -143,6 +83,8 @@ export const ScriptCreatePage = () => {
 					...state,
 					[action.field]: action.payload,
 				}
+			case 'set-report':
+				return action.payload
 			case 'add-input-attribute':
 				return {
 					...state,
@@ -178,41 +120,6 @@ export const ScriptCreatePage = () => {
 				}
 			}
 
-			case 'add-computed-attribute':
-				return {
-					...state,
-					computed: [
-						...(state.computed ?? []),
-						{
-							id: '',
-							optional: false,
-						},
-					],
-				}
-			case 'update-computed-attribute':
-				return {
-					...state,
-					computed: (state.computed ?? []).map((attr) =>
-						attr.id === action.payload.id ? action.payload : attr,
-					),
-				}
-
-			case 'replace-computed-attribute': {
-				const updatedAttributes = (state.computed ?? []).filter(
-					(attr) => attr.id !== action.payload.existing,
-				)
-
-				updatedAttributes.push({
-					id: action.payload.new,
-					optional: action.payload.optional,
-				})
-
-				return {
-					...state,
-					computed: updatedAttributes,
-				}
-			}
-
 			default:
 				return state
 		}
@@ -220,13 +127,11 @@ export const ScriptCreatePage = () => {
 		return state
 	}
 
-	// Create the reducer.
-	const [script, dispatch] = useReducer<
-		ScriptFormState,
-		ScriptCreateFormAction
-	>(reducer, {
-		content: exampleScript,
-	})
+	// Edit the reducer.
+	const [report, dispatch] = useReducer<ReportFormState, ReportEditFormAction>(
+		reducer,
+		{},
+	)
 
 	// Define a state for error messages and the list of attributes.
 	const [currentError, setErrorMessage] = useState<string | undefined>(
@@ -237,6 +142,18 @@ export const ScriptCreatePage = () => {
 
 	// Fetch the attributes using the API.
 	useEffect(() => {
+		const fetchReport = async (): Promise<Report> => {
+			const response = await fetch<{ report: Report }>({
+				url: `/reports/${props.reportId}`,
+				method: 'get',
+			})
+
+			// Handle any errors that might arise...
+			if (isErrorResponse(response)) throw new Error(response.error.message)
+			// ...and if there are none, return the data.
+			return response.report
+		}
+
 		const fetchAttributes = async (): Promise<Attribute[]> => {
 			const response = await fetch<{ attributes: Attribute[] }>({
 				url: '/attributes',
@@ -249,63 +166,98 @@ export const ScriptCreatePage = () => {
 			return response.attributes
 		}
 
-		fetchAttributes()
-			.then(setAttributes)
+		const decodeReportContent = async (
+			fetchedReport: Report,
+			fetchedAttributes: Attribute[],
+		): Promise<Report> => {
+			// First, decode the code from its base64 form.
+			fetchedReport.template = atob(fetchedReport.template)
+
+			// Then, replace all the attribute IDs with attribute names.
+			const attributeIdMatches = [
+				...fetchedReport.template.matchAll(/(\w{28})/g),
+			]
+			for (const [_match, attributeId] of attributeIdMatches) {
+				// Find the attribute.
+				const attribute = fetchedAttributes.find(
+					(attr) => attr.id === attributeId,
+				)
+				// If it does not exist, error out.
+				if (!attribute) {
+					throw new Error(
+						errors.get('report-attribute-not-found') + attributeId,
+					)
+				}
+
+				// Else replace the attribute name with the ID.
+				fetchedReport.template = fetchedReport.template.replace(
+					new RegExp(`"${attribute.id}"`, 'g'),
+					`"{${attribute.name}}"`,
+				)
+			}
+
+			return fetchedReport
+		}
+
+		Promise.all([fetchAttributes(), fetchReport()])
+			.then(async ([fetchedAttributes, fetchedReport]) => {
+				const decodedReport = await decodeReportContent(
+					fetchedReport,
+					fetchedAttributes,
+				)
+				dispatch({ type: 'set-report', payload: decodedReport })
+
+				setAttributes(fetchedAttributes)
+			})
 			.catch((error) => setErrorMessage(error.message))
 	}, [])
 
 	/**
-	 * Create the script using the API.
+	 * Update the report using the API.
 	 */
-	const createScript = async () => {
+	const saveReport = async () => {
 		// Clear the error message.
 		setErrorMessage(undefined)
-		// Delete any blank attribute IDs from the script.
-		script.input = script.input
-			? script.input.filter((attr) => Boolean(attr.id))
+		// Delete any blank attribute IDs from the report.
+		report.input = report.input
+			? report.input.filter((attr) => Boolean(attr.id))
 			: []
-		script.computed = script.computed
-			? script.computed.filter((attr) => Boolean(attr.id))
-			: []
-		// Replace all attribute names with actual IDs in the script.
-		const attributeNameMatches = [...script.content!.matchAll(/"{(.*?)}"/g)]
+		// Replace all attribute names with actual IDs in the report.
+		const attributeNameMatches = [...report.template!.matchAll(/"{(.*?)}"/g)]
 		// Keep a copy of the original incase an error is detected and we need to
 		// abort.
-		const originalContents = script.content
+		const originalContents = report.template
 		for (const [_match, attributeName] of attributeNameMatches) {
 			// Find the attribute.
 			const attribute = attributes.find((attr) => attr.name === attributeName)
-			// If it does not exist, error out and restore the script.
+			// If it does not exist, error out and restore the report.
 			if (!attribute) {
-				script.content = originalContents
+				report.template = originalContents
 				return setErrorMessage(
-					errors.get('script-attribute-not-found') + attributeName,
+					errors.get('report-attribute-not-found') + attributeName,
 				)
 			}
 
 			// Else replace the attribute name with the ID.
-			script.content = script.content!.replace(
+			report.template = report.template!.replace(
 				new RegExp(`"{${attribute.name}}"`, 'g'),
 				`"${attribute.id}"`,
 			)
 		}
 
-		// Base64 encode the script's contents.
-		script.content = btoa(script.content!)
+		// Base64 encode the report's templates.
+		report.template = btoa(report.template!)
 
-		// Make the API call to create the script.
-		const response = await fetch<{ script: Script }>({
-			url: '/scripts',
-			method: 'post',
-			json: script,
+		// Make the API call to edit the report.
+		const response = await fetch<{ report: Report }>({
+			url: `/reports/${report.id}`,
+			method: 'put',
+			json: report,
 		})
 
 		// Handle any errors that might arise.
 		if (isErrorResponse(response))
 			return setErrorMessage(response.error.message)
-
-		// Then route the attribute to the script list page.
-		route('/scripts')
 	}
 
 	return (
@@ -313,18 +265,23 @@ export const ScriptCreatePage = () => {
 			<div class="mx-auto p-8 max-w-7xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
 				<div class="flex justify-between items-center mb-4">
 					<h5 class="text-xl font-bold leading-none text-gray-900 dark:text-white">
-						Create Script
+						Edit Report
 					</h5>
 				</div>
-				<div>
+				<LoadingIndicator
+					isLoading={
+						typeof report === 'undefined' && currentError === undefined
+					}
+				/>
+				<div class={typeof report === 'undefined' ? 'hidden' : ''}>
 					<div class="overflow-x-auto sm:rounded-lg">
 						<div class="grid grid-cols-6 gap-6">
 							<div class="col-span-6 sm:col-span-3">
 								<TextInput
 									id="name-input"
 									label="Name"
-									type="script-name"
-									value={script?.name}
+									type="report-name"
+									value={report?.name}
 									required={true}
 									update={(value: string) =>
 										dispatch({
@@ -339,8 +296,8 @@ export const ScriptCreatePage = () => {
 								<TextInput
 									id="tags-input"
 									label="Tags"
-									type="script-tags"
-									value={script?.tags?.join(', ')}
+									type="report-tags"
+									value={report?.tags?.join(', ')}
 									required={true}
 									update={(value: string) =>
 										dispatch({
@@ -358,8 +315,8 @@ export const ScriptCreatePage = () => {
 								<TextInput
 									id="description-input"
 									label="Description"
-									type="script-description"
-									value={script?.description}
+									type="report-description"
+									value={report?.description}
 									required={true}
 									update={(value: string) =>
 										dispatch({
@@ -389,7 +346,7 @@ export const ScriptCreatePage = () => {
 									</tr>
 								</thead>
 								<tbody>
-									{(script?.input ?? []).map(({ id, optional }) => {
+									{(report?.input ?? []).map(({ id, optional }) => {
 										return (
 											<tr>
 												<td class="pr-3">
@@ -442,92 +399,7 @@ export const ScriptCreatePage = () => {
 															dispatch({
 																type: 'update-field',
 																field: 'input',
-																payload: (script.input ?? []).filter(
-																	(attr) => attr.id !== id,
-																),
-															})
-														}}
-														icon="remove"
-													/>
-												</td>
-											</tr>
-										)
-									})}
-								</tbody>
-							</table>
-							<table class="col-span-6">
-								<thead>
-									<tr class="text-sm text-gray-700 dark:text-gray-300">
-										<th class="text-left font-medium">Computed Attribute</th>
-										<th class="text-left font-medium">Optional</th>
-										<th class="text-right">
-											<IconButton
-												id="add-computed-attribute-button"
-												action={() =>
-													dispatch({
-														type: 'add-computed-attribute',
-													})
-												}
-												icon="add"
-											/>
-										</th>
-									</tr>
-								</thead>
-								<tbody>
-									{(script?.computed ?? []).map(({ id, optional }) => {
-										return (
-											<tr>
-												<td class="pr-3">
-													<SelectInput
-														id="computed-attribute-id"
-														options={attributes.map((attribute) => {
-															return {
-																text: `${attribute.name}`,
-																value: attribute.id,
-															}
-														})}
-														selected={id}
-														update={(selectedValue: string) => {
-															dispatch({
-																type: 'replace-computed-attribute',
-																payload: {
-																	existing: id,
-																	new: selectedValue,
-																	optional,
-																},
-															})
-
-															id = selectedValue
-														}}
-													/>
-												</td>
-												<td class="pr-3">
-													<SelectInput
-														id="computed-attribute-optional"
-														options={[
-															{ text: 'No', value: 'false' },
-															{ text: 'Yes', value: 'true' },
-														]}
-														selected={optional ? 'true' : 'false'}
-														update={(selectedValue: string) => {
-															dispatch({
-																type: 'update-computed-attribute',
-																payload: {
-																	id,
-																	optional: selectedValue !== 'false',
-																},
-															})
-														}}
-													/>
-												</td>
-												<td class="pr-1 text-right">
-													<IconButton
-														id="remove-computed-button"
-														action={() => {
-															dispatch({
-																type: 'update-field',
-																field: 'computed',
-																payload: (script.computed ?? []).filter(
+																payload: (report.input ?? []).filter(
 																	(attr) => attr.id !== id,
 																),
 															})
@@ -544,12 +416,12 @@ export const ScriptCreatePage = () => {
 								<Label for="code-input" text="Code" required={true} />
 								<CodeEditor
 									id="code-input"
-									code={script.content!}
-									language="lua"
+									code={report.template!}
+									language="html"
 									update={(value: string) => {
 										dispatch({
 											type: 'update-field',
-											field: 'content',
+											field: 'template',
 											payload: value,
 										})
 									}}
@@ -557,19 +429,33 @@ export const ScriptCreatePage = () => {
 							</div>
 						</div>
 					</div>
-					<div class="mt-4 grid grid-cols-4 gap-4 md:grid-cols-6 md:gap-6">
-						<div class="hidden md:block md:col-span-4"></div>
+					<div class="mt-4 grid grid-cols-6">
 						<Button
 							id="back-button"
-							text="Cancel"
-							action={() => route('/scripts')}
+							text="Back"
+							action={() => route('/reports')}
+							type="text"
+							class="col-span-2 md:col-span-1 text-left"
+						/>
+						<div class="hidden md:block md:col-span-3"></div>
+						<Button
+							id="preview-report-button"
+							text="Preview Report"
+							action={() =>
+								// Preview the report for the current user.
+								window.open(
+									`/users/${
+										storage.get<User>('user')!.id
+									}/reports/${report.id!}`,
+								)
+							}
 							type="text"
 							class="col-span-2 md:col-span-1"
 						/>
 						<Button
 							id="save-button"
-							text="Create"
-							action={async () => createScript()}
+							text="Save"
+							action={async () => saveReport()}
 							type="filled"
 							class="col-span-2 md:col-span-1"
 						/>

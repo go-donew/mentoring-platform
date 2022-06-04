@@ -9,6 +9,8 @@ import { errors } from './text'
 
 import type { Tokens } from '@/api'
 
+const json = JSON
+
 /**
  * A set of options to pass to the wrapper function to make an HTTP request.
  */
@@ -90,6 +92,10 @@ export const _fetch = ky.create({
 	hooks: {
 		afterResponse: [
 			async (request: any, _options: any, response: any) => {
+				// Only run this hook if the body is JSON.
+				if (!response.headers.get('content-type').includes('application/json'))
+					return
+
 				const { status } = response
 				const body = await response.json()
 
@@ -151,10 +157,16 @@ export const fetch = async <T>(
 			json: options.json,
 			searchParams: options.query,
 			headers: options.headers,
-		}).json<MentoringApiResponse<T>>()
+		})
 
-		// Then return the response.
-		return response as MentoringApiResponse<T>
+		// Check if the response is JSON or not.
+		if (response.headers.get('content-type')?.includes('application/json')) {
+			// If it is, parse it and return the json.
+			return (await response.json()) as MentoringApiResponse<T>
+		}
+
+		// Else return the response as a string.
+		return (await response.text()) as unknown as MentoringApiResponse<T>
 	} catch (error: unknown) {
 		// If an error occurs, check if it is a network error.
 		if ((error as any).message?.includes('NetworkError')) {

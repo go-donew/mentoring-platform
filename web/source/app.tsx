@@ -82,10 +82,11 @@ export class App extends Component {
 		// let them go ahead; else redirect them to the sign in page.
 		if (
 			!this.isUserSignedIn() &&
-			event.url !== '/signin' &&
-			event.url !== '/signup'
-		)
-			route('/signin')
+			!event.url.startsWith('/signin') &&
+			!event.url.startsWith('/signup')
+		) {
+			route(`/signin?redirect=${event.url}`)
+		}
 	}
 
 	/**
@@ -96,8 +97,8 @@ export class App extends Component {
 		const routes = [
 			{
 				path: '/',
-				name: 'Home',
-				component: Pages.HomePage,
+				name: 'Conversations',
+				component: Pages.ConversationListPage,
 				nav: true,
 			},
 			{
@@ -146,7 +147,7 @@ export class App extends Component {
 				path: '/conversations',
 				name: 'Conversations',
 				component: Pages.ConversationListPage,
-				nav: this.state.groot,
+				nav: false,
 			},
 			{
 				path: '/conversations/create',
@@ -207,6 +208,24 @@ export class App extends Component {
 				name: 'Reports',
 				component: Pages.ReportListPage,
 				nav: this.state.groot,
+			},
+			{
+				path: '/reports/create',
+				name: 'Create Report',
+				component: Pages.ReportCreatePage,
+				nav: false,
+			},
+			{
+				path: '/reports/:reportId/edit',
+				name: 'Edit Report',
+				component: Pages.ReportEditPage,
+				nav: false,
+			},
+			{
+				path: '/users/:userId/reports/:reportId',
+				name: 'View User Report',
+				component: Pages.ViewUserReportPage,
+				nav: false,
 			},
 			{
 				path: '/404',
