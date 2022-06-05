@@ -1658,7 +1658,16 @@ describe('conversations', () => {
 			})
 
 			expect(status).toEqual(200)
-			expect(body.conversations.length).toEqual(0)
+			expect(body.conversations.length).toEqual(1)
+			expect(body.conversations).toMatchShapeOf([
+				{
+					id: 'string',
+					name: 'string',
+					description: 'string',
+					once: true,
+					tags: ['string'],
+				},
+			])
 		})
 	})
 

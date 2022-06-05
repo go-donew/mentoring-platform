@@ -18,7 +18,7 @@
     "compile": "pnpm --recursive --stream compile",
     "lint": "pnpm --recursive --stream lint",
     "format": "pnpm --recursive --stream format",
-    "emulate": "firebase emulators:exec --project donew-mentoring-api-sandbox --export-on-exit .cache/ --ui",
+    "emulate": "firebase emulators:exec --project donew-mentoring-api-sandbox --export-on-exit .cache/ --import .cache/ --ui",
     "test:api": "pnpm --filter ./server test",
     "test:app": "pnpm --filter ./web test",
     "test": "pnpm emulate \"pnpm test:api && pnpm test:app\"",
