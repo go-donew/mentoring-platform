@@ -1648,8 +1648,8 @@ describe('conversations', () => {
 			])
 		})
 
-		it('should return a `not-allowed` error if the requesting user is not groot', async () => {
-			const error = await fetchError({
+		it('should only list conversations the requesting user can take upon a valid request', async () => {
+			const { body, status } = await fetch({
 				method: 'get',
 				url: `conversations`,
 				headers: {
@@ -1657,8 +1657,8 @@ describe('conversations', () => {
 				},
 			})
 
-			expect(error?.status).toEqual(403)
-			expect(error?.code).toEqual('not-allowed')
+			expect(status).toEqual(200)
+			expect(body.conversations.length).toEqual(0)
 		})
 	})
 
