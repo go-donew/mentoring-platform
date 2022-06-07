@@ -45,11 +45,11 @@ export type ListOrFindUsersResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the list of users that match the query.
  */
 const find = async (
-	request: ServiceRequest<ListOrFindUsersPayload, unknown>,
+	request: ServiceRequest<ListOrFindUsersPayload>,
 ): Promise<ServiceResponse<ListOrFindUsersResponse>> => {
 	try {
 		const query: Array<Query<User>> = []
-		for (const [field, value] of Object.entries(request.body)) {
+		for (const [field, value] of Object.entries(request.data)) {
 			if (field.endsWith('Before'))
 				query.push({
 					field: field.replace(/Before$/, ''),
@@ -94,10 +94,10 @@ export type RetrieveUserResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the user that matches the query.
  */
 const get = async (
-	request: ServiceRequest<unknown, { userId: string }>,
+	request: ServiceRequest<{ userId: string }>,
 ): Promise<ServiceResponse<RetrieveUserResponse>> => {
 	try {
-		const user = await users.get(request.params.userId)
+		const user = await users.get(request.data.userId)
 
 		const data = { user }
 		return {
@@ -173,12 +173,12 @@ export type UpdateUserResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the updated user.
  */
 const update = async (
-	request: ServiceRequest<UpdateUserPayload, { userId: string }>,
+	request: ServiceRequest<UpdateUserPayload & { userId: string }>,
 ): Promise<ServiceResponse<UpdateUserResponse>> => {
 	try {
 		const user = await users.update({
-			...request.body,
-			id: request.params.userId,
+			...request.data,
+			id: request.data.userId,
 		})
 
 		const data = { user }
@@ -202,11 +202,11 @@ const update = async (
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return nothing.
  */
 const _delete = async (
-	request: ServiceRequest<unknown, { userId: string }>,
+	request: ServiceRequest<{ userId: string }>,
 ): Promise<ServiceResponse<unknown>> => {
 	try {
-		await auth.deleteAccount(request.params.userId)
-		await users.delete(request.params.userId)
+		await auth.deleteAccount(request.data.userId)
+		await users.delete(request.data.userId)
 
 		const data = {}
 		return {

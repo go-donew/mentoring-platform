@@ -123,29 +123,23 @@ export declare type CustomClaims = {
 /**
  * The object sent as a request to a service.
  */
-export declare type ServiceRequest<D, P> = {
+export declare type ServiceRequest<D> = {
 	/**
-	 * The user making the request.
+	 * The metadata of the request, i.e., who is making the request, and their
+	 * rate limit data.
 	 */
-	user?: User & {
-		isGroot: boolean
-		token: string
+	context?: {
+		user: User & {
+			isGroot: boolean
+			token: string
+		}
+		rate: RateLimitInfo
 	}
 
 	/**
 	 * The request data.
 	 */
-	body: D
-
-	/**
-	 * The request parameters.
-	 */
-	params: P | Record<string, any>
-
-	/**
-	 * The request rate limit data.
-	 */
-	rateLimit: RateLimitInfo
+	data: D
 }
 
 /**

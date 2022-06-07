@@ -29,15 +29,15 @@ export type RetrieveUserReportResponse = string
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the rendered report as HTML.
  */
 const get = async (
-	request: ServiceRequest<unknown, { userId: string; reportId: string }>,
+	request: ServiceRequest<{ userId: string; reportId: string }>,
 ): Promise<ServiceResponse<RetrieveUserReportResponse>> => {
 	try {
 		// Fetch the report to render
-		const report = await reports.get(request.params.reportId)
+		const report = await reports.get(request.data.reportId)
 		// Fetch the user's details
-		const user = await users.get(request.params.userId)
+		const user = await users.get(request.data.userId)
 
-		userAttributes.userId = request.params.userId
+		userAttributes.userId = request.data.userId
 
 		// Go through the input attributes and check if they exist
 		const input: Record<

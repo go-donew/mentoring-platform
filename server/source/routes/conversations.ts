@@ -40,7 +40,10 @@ endpoint.get(
 	'/',
 	// => permit('anyone'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await conversations.find(request)
+		const result = await conversations.find({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -79,7 +82,10 @@ endpoint.post(
 	'/',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await conversations.create(request)
+		const result = await conversations.create({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -112,7 +118,10 @@ endpoint.get(
 		roles: 'dynamic',
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await conversations.get(request)
+		const result = await conversations.get({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -144,7 +153,10 @@ endpoint.put(
 	'/:conversationId',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await conversations.update(request)
+		const result = await conversations.update({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -174,7 +186,10 @@ endpoint.delete(
 	'/:conversationId',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await conversations.delete(request)
+		const result = await conversations.delete({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -214,7 +229,10 @@ endpoint.get(
 		roles: 'dynamic',
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await questions.find(request)
+		const result = await questions.find({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -265,7 +283,10 @@ endpoint.post(
 	'/:conversationId/questions',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await questions.create(request)
+		const result = await questions.create({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -299,7 +320,10 @@ endpoint.get(
 		roles: 'dynamic',
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await questions.get(request)
+		const result = await questions.get({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -332,7 +356,10 @@ endpoint.put(
 	'/:conversationId/questions/:questionId',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await questions.update(request)
+		const result = await questions.update({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -363,7 +390,10 @@ endpoint.delete(
 	'/:conversationId/questions/:questionId',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await questions.delete(request)
+		const result = await questions.delete({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -397,7 +427,10 @@ endpoint.put(
 		roles: 'dynamic',
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await questions.answer(request)
+		const result = await questions.answer({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)

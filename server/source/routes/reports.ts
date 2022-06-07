@@ -42,7 +42,10 @@ endpoint.get(
 		roles: 'dynamic',
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await reports.find(request)
+		const result = await reports.find({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -85,7 +88,10 @@ endpoint.post(
 	'/',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await reports.create(request)
+		const result = await reports.create({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -118,7 +124,10 @@ endpoint.get(
 		roles: 'dynamic',
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await reports.get(request)
+		const result = await reports.get({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -150,7 +159,10 @@ endpoint.put(
 	'/:reportId',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await reports.update(request)
+		const result = await reports.update({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -180,7 +192,10 @@ endpoint.delete(
 	'/:reportId',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await reports.delete(request)
+		const result = await reports.delete({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)

@@ -40,11 +40,11 @@ export type ListOrFindReportsResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the reports that match the query.
  */
 const find = async (
-	request: ServiceRequest<ListOrFindReportsPayload, unknown>,
+	request: ServiceRequest<ListOrFindReportsPayload>,
 ): Promise<ServiceResponse<ListOrFindReportsResponse>> => {
 	try {
 		const query: Array<Query<Report>> = []
-		for (const [field, value] of Object.entries(request.body)) {
+		for (const [field, value] of Object.entries(request.data)) {
 			if (['input', 'tags'].includes(field))
 				for (const element of value as string[])
 					query.push({ field, operator: 'includes', value: element })
@@ -102,10 +102,10 @@ export type CreateReportResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the newly created report.
  */
 const create = async (
-	request: ServiceRequest<CreateReportPayload, unknown>,
+	request: ServiceRequest<CreateReportPayload>,
 ): Promise<ServiceResponse<CreateReportResponse>> => {
 	try {
-		const report = await reports.create({ ...request.body, id: generateId() })
+		const report = await reports.create({ ...request.data, id: generateId() })
 
 		const data = { report }
 		return {
@@ -138,10 +138,10 @@ export type RetrieveReportResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the requested report.
  */
 const get = async (
-	request: ServiceRequest<unknown, { reportId: string }>,
+	request: ServiceRequest<{ reportId: string }>,
 ): Promise<ServiceResponse<RetrieveReportResponse>> => {
 	try {
-		const report = await reports.get(request.params.reportId)
+		const report = await reports.get(request.data.reportId)
 
 		const data = { report }
 		return {
@@ -192,12 +192,12 @@ export type UpdateReportResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the updated report.
  */
 const update = async (
-	request: ServiceRequest<UpdateReportPayload, { reportId: string }>,
+	request: ServiceRequest<UpdateReportPayload & { reportId: string }>,
 ): Promise<ServiceResponse<UpdateReportResponse>> => {
 	try {
 		const report = await reports.update({
-			...request.body,
-			id: request.params.reportId,
+			...request.data,
+			id: request.data.reportId,
 		})
 
 		const data = { report }
@@ -221,10 +221,10 @@ const update = async (
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return nothing.
  */
 const _delete = async (
-	request: ServiceRequest<unknown, { reportId: string }>,
+	request: ServiceRequest<{ reportId: string }>,
 ): Promise<ServiceResponse<unknown>> => {
 	try {
-		await reports.delete(request.params.reportId)
+		await reports.delete(request.data.reportId)
 
 		const data = {}
 		return {

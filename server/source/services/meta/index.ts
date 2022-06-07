@@ -31,12 +31,12 @@ export type MetadataResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return metadata about the user calling the API.
  */
 const get = async (
-	request: ServiceRequest<unknown, unknown>,
+	request: ServiceRequest<unknown>,
 ): Promise<ServiceResponse<MetadataResponse>> => {
 	try {
 		const data = {
-			user: request.user!,
-			rate: request.rateLimit,
+			user: request.context!.user,
+			rate: request.context!.rate,
 		}
 
 		return {

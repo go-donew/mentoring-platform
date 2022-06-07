@@ -41,7 +41,10 @@ endpoint.get(
 	'/',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await users.find(request)
+		const result = await users.find({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -74,7 +77,10 @@ endpoint.get(
 		roles: ['self', 'mentor', 'supermentor'],
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await users.get(request)
+		const result = await users.get({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -107,7 +113,10 @@ endpoint.delete(
 		roles: ['self'],
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await users.delete(request)
+		const result = await users.delete({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -147,7 +156,10 @@ endpoint.get(
 		roles: ['self', 'mentor', 'supermentor'],
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await attributes.find(request)
+		const result = await attributes.find({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -188,7 +200,10 @@ endpoint.post(
 		roles: ['self', 'mentor', 'supermentor'],
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await attributes.create(request)
+		const result = await attributes.create({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -222,7 +237,10 @@ endpoint.get(
 		roles: ['self', 'mentor', 'supermentor'],
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await attributes.get(request)
+		const result = await attributes.get({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -258,7 +276,10 @@ endpoint.put(
 		roles: ['self', 'mentor', 'supermentor'],
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await attributes.update(request)
+		const result = await attributes.update({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -292,7 +313,10 @@ endpoint.delete(
 		roles: ['supermentor'],
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await attributes.delete(request)
+		const result = await attributes.delete({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -326,7 +350,10 @@ endpoint.get(
 		roles: 'dynamic',
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await reports.get(request)
+		const result = await reports.get({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else

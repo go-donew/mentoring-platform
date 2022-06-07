@@ -27,7 +27,10 @@ endpoint.get(
 	'/',
 	// => permit('anyone'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await meta.get(request)
+		const result = await meta.get({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)

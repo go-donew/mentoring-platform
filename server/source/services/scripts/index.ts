@@ -47,11 +47,11 @@ export type ListOrFindScriptsResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the scripts that match the query.
  */
 const find = async (
-	request: ServiceRequest<ListOrFindScriptsPayload, unknown>,
+	request: ServiceRequest<ListOrFindScriptsPayload>,
 ): Promise<ServiceResponse<ListOrFindScriptsResponse>> => {
 	try {
 		const query: Array<Query<Script>> = []
-		for (const [field, value] of Object.entries(request.body)) {
+		for (const [field, value] of Object.entries(request.data)) {
 			if (['input', 'computed', 'tags'].includes(field))
 				for (const element of value as string[])
 					query.push({ field, operator: 'includes', value: element })
@@ -110,10 +110,10 @@ export type CreateScriptResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the newly created script.
  */
 const create = async (
-	request: ServiceRequest<CreateScriptPayload, unknown>,
+	request: ServiceRequest<CreateScriptPayload>,
 ): Promise<ServiceResponse<CreateScriptResponse>> => {
 	try {
-		const script = await scripts.create({ ...request.body, id: generateId() })
+		const script = await scripts.create({ ...request.data, id: generateId() })
 
 		const data = { script }
 		return {
@@ -146,10 +146,10 @@ export type RetrieveScriptResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the requested script.
  */
 const get = async (
-	request: ServiceRequest<unknown, { scriptId: string }>,
+	request: ServiceRequest<{ scriptId: string }>,
 ): Promise<ServiceResponse<RetrieveScriptResponse>> => {
 	try {
-		const script = await scripts.get(request.params.scriptId)
+		const script = await scripts.get(request.data.scriptId)
 
 		const data = { script }
 		return {
@@ -201,12 +201,12 @@ export type UpdateScriptResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the updated script.
  */
 const update = async (
-	request: ServiceRequest<UpdateScriptPayload, { scriptId: string }>,
+	request: ServiceRequest<UpdateScriptPayload & { scriptId: string }>,
 ): Promise<ServiceResponse<UpdateScriptResponse>> => {
 	try {
 		const script = await scripts.update({
-			...request.body,
-			id: request.params.scriptId,
+			...request.data,
+			id: request.data.scriptId,
 		})
 
 		const data = { script }
@@ -230,10 +230,10 @@ const update = async (
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return nothing.
  */
 const _delete = async (
-	request: ServiceRequest<unknown, { scriptId: string }>,
+	request: ServiceRequest<{ scriptId: string }>,
 ): Promise<ServiceResponse<unknown>> => {
 	try {
-		await scripts.delete(request.params.scriptId)
+		await scripts.delete(request.data.scriptId)
 
 		const data = {}
 		return {
@@ -274,21 +274,21 @@ export type RunScriptResponse = Record<string, UserAttribute[]>
  * @returns {ServiceResponse} - If the script runs sucessfully, nothing will be returned.
  */
 const run = async (
-	request: ServiceRequest<RunScriptPayload, { scriptId: string }>,
+	request: ServiceRequest<RunScriptPayload & { scriptId: string }>,
 ): Promise<ServiceResponse<RunScriptResponse>> => {
 	try {
 		// Fetch the script
-		const script = await scripts.get(request.params.scriptId)
+		const script = await scripts.get(request.data.scriptId)
 		// Get the list of users to run the script for.
 		if (
-			typeof request.body.users?.length !== 'undefined' &&
-			request.body.users.length === 0
+			typeof request.data.users?.length !== 'undefined' &&
+			request.data.users.length === 0
 		)
 			throw new ServerError(
 				'improper-payload',
 				'Please specify one or more users to run the script for.',
 			)
-		const userQueue = request.body.users ?? [request.user!.id]
+		const userQueue = request.data.users ?? [request.context!.user.id]
 
 		// Loop through the users
 		const data: RunScriptResponse = {}

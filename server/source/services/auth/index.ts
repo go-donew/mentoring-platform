@@ -42,22 +42,22 @@ export type SignUpResponse = {
  * @returns {ServiceResponse} - The response from the auth provider. If successful, the service will return the user's details and tokens.
  */
 const signUp = async (
-	request: ServiceRequest<SignUpPayload, Record<string, unknown>>,
+	request: ServiceRequest<SignUpPayload>,
 ): Promise<ServiceResponse<SignUpResponse>> => {
 	try {
 		const { userId, tokens } = await auth.signUp(
-			request.body.name,
-			request.body.email,
-			request.body.password,
+			request.data.name,
+			request.data.email,
+			request.data.password,
 		)
 		const user = await users.create({
-			...request.body,
+			...request.data,
 			id: userId,
 			phone: undefined,
 			lastSignedIn: new Date(),
 		})
 
-		// @ts-expect-error This is because we pass password when doing ...request.body
+		// @ts-expect-error This is because we pass password when doing ...request.data
 		// above, and `class-transformer` happily adds that as a property.
 		delete user.password
 
@@ -105,12 +105,12 @@ export type SignInResponse = {
  * @returns {ServiceResponse} - The response from the auth provider. If successful, the service will return the user's details and tokens.
  */
 const signIn = async (
-	request: ServiceRequest<SignInPayload, Record<string, unknown>>,
+	request: ServiceRequest<SignInPayload>,
 ): Promise<ServiceResponse<SignInResponse>> => {
 	try {
 		const { userId, tokens } = await auth.signIn(
-			request.body.email,
-			request.body.password,
+			request.data.email,
+			request.data.password,
 		)
 		const user = await users.get(userId)
 
@@ -155,10 +155,10 @@ export type TokenRefreshResponse = {
  * @returns {ServiceResponse} - The response from the auth provider. If successful, the service will return the new set of tokens.
  */
 const refreshToken = async (
-	request: ServiceRequest<TokenRefreshPayload, unknown>,
+	request: ServiceRequest<TokenRefreshPayload>,
 ): Promise<ServiceResponse<TokenRefreshResponse>> => {
 	try {
-		const tokens = await auth.refreshTokens(request.body.refreshToken)
+		const tokens = await auth.refreshTokens(request.data.refreshToken)
 
 		const data = { tokens }
 		return {

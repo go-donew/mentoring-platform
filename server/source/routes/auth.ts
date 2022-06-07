@@ -36,7 +36,9 @@ const endpoint = createRouter()
 endpoint.post(
 	'/signup',
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await auth.signUp(request)
+		const result = await auth.signUp({
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -70,7 +72,9 @@ endpoint.post(
 endpoint.post(
 	'/signin',
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await auth.signIn(request)
+		const result = await auth.signIn({
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -102,7 +106,9 @@ endpoint.post(
 endpoint.post(
 	'/refresh-token',
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await auth.refreshToken(request)
+		const result = await auth.refreshToken({
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)

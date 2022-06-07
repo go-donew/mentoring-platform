@@ -44,11 +44,11 @@ export type ListOrFindConversationsResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the conversations that match the query.
  */
 const find = async (
-	request: ServiceRequest<ListOrFindConversationsPayload, unknown>,
+	request: ServiceRequest<ListOrFindConversationsPayload>,
 ): Promise<ServiceResponse<ListOrFindConversationsResponse>> => {
 	try {
 		const query: Array<Query<Conversation>> = []
-		for (const [field, value] of Object.entries(request.body)) {
+		for (const [field, value] of Object.entries(request.data)) {
 			if (['tags'].includes(field))
 				for (const element of value as string[])
 					query.push({ field, operator: 'includes', value: element })
@@ -56,7 +56,7 @@ const find = async (
 		}
 
 		// If the user is Groot, then return all conversations
-		if (request.user!.isGroot) {
+		if (request.context!.user.isGroot) {
 			const foundConversations = await conversations.find(query)
 
 			const data = { conversations: foundConversations }
@@ -73,7 +73,7 @@ const find = async (
 			{
 				field: 'participants',
 				operator: 'includes',
-				value: request.user!.id,
+				value: request.context!.user.id,
 			},
 		])
 
@@ -82,7 +82,7 @@ const find = async (
 			for (const [conversationId, roles] of Object.entries(
 				group.conversations,
 			)) {
-				if (roles.includes(group.participants[request.user!.id]))
+				if (roles.includes(group.participants[request.context!.user.id]))
 					conversationIds.push(conversationId)
 			}
 		}
@@ -141,11 +141,11 @@ export type CreateConversationResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the newly created conversation.
  */
 const create = async (
-	request: ServiceRequest<CreateConversationPayload, unknown>,
+	request: ServiceRequest<CreateConversationPayload>,
 ): Promise<ServiceResponse<CreateConversationResponse>> => {
 	try {
 		const conversation = await conversations.create({
-			...request.body,
+			...request.data,
 			id: generateId(),
 		})
 
@@ -180,10 +180,10 @@ export type RetrieveConversationResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the requested conversation.
  */
 const get = async (
-	request: ServiceRequest<unknown, { conversationId: string }>,
+	request: ServiceRequest<{ conversationId: string }>,
 ): Promise<ServiceResponse<RetrieveConversationResponse>> => {
 	try {
-		const conversation = await conversations.get(request.params.conversationId)
+		const conversation = await conversations.get(request.data.conversationId)
 
 		const data = { conversation }
 		return {
@@ -233,14 +233,13 @@ export type UpdateConversationResponse = {
  */
 const update = async (
 	request: ServiceRequest<
-		UpdateConversationPayload,
-		{ conversationId: string }
+		UpdateConversationPayload & { conversationId: string }
 	>,
 ): Promise<ServiceResponse<UpdateConversationResponse>> => {
 	try {
 		const conversation = await conversations.update({
-			...request.body,
-			id: request.params.conversationId,
+			...request.data,
+			id: request.data.conversationId,
 		})
 
 		const data = { conversation }
@@ -264,12 +263,12 @@ const update = async (
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return nothing.
  */
 const _delete = async (
-	request: ServiceRequest<unknown, { conversationId: string }>,
+	request: ServiceRequest<{ conversationId: string }>,
 ): Promise<ServiceResponse<unknown>> => {
 	try {
-		await conversations.delete(request.params.conversationId)
+		await conversations.delete(request.data.conversationId)
 
-		questions.conversationId = request.params.conversationId
+		questions.conversationId = request.data.conversationId
 		const questionsToDelete = await questions.find([])
 		for (const question of questionsToDelete) {
 			await questions.delete(question.id)

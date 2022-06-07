@@ -51,22 +51,22 @@ export type ListOrFindGroupsResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the groups that match the query.
  */
 const find = async (
-	request: ServiceRequest<ListOrFindGroupsPayload, unknown>,
+	request: ServiceRequest<ListOrFindGroupsPayload>,
 ): Promise<ServiceResponse<ListOrFindGroupsResponse>> => {
 	try {
 		const query: Array<Query<Group>> = []
-		for (const [field, value] of Object.entries(request.body)) {
+		for (const [field, value] of Object.entries(request.data)) {
 			if (['participants', 'conversations', 'reports', 'tags'].includes(field))
 				for (const element of value as string[])
 					query.push({ field, operator: 'includes', value: element })
 			else query.push({ field, operator: '==', value })
 		}
 
-		if (!request.user?.isGroot)
+		if (!request.context!.user?.isGroot)
 			query.push({
 				field: 'participants',
 				operator: 'includes',
-				value: request.user!.id,
+				value: request.context!.user.id,
 			})
 
 		const foundGroups = await groups.find(query)
@@ -122,10 +122,10 @@ export type CreateGroupResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the newly created group.
  */
 const create = async (
-	request: ServiceRequest<CreateGroupPayload, unknown>,
+	request: ServiceRequest<CreateGroupPayload>,
 ): Promise<ServiceResponse<CreateGroupResponse>> => {
 	try {
-		const group = await groups.create({ ...request.body, id: generateId() })
+		const group = await groups.create({ ...request.data, id: generateId() })
 
 		const data = { group }
 		return {
@@ -158,10 +158,10 @@ export type RetrieveGroupResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the requested group.
  */
 const get = async (
-	request: ServiceRequest<unknown, { groupId: string }>,
+	request: ServiceRequest<{ groupId: string }>,
 ): Promise<ServiceResponse<RetrieveGroupResponse>> => {
 	try {
-		const group = await groups.get(request.params.groupId)
+		const group = await groups.get(request.data.groupId)
 
 		const data = { group }
 		return {
@@ -214,12 +214,12 @@ export type UpdateGroupResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the updated group.
  */
 const update = async (
-	request: ServiceRequest<UpdateGroupPayload, { groupId: string }>,
+	request: ServiceRequest<UpdateGroupPayload & { groupId: string }>,
 ): Promise<ServiceResponse<UpdateGroupResponse>> => {
 	try {
 		const group = await groups.update({
-			...request.body,
-			id: request.params.groupId,
+			...request.data,
+			id: request.data.groupId,
 		})
 
 		const data = { group }
@@ -243,10 +243,10 @@ const update = async (
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return nothing.
  */
 const _delete = async (
-	request: ServiceRequest<unknown, { groupId: string }>,
+	request: ServiceRequest<{ groupId: string }>,
 ): Promise<ServiceResponse<unknown>> => {
 	try {
-		await groups.delete(request.params.groupId)
+		await groups.delete(request.data.groupId)
 
 		const data = {}
 		return {
@@ -289,11 +289,11 @@ export type JoinGroupResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the group the user was added to.
  */
 const join = async (
-	request: ServiceRequest<JoinGroupPayload, unknown>,
+	request: ServiceRequest<JoinGroupPayload>,
 ): Promise<ServiceResponse<JoinGroupResponse>> => {
 	try {
 		const foundGroups = await groups.find([
-			{ field: 'code', operator: '==', value: request.body.code },
+			{ field: 'code', operator: '==', value: request.data.code },
 		])
 		if (foundGroups.length === 0 || !foundGroups[0])
 			throw new ServerError(
@@ -301,7 +301,7 @@ const join = async (
 				'Could not find a group with that code.',
 			)
 		const group = foundGroups[0]
-		group.participants[request.user!.id] = 'mentee'
+		group.participants[request.context!.user.id] = 'mentee'
 		await groups.update(group)
 
 		const data = { group }

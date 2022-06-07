@@ -18,7 +18,7 @@ import {
 import { fetch, isErrorResponse } from '@/utilities/http'
 import { errors, messages } from '@/utilities/text'
 
-import type { Attribute, Conversation, Question, Option } from '@/api'
+import type { Attribute, Conversation, Question, Option, Script } from '@/api'
 
 /**
  * The form's state.
@@ -96,6 +96,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 	// This list of attributes is used to fill the dropdown, so Groot can choose which
 	// attribute to set when a question is answered.
 	const [attributes, setAttributes] = useState<Attribute[]>([])
+	const [scripts, setScripts] = useState<Script[]>([])
 	const [questions, setQuestions] = useState<QuestionFormState[]>([])
 
 	// Fetch the conversation and the attributes using the API.
@@ -136,6 +137,18 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 			return response.attributes
 		}
 
+		const fetchScripts = async (): Promise<Script[]> => {
+			const response = await fetch<{ scripts: Script[] }>({
+				url: '/scripts',
+				method: 'get',
+			})
+
+			// Handle any errors that might arise...
+			if (isErrorResponse(response)) throw new Error(response.error.message)
+			// ...and if there are none, return the data.
+			return response.scripts
+		}
+
 		fetchConversation()
 			.then((conversation) =>
 				handleConversationEdit({
@@ -151,6 +164,10 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 
 		fetchAttributes()
 			.then(setAttributes)
+			.catch((error) => setErrorMessage(error.message))
+
+		fetchScripts()
+			.then(setScripts)
 			.catch((error) => setErrorMessage(error.message))
 	}, [currentSuccess]) // Refresh these lists when the save button is pressed.
 
@@ -412,6 +429,28 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 							}}
 						/>
 					)}
+				</div>
+				<div class="col-span-4">
+					<Label for="script-input" text="Script To Run" required={false} />
+					<SelectInput
+						id="script-input"
+						options={[
+							{ text: 'None', value: '' },
+							...(scripts?.map((script) => {
+								return {
+									text: script.name,
+									value: script.id,
+								}
+							}) ?? []),
+						]}
+						selected={option.script}
+						update={(value: string) => {
+							props.save({
+								...option,
+								script: value,
+							})
+						}}
+					/>
 				</div>
 				<div class="col-span-4 sm:col-span-2">
 					<Label

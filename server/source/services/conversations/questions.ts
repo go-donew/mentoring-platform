@@ -8,6 +8,7 @@ import { Question, Option } from '@/models/question'
 import { UserAttribute } from '@/models/attribute'
 import { provider as questions } from '@/provider/data/conversations/questions'
 import { provider as attributes } from '@/provider/data/users/attributes'
+import { service as scripts } from '@/services/scripts'
 import { generateId, shuffle } from '@/utilities'
 
 /**
@@ -45,20 +46,21 @@ export type ListOrFindQuestionsResponse = {
  */
 const find = async (
 	request: ServiceRequest<
-		ListOrFindQuestionsPayload,
-		{ conversationId: string }
+		ListOrFindQuestionsPayload & { conversationId: string }
 	>,
 ): Promise<ServiceResponse<ListOrFindQuestionsResponse>> => {
 	try {
 		const query: Array<Query<Question>> = []
-		for (const [field, value] of Object.entries(request.body)) {
+		for (const [field, value] of Object.entries(request.data).filter(
+			([key, _]) => key !== 'conversationId',
+		)) {
 			if (['tags'].includes(field))
 				for (const element of value as string[])
 					query.push({ field, operator: 'includes', value: element })
 			else query.push({ field, operator: '==', value })
 		}
 
-		questions.conversationId = request.params.conversationId
+		questions.conversationId = request.data.conversationId
 		const foundQuestions = await questions.find(query)
 
 		for (const question of foundQuestions) {
@@ -118,14 +120,14 @@ export type CreateQuestionResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the newly created question.
  */
 const create = async (
-	request: ServiceRequest<CreateQuestionPayload, { conversationId: string }>,
+	request: ServiceRequest<CreateQuestionPayload & { conversationId: string }>,
 ): Promise<ServiceResponse<CreateQuestionResponse>> => {
 	try {
-		questions.conversationId = request.params.conversationId
+		questions.conversationId = request.data.conversationId
 		const question = await questions.create({
-			...request.body,
+			...request.data,
 			id: generateId(),
-			_conversationId: request.params.conversationId,
+			_conversationId: request.data.conversationId,
 		})
 
 		const data = { question }
@@ -159,14 +161,11 @@ export type RetrieveQuestionResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the requested question.
  */
 const get = async (
-	request: ServiceRequest<
-		unknown,
-		{ conversationId: string; questionId: string }
-	>,
+	request: ServiceRequest<{ conversationId: string; questionId: string }>,
 ): Promise<ServiceResponse<RetrieveQuestionResponse>> => {
 	try {
-		questions.conversationId = request.params.conversationId
-		const question = await questions.get(request.params.questionId)
+		questions.conversationId = request.data.conversationId
+		const question = await questions.get(request.data.questionId)
 
 		question.options = question.randomizeOptionOrder
 			? shuffle(question.options)
@@ -224,15 +223,14 @@ export type UpdateQuestionResponse = {
  */
 const update = async (
 	request: ServiceRequest<
-		UpdateQuestionPayload,
-		{ conversationId: string; questionId: string }
+		UpdateQuestionPayload & { conversationId: string; questionId: string }
 	>,
 ): Promise<ServiceResponse<UpdateQuestionResponse>> => {
 	try {
-		questions.conversationId = request.params.conversationId
+		questions.conversationId = request.data.conversationId
 		const question = await questions.update({
-			...request.body,
-			id: request.params.questionId,
+			...request.data,
+			id: request.data.questionId,
 		})
 
 		const data = { question }
@@ -256,14 +254,11 @@ const update = async (
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return nothing.
  */
 const _delete = async (
-	request: ServiceRequest<
-		unknown,
-		{ conversationId: string; questionId: string }
-	>,
+	request: ServiceRequest<{ conversationId: string; questionId: string }>,
 ): Promise<ServiceResponse<unknown>> => {
 	try {
-		questions.conversationId = request.params.conversationId
-		await questions.delete(request.params.questionId)
+		questions.conversationId = request.data.conversationId
+		await questions.delete(request.data.questionId)
 
 		const data = {}
 		return {
@@ -309,18 +304,17 @@ export type AnswerQuestionResponse = {
  */
 const answer = async (
 	request: ServiceRequest<
-		AnswerQuestionPayload,
-		{ conversationId: string; questionId: string }
+		AnswerQuestionPayload & { conversationId: string; questionId: string }
 	>,
 ): Promise<ServiceResponse<AnswerQuestionResponse>> => {
 	try {
 		// Retrieve the question
-		questions.conversationId = request.params.conversationId
-		const question = await questions.get(request.params.questionId)
+		questions.conversationId = request.data.conversationId
+		const question = await questions.get(request.data.questionId)
 
 		// Check if the option chosen by the user exists
 		const selectedOption = question.options.find(
-			(option) => option.position === request.body.position,
+			(option) => option.position === request.data.position,
 		)
 		if (!selectedOption)
 			throw new ServerError(
@@ -332,10 +326,10 @@ const answer = async (
 		if (selectedOption.attribute) {
 			const answer =
 				selectedOption.type === 'input' // If the option was of type `input`, then set whatever the user has written
-					? request.body.input ?? selectedOption.attribute.value // Fall back to the default if the user hasn't provided any input
+					? request.data.input ?? selectedOption.attribute.value // Fall back to the default if the user hasn't provided any input
 					: selectedOption.attribute.value // Else set the value as given
 
-			attributes.userId = request.user!.id
+			attributes.userId = request.context!.user.id
 			try {
 				// Retrieve the attribute, check if it exists
 				const attribute = await attributes.get(selectedOption.attribute.id)
@@ -347,7 +341,7 @@ const answer = async (
 					timestamp: new Date(),
 					message: {
 						in: 'conversation',
-						id: request.params.conversationId,
+						id: request.data.conversationId,
 					},
 				})
 				// Save the attribute
@@ -364,15 +358,24 @@ const answer = async (
 							timestamp: new Date(),
 							message: {
 								in: 'conversation',
-								id: request.params.conversationId,
+								id: request.data.conversationId,
 							},
 						},
 					],
-					request.user!.id,
+					request.context!.user.id,
 				)
 				// Save the attribute
 				await attributes.create(attribute)
 			}
+		}
+
+		// If there is a script specified, run it.
+		if (selectedOption.script) {
+			// Run the script for the current user.
+			await scripts.run({
+				context: request.context,
+				data: { scriptId: selectedOption.script },
+			})
 		}
 
 		// If there is a next question specified, return that to the user

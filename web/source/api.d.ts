@@ -201,7 +201,8 @@ export declare interface NextQuestion {
  * @property {number} position.required - The position to show the option in if `randomizeOptionOrder` is `false`.
  * @property {string} type.required - The type of option. If it is `input`, the user can enter text as their answer - enum:select,input
  * @property {string} text.required - The question text. Should be shown as a hint for the textbox if `type` is `input`.
- * @property {AttributeToSet} attribute.required - The attribute to set when a user answers the question with this option.
+ * @property {AttributeToSet} attribute - The attribute to set when a user answers the question with this option.
+ * @property {string} script - The script to run if they select this option.
  * @property {NextQuestion} next - The next question to show the user if they select this option.
  */
 export declare interface Option {
@@ -209,6 +210,7 @@ export declare interface Option {
 	type: 'select' | 'input'
 	text: string
 	attribute?: AttributeToSet
+	script?: string
 	next?: NextQuestion
 }
 

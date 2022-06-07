@@ -35,17 +35,17 @@ export type ListOrFindUserAttributesResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the attributes that match the query.
  */
 const find = async (
-	request: ServiceRequest<ListOrFindUserAttributesPayload, { userId: string }>,
+	request: ServiceRequest<ListOrFindUserAttributesPayload & { userId: string }>,
 ): Promise<ServiceResponse<ListOrFindUserAttributesResponse>> => {
 	try {
-		attributes.userId = request.params.userId
+		attributes.userId = request.data.userId
 		const foundUserAttributes = await attributes.find(
-			request.body.value
+			request.data.value
 				? [
 						{
 							field: 'value',
 							operator: '==',
-							value: request.body.value,
+							value: request.data.value,
 						},
 				  ]
 				: [],
@@ -96,23 +96,23 @@ export type CreateUserAttributeResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the newly created attribute.
  */
 const create = async (
-	request: ServiceRequest<CreateUserAttributePayload, { userId: string }>,
+	request: ServiceRequest<CreateUserAttributePayload & { userId: string }>,
 ): Promise<ServiceResponse<CreateUserAttributeResponse>> => {
 	try {
-		attributes.userId = request.params.userId
+		attributes.userId = request.data.userId
 		const attribute = await attributes.create(
 			new UserAttribute(
-				request.body.id,
-				request.body.value,
+				request.data.id,
+				request.data.value,
 				[
 					{
-						value: request.body.value,
-						observer: request.user!.id,
+						value: request.data.value,
+						observer: request.context!.user.id,
 						timestamp: new Date(),
-						message: request.body.message ?? null, // Firebase doesn't like `undefined`
+						message: request.data.message ?? null, // Firebase doesn't like `undefined`
 					},
 				],
-				request.params.userId,
+				request.data.userId,
 			),
 		)
 
@@ -147,11 +147,11 @@ export type RetrieveUserAttributeResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the requested attribute.
  */
 const get = async (
-	request: ServiceRequest<unknown, { userId: string; attributeId: string }>,
+	request: ServiceRequest<{ userId: string; attributeId: string }>,
 ): Promise<ServiceResponse<RetrieveUserAttributeResponse>> => {
 	try {
-		attributes.userId = request.params.userId
-		const attribute = await attributes.get(request.params.attributeId)
+		attributes.userId = request.data.userId
+		const attribute = await attributes.get(request.data.attributeId)
 
 		const data = { attribute }
 		return {
@@ -197,20 +197,19 @@ export type UpdateUserAttributeResponse = {
  */
 const update = async (
 	request: ServiceRequest<
-		UpdateUserAttributePayload,
-		{ userId: string; attributeId: string }
+		UpdateUserAttributePayload & { userId: string; attributeId: string }
 	>,
 ): Promise<ServiceResponse<UpdateUserAttributeResponse>> => {
 	try {
-		attributes.userId = request.params.userId
-		const attribute = await attributes.get(request.params.attributeId)
+		attributes.userId = request.data.userId
+		const attribute = await attributes.get(request.data.attributeId)
 
-		attribute.value = request.body.value
+		attribute.value = request.data.value
 		attribute.history.push({
-			value: request.body.value,
-			observer: request.user!.id,
+			value: request.data.value,
+			observer: request.context!.user.id,
 			timestamp: new Date(),
-			message: request.body.message ?? null, // Firebase doesn't like `undefined`
+			message: request.data.message ?? null, // Firebase doesn't like `undefined`
 		})
 		await attributes.update(attribute)
 
@@ -235,11 +234,11 @@ const update = async (
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return nothing.
  */
 const _delete = async (
-	request: ServiceRequest<unknown, { userId: string; attributeId: string }>,
+	request: ServiceRequest<{ userId: string; attributeId: string }>,
 ): Promise<ServiceResponse<unknown>> => {
 	try {
-		attributes.userId = request.params.userId
-		await attributes.delete(request.params.attributeId)
+		attributes.userId = request.data.userId
+		await attributes.delete(request.data.attributeId)
 
 		const data = {}
 		return {

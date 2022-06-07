@@ -39,7 +39,10 @@ endpoint.get(
 	'/',
 	// => permit('anyone'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await attributes.find(request)
+		const result = await attributes.find({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -78,7 +81,10 @@ endpoint.post(
 	'/',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await attributes.create(request)
+		const result = await attributes.create({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -108,7 +114,10 @@ endpoint.get(
 	'/:attributeId',
 	// => permit('anyone'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await attributes.get(request)
+		const result = await attributes.get({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -140,7 +149,10 @@ endpoint.put(
 	'/:attributeId',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await attributes.update(request)
+		const result = await attributes.update({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -170,7 +182,10 @@ endpoint.delete(
 	'/:attributeId',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await attributes.delete(request)
+		const result = await attributes.delete({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)

@@ -40,11 +40,11 @@ export type ListOrFindAttributesResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the attributes that match the query.
  */
 const find = async (
-	request: ServiceRequest<ListOrFindAttributesPayload, unknown>,
+	request: ServiceRequest<ListOrFindAttributesPayload>,
 ): Promise<ServiceResponse<ListOrFindAttributesResponse>> => {
 	try {
 		const query: Array<Query<Attribute>> = []
-		for (const [field, value] of Object.entries(request.body)) {
+		for (const [field, value] of Object.entries(request.data)) {
 			if (['conversations', 'tags'].includes(field))
 				for (const element of value as string[])
 					query.push({ field, operator: 'includes', value: element })
@@ -100,11 +100,11 @@ export type CreateAttributeResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the newly created attribute.
  */
 const create = async (
-	request: ServiceRequest<CreateAttributePayload, unknown>,
+	request: ServiceRequest<CreateAttributePayload>,
 ): Promise<ServiceResponse<CreateAttributeResponse>> => {
 	try {
 		const attribute = await attributes.create({
-			...request.body,
+			...request.data,
 			id: generateId(),
 		})
 
@@ -139,10 +139,10 @@ export type RetrieveAttributeResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the requested attribute.
  */
 const get = async (
-	request: ServiceRequest<unknown, { attributeId: string }>,
+	request: ServiceRequest<{ attributeId: string }>,
 ): Promise<ServiceResponse<RetrieveAttributeResponse>> => {
 	try {
-		const attribute = await attributes.get(request.params.attributeId)
+		const attribute = await attributes.get(request.data.attributeId)
 
 		const data = { attribute }
 		return {
@@ -191,12 +191,12 @@ export type UpdateAttributeResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the updated attribute.
  */
 const update = async (
-	request: ServiceRequest<UpdateAttributePayload, { attributeId: string }>,
+	request: ServiceRequest<UpdateAttributePayload & { attributeId: string }>,
 ): Promise<ServiceResponse<UpdateAttributeResponse>> => {
 	try {
 		const attribute = await attributes.update({
-			...request.body,
-			id: request.params.attributeId,
+			...request.data,
+			id: request.data.attributeId,
 		})
 
 		const data = { attribute }
@@ -220,10 +220,10 @@ const update = async (
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return nothing.
  */
 const _delete = async (
-	request: ServiceRequest<unknown, { attributeId: string }>,
+	request: ServiceRequest<{ attributeId: string }>,
 ): Promise<ServiceResponse<unknown>> => {
 	try {
-		await attributes.delete(request.params.attributeId)
+		await attributes.delete(request.data.attributeId)
 
 		const data = {}
 		return {

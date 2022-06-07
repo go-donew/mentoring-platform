@@ -39,7 +39,10 @@ endpoint.get(
 	'/',
 	// => permit('anyone'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await groups.find(request)
+		const result = await groups.find({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -86,7 +89,10 @@ endpoint.post(
 	'/',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await groups.create(request)
+		const result = await groups.create({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -117,7 +123,10 @@ endpoint.put(
 	'/join',
 	// => permit('anyone'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await groups.join(request)
+		const result = await groups.join({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -150,7 +159,10 @@ endpoint.get(
 		roles: ['participant'],
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await groups.get(request)
+		const result = await groups.get({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -185,7 +197,10 @@ endpoint.put(
 		roles: ['supermentor'],
 	}),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await groups.update(request)
+		const result = await groups.update({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -215,7 +230,10 @@ endpoint.delete(
 	'/:groupId',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await groups.delete(request)
+		const result = await groups.delete({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)

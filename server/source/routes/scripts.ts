@@ -39,7 +39,10 @@ endpoint.get(
 	'/',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await scripts.find(request)
+		const result = await scripts.find({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -86,7 +89,10 @@ endpoint.post(
 	'/',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await scripts.create(request)
+		const result = await scripts.create({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -116,7 +122,10 @@ endpoint.get(
 	'/:scriptId',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await scripts.get(request)
+		const result = await scripts.get({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -148,7 +157,10 @@ endpoint.put(
 	'/:scriptId',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await scripts.update(request)
+		const result = await scripts.update({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -178,7 +190,10 @@ endpoint.delete(
 	'/:scriptId',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await scripts.delete(request)
+		const result = await scripts.delete({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
@@ -209,7 +224,10 @@ endpoint.put(
 	'/:scriptId/run',
 	permit('groot'),
 	async (request: Request, response: Response): Promise<void> => {
-		const result = await scripts.run(request)
+		const result = await scripts.run({
+			context: { user: request.user!, rate: request.rateLimit },
+			data: { ...request.body, ...request.params },
+		})
 
 		if (result.error) response.sendError(result.error)
 		else response.status(result.status!).send(result.data)
