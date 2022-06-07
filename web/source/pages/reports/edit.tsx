@@ -16,7 +16,7 @@ import {
 	PageWrapper,
 } from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
-import { errors } from '@/utilities/text'
+import { errors, messages } from '@/utilities/text'
 
 import { Attribute, Report, DependentAttribute, User } from '@/api'
 import { storage } from '@/utilities/storage'
@@ -133,8 +133,11 @@ export const ReportEditPage = (props: { reportId: string }) => {
 		{},
 	)
 
-	// Define a state for error messages and the list of attributes.
+	// Define a state for error and success messages.
 	const [currentError, setErrorMessage] = useState<string | undefined>(
+		undefined,
+	)
+	const [currentSuccess, setSuccessMessage] = useState<string | undefined>(
 		undefined,
 	)
 	// This list of attributes used to fill the dropdown, so Groot can choose.
@@ -258,6 +261,10 @@ export const ReportEditPage = (props: { reportId: string }) => {
 		// Handle any errors that might arise.
 		if (isErrorResponse(response))
 			return setErrorMessage(response.error.message)
+
+		// Display a success message and make it disappear after 2.5 seconds.
+		setSuccessMessage(messages.get('saved-report'))
+		setTimeout(() => setSuccessMessage(undefined), 2500)
 	}
 
 	return (
@@ -462,6 +469,7 @@ export const ReportEditPage = (props: { reportId: string }) => {
 					</div>
 				</div>
 				<Toast id="error-message" type="error" text={currentError} />
+				<Toast id="success-message" type="error" text={currentSuccess} />
 			</div>
 		</PageWrapper>
 	)

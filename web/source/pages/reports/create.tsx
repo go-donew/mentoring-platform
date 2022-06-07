@@ -102,7 +102,7 @@ const exampleTemplate = `
     </script>
   </head>
   <body class="dark font-sans">
-    <div class="pt-10 min-h-screen bg-white dark:bg-[#13151a]">
+    <div class="p-8 min-h-screen bg-white dark:bg-[#13151a]">
       <div class="mx-auto p-8 max-w-7xl rounded-lg border dark:border-gray-700 dark:bg-[#1d2026]">
         <div class="rounded-lg">
           <h5 class="w-fit pb-1 leading-none border-b border-gray-900 dark:border-gray-600 text-gray-900 dark:text-white text-xl font-bold">
