@@ -19,13 +19,13 @@ import type { Conversation } from '@/api'
  * A item that shows a conversation in the list.
  *
  * @prop {Conversation} conversation - The conversation to render.
- * @prop {boolean} allowEdit - Whether to allow the user to edit a conversation.
+ * @prop {boolean} groot - Whether to allow the user to edit a conversation.
  *
  * @component
  */
 const ConversationItem = (props: {
 	conversation: Conversation
-	allowEdit: boolean
+	groot: boolean
 }) => (
 	<tr class="border-b dark:border-gray-700 text-sm">
 		<td class="p-2">
@@ -38,12 +38,16 @@ const ConversationItem = (props: {
 				{props.conversation.description}
 			</span>
 		</td>
-		<td class="p-2">
-			{props.conversation.tags.map((tag) => (
-				<Chip value={tag} />
-			))}
-		</td>
-		<td class="p-2">{props.conversation.once.toString()}</td>
+		{props.groot && (
+			<>
+				<td class="p-2">
+					{props.conversation.tags.map((tag) => (
+						<Chip value={tag} />
+					))}
+				</td>
+				<td class="p-2">{props.conversation.once.toString()}</td>
+			</>
+		)}
 		<td class="h-4 p-2 text-right">
 			<Button
 				id="take-conversation-button"
@@ -58,7 +62,7 @@ const ConversationItem = (props: {
 				action={() => route(`/conversations/${props.conversation.id}/edit`)}
 				type="text"
 				class={`col-span-1 w-fit text-secondary dark:text-secondary-dark font-semibold ${
-					props.allowEdit ? '' : 'hidden'
+					props.groot ? '' : 'hidden'
 				}`}
 			/>
 		</td>
@@ -119,7 +123,12 @@ export const ConversationListPage = (props: { groot: boolean }) => {
 						class={props.groot ? 'block' : 'hidden'}
 					/>
 				</div>
-				<LoadingIndicator isLoading={typeof conversations === 'undefined'} />
+				<LoadingIndicator
+					isLoading={
+						typeof conversations === 'undefined' &&
+						typeof currentError === 'undefined'
+					}
+				/>
 				<div
 					class={`overflow-x-auto sm:rounded-lg ${
 						typeof conversations === 'undefined' ? 'hidden' : 'block'
@@ -130,8 +139,12 @@ export const ConversationListPage = (props: { groot: boolean }) => {
 							<tr>
 								<th class="p-2">Name</th>
 								<th class="p-2">Description</th>
-								<th class="p-2">Tags</th>
-								<th class="p-2">Once</th>
+								{props.groot && (
+									<>
+										<th class="p-2">Tags</th>
+										<th class="p-2">Once</th>
+									</>
+								)}
 								<th class="p-2 text-right">Actions</th>
 							</tr>
 						</thead>
@@ -139,7 +152,7 @@ export const ConversationListPage = (props: { groot: boolean }) => {
 							{conversations?.map((conversation: Conversation) => (
 								<ConversationItem
 									conversation={conversation}
-									allowEdit={props.groot}
+									groot={props.groot}
 								/>
 							))}
 						</tbody>

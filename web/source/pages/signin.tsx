@@ -87,6 +87,7 @@ export const SignInPage = () => {
 	// Define a state if we need to show error messages.
 	const passedOnError = new URLSearchParams(window.location.search).get('error')
 	const [currentError, setErrorMessage] = useState<string | undefined>(
+		// @ts-expect-error Yes, expected.
 		passedOnError ? errors.get(passedOnError) : undefined,
 	)
 	// Define a state for the loading indicator too.

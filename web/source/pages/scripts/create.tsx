@@ -97,7 +97,7 @@ function compute(context)
 	-- - context.user.email
 	-- - context.user.lastSignedIn
   
-  -- The smartness can be calculated by taking the average of their scores
+  -- The score can be calculated by taking the average of their scores
   -- in the quiz.
   knowsCleanestCity = context.input["{Knows Cleanest City}"].value
   knowsCapitalCity = context.input["{Knows Capital City}"].value

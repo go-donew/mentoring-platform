@@ -6,6 +6,7 @@ import type { ServiceRequest, ServiceResponse, Query } from '@/types'
 import { ServerError } from '@/errors'
 import { Report, DependentAttribute } from '@/models/report'
 import { provider as reports } from '@/provider/data/reports'
+import { provider as groups } from '@/provider/data/groups'
 import { generateId } from '@/utilities'
 
 /**
@@ -51,8 +52,43 @@ const find = async (
 			else query.push({ field, operator: '==', value })
 		}
 
-		const foundReports = await reports.find(query)
+		// If the user is Groot, then return all reports
+		if (request.context!.user.isGroot) {
+			const foundReports = await reports.find(query)
 
+			const data = { reports: foundReports }
+			return {
+				status: 200,
+				data,
+			}
+		}
+
+		// Otherwise return all the reports the user can take
+		// Get the groups the user is part of and which reports they are
+		// allowed to take
+		const foundGroups = await groups.find([
+			{
+				field: 'participants',
+				operator: 'includes',
+				value: request.context!.user.id,
+			},
+		])
+
+		const reportIds = []
+		for (const group of foundGroups) {
+			for (const [reportId, roles] of Object.entries(group.reports)) {
+				if (roles.includes(group.participants[request.context!.user.id]))
+					reportIds.push(reportId)
+			}
+		}
+
+		// Fetch the reports
+		const foundReports = []
+		for (const reportId of reportIds) {
+			foundReports.push(await reports.get(reportId))
+		}
+
+		// Return the reports
 		const data = { reports: foundReports }
 		return {
 			status: 200,

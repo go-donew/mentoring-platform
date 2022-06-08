@@ -12,19 +12,19 @@ import {
 	PageWrapper,
 } from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
+import { storage } from '@/utilities/storage'
 
 import type { User, Group, Conversation, Report } from '@/api'
-import { storage } from '@/utilities/storage'
 
 /**
  * A item that shows a group in the list.
  *
  * @prop {Group} group - The group to render.
- * @prop {boolean} allowEdit - Whether to allow the user to edit a group.
+ * @prop {boolean} groot - Whether to allow the user to edit a group.
  *
  * @component
  */
-const GroupItem = (props: { group: Group; allowEdit: boolean }) => {
+const GroupItem = (props: { group: Group; groot: boolean }) => {
 	const [group, setGroup] = useState<Group>(props.group)
 	// Fetch the name and email of the users so we can display that instead of
 	// their IDs.
@@ -118,14 +118,18 @@ const GroupItem = (props: { group: Group; allowEdit: boolean }) => {
 			<td class="p-2">
 				<span class="text-gray-800 dark:text-gray-300">{group.name}</span>
 			</td>
-			<td class="p-2">
-				<span class="text-gray-600 dark:text-gray-400">{group.code}</span>
-			</td>
-			<td class="p-2">
-				{group.tags.map((tag) => (
-					<Chip value={tag} />
-				))}
-			</td>
+			{props.groot && (
+				<>
+					<td class="p-2">
+						<span class="text-gray-600 dark:text-gray-400">{group.code}</span>
+					</td>
+					<td class="p-2">
+						{group.tags.map((tag) => (
+							<Chip value={tag} />
+						))}
+					</td>
+				</>
+			)}
 			<td class="p-2">
 				{Object.entries(group.participants).map(([participant, role]) => {
 					// The participants string is packed with user info in the following
@@ -211,7 +215,7 @@ const GroupItem = (props: { group: Group; allowEdit: boolean }) => {
 					action={() => route(`/groups/${group.id}/edit`)}
 					type="text"
 					class={`col-span-1 w-fit text-secondary dark:text-secondary-dark font-semibold ${
-						props.allowEdit ? '' : 'hidden'
+						props.groot ? '' : 'hidden'
 					}`}
 				/>
 			</td>
@@ -271,7 +275,11 @@ export const GroupListPage = (props: { groot: boolean }) => {
 						class={props.groot ? 'block' : 'hidden'}
 					/>
 				</div>
-				<LoadingIndicator isLoading={typeof groups === 'undefined'} />
+				<LoadingIndicator
+					isLoading={
+						typeof groups === 'undefined' && typeof currentError === 'undefined'
+					}
+				/>
 				<div
 					class={`overflow-x-auto sm:rounded-lg ${
 						typeof groups === 'undefined' ? 'hidden' : 'block'
@@ -281,8 +289,12 @@ export const GroupListPage = (props: { groot: boolean }) => {
 						<thead class="text-xs text-gray-700 uppercase dark:text-gray-400 text-left">
 							<tr>
 								<th class="p-2">Name</th>
-								<th class="p-2">Code</th>
-								<th class="p-2">Tags</th>
+								{props.groot && (
+									<>
+										<th class="p-2">Code</th>
+										<th class="p-2">Tags</th>
+									</>
+								)}
 								<th class="p-2">Participants</th>
 								<th class="p-2">Conversations</th>
 								<th class="p-2">Reports</th>
@@ -291,7 +303,7 @@ export const GroupListPage = (props: { groot: boolean }) => {
 						</thead>
 						<tbody class="p-4">
 							{groups?.map((group: Group) => (
-								<GroupItem group={group} allowEdit={props.groot} />
+								<GroupItem group={group} groot={props.groot} />
 							))}
 						</tbody>
 					</table>

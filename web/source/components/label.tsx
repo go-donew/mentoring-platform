@@ -20,10 +20,6 @@ export const Label = (props: {
 		class="block text-sm font-medium text-on-surface dark:text-on-surface-dark"
 	>
 		{props.text}
-		{props.required ? (
-			<span class="text-error dark:text-error-dark">*</span>
-		) : (
-			<></>
-		)}
+		{props.required && <span class="text-error dark:text-error-dark">*</span>}
 	</label>
 )

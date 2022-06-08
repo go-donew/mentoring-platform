@@ -175,7 +175,8 @@ export const AttributeEditPage = (props: { attributeId: string }) => {
 				</div>
 				<LoadingIndicator
 					isLoading={
-						typeof attribute === 'undefined' && currentError === undefined
+						typeof attribute === 'undefined' &&
+						typeof currentError === 'undefined'
 					}
 				/>
 				<div class={typeof attribute === 'undefined' ? 'hidden' : ''}>

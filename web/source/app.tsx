@@ -129,7 +129,7 @@ export class App extends Component {
 				path: '/groups',
 				name: 'Groups',
 				component: Pages.GroupListPage,
-				nav: true,
+				nav: this.state.groot,
 			},
 			{
 				path: '/groups/create',
@@ -207,7 +207,7 @@ export class App extends Component {
 				path: '/reports',
 				name: 'Reports',
 				component: Pages.ReportListPage,
-				nav: this.state.groot,
+				nav: true,
 			},
 			{
 				path: '/reports/create',

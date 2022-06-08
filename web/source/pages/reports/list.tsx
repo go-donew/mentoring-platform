@@ -12,17 +12,19 @@ import {
 	PageWrapper,
 } from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
+import { storage } from '@/utilities/storage'
 
-import type { Report, Attribute } from '@/api'
+import type { User, Report, Attribute } from '@/api'
 
 /**
  * A item that shows a report in the list.
  *
  * @prop {Report} report - The report to render.
+ * @prop {boolean} groot - Whether or not the user can edit the report.
  *
  * @component
  */
-const ReportItem = (props: { report: Report }) => {
+const ReportItem = (props: { report: Report; groot: boolean }) => {
 	// Define a state for the report.
 	const [report, setReport] = useState<Report>(props.report)
 
@@ -77,46 +79,63 @@ const ReportItem = (props: { report: Report }) => {
 					{report.description}
 				</span>
 			</td>
-			<td class="p-2">
-				{report.tags.map((tag) => (
-					<Chip value={tag} />
-				))}
-			</td>
-			<td class="p-2">
-				{report.input.map((attribute) => {
-					// The ID string is packed with attribute info in the following
-					// format: `<name> {<id>}`
-					const attributeIdMatches = /{(.*?)}/.exec(attribute.id)
-					const attributeId = attributeIdMatches
-						? attributeIdMatches[1]
-						: attribute.id
-					const attributeName = attribute.id
-						.replace(attributeId, '')
-						.replace('{}', '')
-						.trim()
+			{props.groot && (
+				<>
+					<td class="p-2">
+						{report.tags.map((tag) => (
+							<Chip value={tag} />
+						))}
+					</td>
+					<td class="p-2">
+						{report.input.map((attribute) => {
+							// The ID string is packed with attribute info in the following
+							// format: `<name> {<id>}`
+							const attributeIdMatches = /{(.*?)}/.exec(attribute.id)
+							const attributeId = attributeIdMatches
+								? attributeIdMatches[1]
+								: attribute.id
+							const attributeName = attribute.id
+								.replace(attributeId, '')
+								.replace('{}', '')
+								.trim()
 
-					return (
-						<>
-							<a href={`/attributes/${attributeId}/edit`}>
-								<span class="text-gray-900 dark:text-white">
-									{attributeName}
-								</span>
-								{!attribute.optional && (
-									<span class="text-error dark:text-error-dark">*</span>
-								)}
-							</a>
-							<br />
-						</>
-					)
-				})}
-			</td>
+							return (
+								<>
+									<a href={`/attributes/${attributeId}/edit`}>
+										<span class="text-gray-900 dark:text-white">
+											{attributeName}
+										</span>
+										{!attribute.optional && (
+											<span class="text-error dark:text-error-dark">*</span>
+										)}
+									</a>
+									<br />
+								</>
+							)
+						})}
+					</td>
+				</>
+			)}
 			<td class="h-4 p-2 text-right">
+				<Button
+					id="view-report-button"
+					text="View"
+					action={() =>
+						route(
+							`/users/${storage.get<User>('user')!.id}/reports/${report.id}`,
+						)
+					}
+					type="text"
+					class="col-span-1 w-fit text-secondary dark:text-secondary-dark font-semibold"
+				/>
 				<Button
 					id="edit-report-button"
 					text="Edit"
 					action={() => route(`/reports/${report.id}/edit`)}
 					type="text"
-					class="col-span-1 w-fit text-secondary dark:text-secondary-dark font-semibold"
+					class={`col-span-1 w-fit text-secondary dark:text-secondary-dark font-semibold ${
+						props.groot ? '' : 'hidden'
+					}`}
 				/>
 			</td>
 		</tr>
@@ -126,9 +145,11 @@ const ReportItem = (props: { report: Report }) => {
 /**
  * The report list page.
  *
+ * @prop {boolean} groot - Whether or not the user viewing the page is Groot.
+ *
  * @page
  */
-export const ReportListPage = () => {
+export const ReportListPage = (props: { groot: boolean }) => {
 	// Define a state for error messages and reports.
 	const [currentError, setErrorMessage] = useState<string | undefined>(
 		undefined,
@@ -170,9 +191,15 @@ export const ReportListPage = () => {
 						text="Create"
 						action={() => route('/reports/create')}
 						type="filled"
+						class={props.groot ? 'block' : 'hidden'}
 					/>
 				</div>
-				<LoadingIndicator isLoading={typeof reports === 'undefined'} />
+				<LoadingIndicator
+					isLoading={
+						typeof reports === 'undefined' &&
+						typeof currentError === 'undefined'
+					}
+				/>
 				<div
 					class={`overflow-x-auto sm:rounded-lg ${
 						typeof reports === 'undefined' ? 'hidden' : 'block'
@@ -183,14 +210,18 @@ export const ReportListPage = () => {
 							<tr>
 								<th class="p-2">Name</th>
 								<th class="p-2">Description</th>
-								<th class="p-2">Tags</th>
-								<th class="p-2">Input</th>
+								{props.groot && (
+									<>
+										<th class="p-2">Tags</th>
+										<th class="p-2">Input</th>
+									</>
+								)}
 								<th class="p-2 text-right">Actions</th>
 							</tr>
 						</thead>
 						<tbody class="p-4">
 							{reports?.map((report: Report) => (
-								<ReportItem report={report} />
+								<ReportItem report={report} groot={props.groot} />
 							))}
 						</tbody>
 					</table>

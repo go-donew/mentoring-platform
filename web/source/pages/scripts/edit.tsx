@@ -330,7 +330,7 @@ export const ScriptEditPage = (props: { scriptId: string }) => {
 				</div>
 				<LoadingIndicator
 					isLoading={
-						typeof script === 'undefined' && currentError === undefined
+						typeof script === 'undefined' && typeof currentError === 'undefined'
 					}
 				/>
 				<div class={typeof script === 'undefined' ? 'hidden' : ''}>

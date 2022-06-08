@@ -92,6 +92,7 @@ export const SignUpPage = () => {
 	// Define a state if we need to show error messages.
 	const passedOnError = new URLSearchParams(window.location.search).get('error')
 	const [currentError, setErrorMessage] = useState(
+		// @ts-expect-error Yes, expected.
 		passedOnError ? errors.get(passedOnError) : undefined,
 	)
 	// Define a state for the loading indicator too.
@@ -178,8 +179,8 @@ export const SignUpPage = () => {
 			})
 
 			// Handle any errors that might arise.
-			if (isErrorResponse(signUpResponse)) {
-				setErrorMessage(error.message)
+			if (isErrorResponse(codeResponse)) {
+				setErrorMessage(codeResponse.error.message)
 				// The most probable error message is that the code doesn't exist, so
 				// redirect the user to the groups page where they caan retry joining.
 				setTimeout(() => route('/groups', true), 2500)

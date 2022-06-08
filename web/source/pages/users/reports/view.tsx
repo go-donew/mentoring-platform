@@ -5,6 +5,7 @@ import { useState, useEffect } from 'preact/hooks'
 
 import { Toast, LoadingIndicator, PageWrapper } from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
+import { errors } from '@/utilities/text'
 
 /**
  * The view user report page.
@@ -32,7 +33,15 @@ export const ViewUserReportPage = (props: {
 			})
 
 			// Handle any errors that might arise...
-			if (isErrorResponse(response)) throw new Error(response.error.message)
+			if (isErrorResponse(response)) {
+				switch (response.error.code) {
+					case 'precondition-failed':
+						throw new Error(errors.get('report-not-generated'))
+					default:
+						throw new Error(response.error.message)
+				}
+			}
+
 			// ...and if there are none, return the data.
 			return response
 		}
@@ -50,7 +59,7 @@ export const ViewUserReportPage = (props: {
 	return (
 		<PageWrapper>
 			<div class="mx-auto p-8 max-w-7xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
-				<LoadingIndicator isLoading={currentError === undefined} />
+				<LoadingIndicator isLoading={typeof currentError === 'undefined'} />
 				<Toast id="error-message" type="error" text={currentError} />
 			</div>
 		</PageWrapper>

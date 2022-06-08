@@ -341,7 +341,9 @@ export const ViewUserPage = (props: { userId: string }) => {
 					</h5>
 				</div>
 				<LoadingIndicator
-					isLoading={typeof user === 'undefined' && currentError === undefined}
+					isLoading={
+						typeof user === 'undefined' && typeof currentError === 'undefined'
+					}
 				/>
 				<div class={typeof user === 'undefined' ? 'hidden' : ''}>
 					<div class="sm:rounded-lg">

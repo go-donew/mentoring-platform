@@ -117,7 +117,15 @@ export const TakeConversationPage = (props: { conversationId: string }) => {
 			})
 
 			// Handle any errors that might arise...
-			if (isErrorResponse(response)) throw new Error(response.error.message)
+			if (isErrorResponse(response)) {
+				switch (response.error.code) {
+					case 'not-allowed':
+						throw new Error(errors.get('not-allowed-to-take-conversation'))
+					default:
+						throw new Error(response.error.message)
+				}
+			}
+
 			// ...and if there are none, return the data.
 			return response.conversation
 		}
@@ -129,7 +137,15 @@ export const TakeConversationPage = (props: { conversationId: string }) => {
 			})
 
 			// Handle any errors that might arise...
-			if (isErrorResponse(response)) throw new Error(response.error.message)
+			if (isErrorResponse(response)) {
+				switch (response.error.code) {
+					case 'not-allowed':
+						throw new Error(errors.get('not-allowed-to-take-conversation'))
+					default:
+						throw new Error(response.error.message)
+				}
+			}
+
 			// ...and if there are none, return the data.
 			return response.questions
 		}
@@ -141,7 +157,12 @@ export const TakeConversationPage = (props: { conversationId: string }) => {
 		fetchQuestions()
 			.then((questions: Question[]) => {
 				// Find the first question and render it.
-				setCurrentQuestion(questions.find((question) => question.first))
+				const firstQuestion = questions.find((question) => question.first)
+				// If no first question exists, show an error.
+				if (!firstQuestion)
+					setErrorMessage(errors.get('first-question-not-found'))
+				// Else set the question.
+				setCurrentQuestion(firstQuestion)
 			})
 			.catch((error) => setErrorMessage(error.message))
 	}, [])
@@ -188,11 +209,16 @@ export const TakeConversationPage = (props: { conversationId: string }) => {
 		<PageWrapper>
 			<div class="mx-auto p-8 max-w-7xl bg-white rounded-lg border dark:bg-background-dark dark:border-gray-700">
 				<div class="flex justify-between items-center mb-4">
-					<h5 class="pb-1 leading-none border-b border-gray-900 dark:border-gray-600 text-xl text-gray-900 dark:text-white font-bold">
+					<h5 class="pb-1 leading-none text-xl text-gray-900 dark:text-white font-bold">
 						{conversation?.name ?? 'Conversation'}
 					</h5>
 				</div>
-				<LoadingIndicator isLoading={typeof currentQuestion === 'undefined'} />
+				<LoadingIndicator
+					isLoading={
+						typeof currentQuestion === 'undefined' &&
+						typeof currentError === 'undefined'
+					}
+				/>
 				<div
 					class={`sm:rounded-lg ${
 						typeof currentQuestion === 'undefined' ? 'hidden' : 'block'
@@ -203,7 +229,7 @@ export const TakeConversationPage = (props: { conversationId: string }) => {
 							<div class="grid grid-cols-6 gap-1">
 								<div class="col-span-6 pb-4 pt-2">
 									<div
-										class="pb-1 border-b border-gray-900 dark:border-gray-600 text-md text-gray-900 dark:text-white unreset"
+										class="pb-4 border-b border-gray-900 dark:border-gray-600 text-md text-gray-900 dark:text-white unreset"
 										dangerouslySetInnerHTML={{
 											__html: renderMarkdown(currentQuestion.text),
 										}}

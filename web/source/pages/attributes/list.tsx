@@ -19,11 +19,11 @@ import type { Conversation, Attribute } from '@/api'
  * A item that shows a attribute in the list.
  *
  * @prop {Attribute} attribute - The attribute to render.
- * @prop {boolean} allowEdit - Whether to allow the user to edit a attribute.
+ * @prop {boolean} groot - Whether to allow the user to edit a attribute.
  *
  * @component
  */
-const AttributeItem = (props: { attribute: Attribute; allowEdit: boolean }) => {
+const AttributeItem = (props: { attribute: Attribute; groot: boolean }) => {
 	const [attribute, setAttribute] = useState<Attribute>(props.attribute)
 
 	// Fetch the name of the conversations so we can display that instead of
@@ -116,7 +116,7 @@ const AttributeItem = (props: { attribute: Attribute; allowEdit: boolean }) => {
 					action={() => route(`/attributes/${attribute.id}/edit`)}
 					type="text"
 					class={`col-span-1 w-fit text-secondary dark:text-secondary-dark font-semibold ${
-						props.allowEdit ? '' : 'hidden'
+						props.groot ? '' : 'hidden'
 					}`}
 				/>
 			</td>
@@ -178,7 +178,12 @@ export const AttributeListPage = (props: { groot: boolean }) => {
 						class={props.groot ? 'block' : 'hidden'}
 					/>
 				</div>
-				<LoadingIndicator isLoading={typeof attributes === 'undefined'} />
+				<LoadingIndicator
+					isLoading={
+						typeof attributes === 'undefined' &&
+						typeof currentError === 'undefined'
+					}
+				/>
 				<div
 					class={`overflow-x-auto sm:rounded-lg ${
 						typeof attributes === 'undefined' ? 'hidden' : 'block'
@@ -196,7 +201,7 @@ export const AttributeListPage = (props: { groot: boolean }) => {
 						</thead>
 						<tbody class="p-4">
 							{attributes?.map((attribute: Attribute) => (
-								<AttributeItem attribute={attribute} allowEdit={props.groot} />
+								<AttributeItem attribute={attribute} groot={props.groot} />
 							))}
 						</tbody>
 					</table>

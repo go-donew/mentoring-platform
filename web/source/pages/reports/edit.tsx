@@ -262,6 +262,9 @@ export const ReportEditPage = (props: { reportId: string }) => {
 		if (isErrorResponse(response))
 			return setErrorMessage(response.error.message)
 
+		// Un-encode the template.
+		report.template = atob(report.template)
+
 		// Display a success message and make it disappear after 2.5 seconds.
 		setSuccessMessage(messages.get('saved-report'))
 		setTimeout(() => setSuccessMessage(undefined), 2500)
@@ -277,7 +280,7 @@ export const ReportEditPage = (props: { reportId: string }) => {
 				</div>
 				<LoadingIndicator
 					isLoading={
-						typeof report === 'undefined' && currentError === undefined
+						typeof report === 'undefined' && typeof currentError === 'undefined'
 					}
 				/>
 				<div class={typeof report === 'undefined' ? 'hidden' : ''}>
@@ -469,7 +472,7 @@ export const ReportEditPage = (props: { reportId: string }) => {
 					</div>
 				</div>
 				<Toast id="error-message" type="error" text={currentError} />
-				<Toast id="success-message" type="error" text={currentSuccess} />
+				<Toast id="success-message" type="info" text={currentSuccess} />
 			</div>
 		</PageWrapper>
 	)

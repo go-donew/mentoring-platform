@@ -314,7 +314,12 @@ export const ScriptListPage = () => {
 						type="filled"
 					/>
 				</div>
-				<LoadingIndicator isLoading={typeof scripts === 'undefined'} />
+				<LoadingIndicator
+					isLoading={
+						typeof scripts === 'undefined' &&
+						typeof currentError === 'undefined'
+					}
+				/>
 				<div
 					class={`overflow-x-auto sm:rounded-lg ${
 						typeof scripts === 'undefined' ? 'hidden' : 'block'

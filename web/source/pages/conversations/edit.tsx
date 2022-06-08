@@ -202,6 +202,10 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 
 		// Make the API calls to save the questions.
 		const updatedQuestions = []
+		// First, check that there is a first question to the conversation.
+		if (!questions.some((question) => question.first))
+			return setErrorMessage(errors.get('first-question-not-found'))
+		// Else continue onto saving the questions.
 		for (const question of questions) {
 			// Remove unnecessary fields like `next` and `attribute` from options if
 			// either of the values in them have been left blank.

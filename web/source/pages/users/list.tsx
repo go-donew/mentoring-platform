@@ -87,7 +87,11 @@ export const UserListPage = () => {
 						Users
 					</h5>
 				</div>
-				<LoadingIndicator isLoading={typeof users === 'undefined'} />
+				<LoadingIndicator
+					isLoading={
+						typeof users === 'undefined' && typeof currentError === 'undefined'
+					}
+				/>
 				<div
 					class={`overflow-x-auto sm:rounded-lg ${
 						typeof users === 'undefined' ? 'hidden' : 'block'

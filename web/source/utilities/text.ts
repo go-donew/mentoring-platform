@@ -2,9 +2,10 @@
 // A list of labels, errors and messages used in the app.
 
 // A collection of labels, errors and messages.
-const text: Record<'label' | 'error' | 'info', Record<string, string>> = {
+const text = {
 	label: {},
 	error: {
+		'incomplete-input': 'Please fill in all the required fields.',
 		'invalid-email-address': 'Please enter a valid email and try again.',
 		'weak-password':
 			'The password you entered was too weak. Please try again with a longer (> 6 letters) password.',
@@ -22,13 +23,16 @@ const text: Record<'label' | 'error' | 'info', Record<string, string>> = {
 		'could-not-save-question':
 			'An unexpected error occurred while saving the question.',
 		'option-was-not-selected': 'Please select an option to continue.',
+		'first-question-not-found': 'The conversation has no first question.',
 		'script-attribute-not-found': 'Could not find attribute with name ',
 		'report-attribute-not-found': 'Could not find attribute with name ',
+		'not-allowed-to-take-conversation':
+			'You are not allowed to take the conversation at this time.',
+		'report-not-generated': 'This report is yet to be generated.',
 		'server-crash':
 			'An unexpected error occurred. Please try again in a few seconds or report this issue.',
 		'network-error':
 			'A network error occurred while signing in. Please check your internet connectivity and try again.',
-		'incomplete-input': 'Please fill in all the required fields.',
 	},
 	info: {
 		'signing-in': 'Signing you in...',
@@ -42,24 +46,12 @@ const text: Record<'label' | 'error' | 'info', Record<string, string>> = {
 	},
 }
 
-/**
- * A function to get a piece of text.
- *
- * @param {'label' | 'error' | 'info'} category - The category to search in for the text.
- * @param {string} name - The name of the text to return.
- *
- * @returns {string} - The requested text.
- */
-const get = (category: 'label' | 'error' | 'info', name: string): string => {
-	return text[category][name]
-}
-
 export const labels = {
-	get: (name: keyof typeof text['label']) => get('label', name),
+	get: (name: keyof typeof text['label']) => text.label[name],
 }
 export const errors = {
-	get: (name: keyof typeof text['error']) => get('error', name),
+	get: (name: keyof typeof text['error']) => text.error[name],
 }
 export const messages = {
-	get: (name: keyof typeof text['info']) => get('info', name),
+	get: (name: keyof typeof text['info']) => text.info[name],
 }

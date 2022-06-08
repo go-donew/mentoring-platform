@@ -20,7 +20,7 @@ const endpoint = createRouter()
  *
  * @param {ListOrFindReportsPayload} request.body - The query to run and find reports.
  *
- * @returns {ListOrFindReportsResponse} 200 - The reports returned from the query. If no parameters are passed, then it returns all the reports the user is a part of.
+ * @returns {ListOrFindReportsResponse} 200 - The reports the user can view.
  * @returns {ImproperPayloadError} 400 - The query was invalid.
  * @returns {InvalidTokenError} 401 - The bearer token passed was invalid.
  * @returns {NotAllowedError} 403 - The client lacked sufficient authorization to perform the operation.
@@ -37,10 +37,7 @@ const endpoint = createRouter()
  */
 endpoint.get(
 	'/',
-	permit({
-		subject: 'report',
-		roles: 'dynamic',
-	}),
+	// => permit('anyone'),
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await reports.find({
 			context: { user: request.user!, rate: request.rateLimit },

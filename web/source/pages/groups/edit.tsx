@@ -364,7 +364,9 @@ export const GroupEditPage = (props: { groupId: string }) => {
 					</h5>
 				</div>
 				<LoadingIndicator
-					isLoading={typeof group === 'undefined' && currentError === undefined}
+					isLoading={
+						typeof group === 'undefined' && typeof currentError === 'undefined'
+					}
 				/>
 				<div class={typeof group === 'undefined' ? 'hidden' : ''}>
 					<div class="overflow-x-auto sm:rounded-lg">
