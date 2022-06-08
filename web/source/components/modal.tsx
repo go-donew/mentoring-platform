@@ -27,7 +27,7 @@ export const Modal = (props: {
 		aria-hidden="true"
 		class={`${
 			props.isVisible ? 'block' : 'hidden'
-		} fixed mx-auto z-50 w-3xl flex place-content-center items-center md:inset-0 md:h-full overflow-y-auto overflow-x-hidden text-left`}
+		} fixed mx-auto z-50 w-3xl flex place-content-center items-center inset-0 h-full overflow-y-auto overflow-x-hidden text-left`}
 	>
 		<div class="relative p-4 w-full max-w-md h-full md:h-auto">
 			<div class="relative bg-white rounded-lg shadow dark:bg-background-dark">

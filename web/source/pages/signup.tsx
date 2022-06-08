@@ -24,22 +24,24 @@ import type { User, Tokens } from '@/api'
  * @param {string} name - The user's full name.
  * @param {string} email - The user's email address.
  * @param {string} password - The user's password.
+ * @param {string} code - The code used to join a group.
  */
 interface SignUpForm {
 	name: string
 	email: string
 	password: string
+	code: string
 }
 /**
  * The action that is dispatched to the reducer to update the form's state.
  *
  * @param {'update-field'} type - The type of action to perform.
- * @param {'name' | 'email' | 'password'} field - The field which is concerned with the action.
+ * @param {keyof SignUpForm} field - The field which is concerned with the action.
  * @param {string?} payload - The payload, if any.
  */
 interface SignUpFormAction {
 	type: 'update-field'
-	field: 'name' | 'email' | 'password'
+	field: keyof SignUpForm
 	payload?: string
 }
 
@@ -134,15 +136,15 @@ export const SignUpPage = () => {
 		}
 
 		// If the validation tests pass, then make the API call to create an account.
-		const response = await fetch<{ user: User; tokens: Tokens }>({
+		const signUpResponse = await fetch<{ user: User; tokens: Tokens }>({
 			url: '/auth/signup',
 			method: 'post',
 			json: signUpForm,
 		})
 
 		// Handle any errors that might arise.
-		if (isErrorResponse(response)) {
-			const { error } = response
+		if (isErrorResponse(signUpResponse)) {
+			const { error } = signUpResponse
 
 			switch (error.code) {
 				case 'improper-payload':
@@ -164,8 +166,27 @@ export const SignUpPage = () => {
 		}
 
 		// Save the user data and tokens in local storage.
-		storage.set('user', response.user)
-		storage.set('tokens', response.tokens)
+		storage.set('user', signUpResponse.user)
+		storage.set('tokens', signUpResponse.tokens)
+
+		// Then if the user provided a code, make the join group request.
+		if (signUpForm.code) {
+			const codeResponse = await fetch({
+				url: '/groups/join',
+				method: 'put',
+				json: { code: signUpForm.code },
+			})
+
+			// Handle any errors that might arise.
+			if (isErrorResponse(signUpResponse)) {
+				setErrorMessage(error.message)
+				// The most probable error message is that the code doesn't exist, so
+				// redirect the user to the groups page where they caan retry joining.
+				setTimeout(() => route('/groups', true), 2500)
+
+				return
+			}
+		}
 
 		// Then route the user to the home page or whatever page they want to go to.
 		const redirectTo = new URLSearchParams(window.location.search).get(
@@ -224,6 +245,21 @@ export const SignUpPage = () => {
 										dispatch({
 											type: 'update-field',
 											field: 'password',
+											payload: value,
+										})
+									}
+								/>
+								<TextInput
+									id="code-input"
+									label="Code"
+									type="code"
+									placeholder="code-to-join-a-group"
+									value={signUpForm.code}
+									required={false}
+									update={(value: string) =>
+										dispatch({
+											type: 'update-field',
+											field: 'code',
 											payload: value,
 										})
 									}
