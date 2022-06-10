@@ -75,11 +75,12 @@ export class App extends Component {
 			if (queryParameters.toString() === '') return route(redirectTo, true)
 
 			const [relativePath, ...existingQueryParameters] = redirectTo.split('?')
-			for (const param of existingQueryParameters) {
-				const key = param.split('=')[0]
-				const val = param.split('=')[1]
-				queryParameters.append(key, val)
+			for (const parameter of existingQueryParameters) {
+				const key = parameter.split('=')[0]
+				const value = parameter.split('=')[1]
+				queryParameters.append(key, value)
 			}
+
 			route(`${relativePath}?${queryParameters.toString()}`, true)
 		}
 	}
