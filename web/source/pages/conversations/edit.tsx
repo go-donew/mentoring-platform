@@ -1,7 +1,7 @@
 // source/pages/conversations/edit.tsx
 // Defines and exports the conversation edit page.
 
-import { useState, useEffect, useReducer } from 'preact/hooks'
+import { useState, useEffect, useReducer, useMemo } from 'preact/hooks'
 import { route } from 'preact-router'
 
 import {
@@ -85,6 +85,8 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 		ConversationFormState,
 		ConversationEditFormAction
 	>(conversationEditHandler, {})
+	// Define the state for the list of questions.
+	const [questions, setQuestions] = useState<QuestionFormState[]>([])
 
 	// Define a state for error and success messages.
 	const [currentError, setErrorMessage] = useState<string | undefined>(
@@ -93,11 +95,12 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 	const [currentSuccess, setSuccessMessage] = useState<string | undefined>(
 		undefined,
 	)
-	// This list of attributes is used to fill the dropdown, so Groot can choose which
-	// attribute to set when a question is answered.
+	// This list of attributes, scripts, and conversations used to fill the
+	// dropdown, so Groot can choose which attribute to set when a question
+	// is answered.
 	const [attributes, setAttributes] = useState<Attribute[]>([])
 	const [scripts, setScripts] = useState<Script[]>([])
-	const [questions, setQuestions] = useState<QuestionFormState[]>([])
+	const [conversations, setConversations] = useState<Conversation[]>([])
 
 	// Fetch the conversation and the attributes using the API.
 	useEffect(() => {
@@ -111,6 +114,19 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 			if (isErrorResponse(response)) throw new Error(response.error.message)
 			// ...and if there are none, return the data.
 			return response.conversation
+		}
+
+		const fetchConversations = async (): Promise<Conversation[]> => {
+			const response = await fetch<{ conversations: Conversation[] }>({
+				url: `/conversations`,
+				method: 'get',
+				cache: true,
+			})
+
+			// Handle any errors that might arise...
+			if (isErrorResponse(response)) throw new Error(response.error.message)
+			// ...and if there are none, return the data.
+			return response.conversations
 		}
 
 		const fetchQuestions = async (): Promise<Question[]> => {
@@ -156,6 +172,10 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					payload: conversation,
 				}),
 			)
+			.catch((error) => setErrorMessage(error.message))
+
+		fetchConversations()
+			.then(setConversations)
 			.catch((error) => setErrorMessage(error.message))
 
 		fetchQuestions()
@@ -279,6 +299,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 			updatedQuestions.push(response.question)
 		}
 
+		// Re-set the questions so they all have IDs (if they were newly created).
 		setQuestions(updatedQuestions)
 
 		// Show a success toast, and make it disappear after a 2.5 seconds.
@@ -301,10 +322,8 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 		delete: () => void
 	}) => {
 		const { option } = props
-		// Define the state for the possible next conversations and questions for the option.
-		const [possibleNextConversations, setPossibleNextConversations] = useState<
-			Conversation[]
-		>([])
+
+		// Define a state for the list of possible next questions.
 		const [possibleNextQuestions, setPossibleNextQuestions] = useState<
 			Question[]
 		>([])
@@ -326,6 +345,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 			const response = await fetch<{ questions: Question[] }>({
 				url: `/conversations/${conversationId}/questions`,
 				method: 'get',
+				cache: true,
 			})
 
 			// Handle any errors that might arise...
@@ -334,31 +354,13 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 			return response.questions
 		}
 
-		// Fetch the conversations using the API.
-		useEffect(() => {
-			const fetchConversations = async (): Promise<Conversation[]> => {
-				const response = await fetch<{ conversations: Conversation[] }>({
-					url: `/conversations`,
-					method: 'get',
-				})
-
-				// Handle any errors that might arise...
-				if (isErrorResponse(response)) throw new Error(response.error.message)
-				// ...and if there are none, return the data.
-				return response.conversations
-			}
-
-			fetchConversations()
-				.then(setPossibleNextConversations)
-				.catch((error) => setErrorMessage(error.message))
-
-			// Also fetch the list of possible questions for the currently selected
+		useMemo(() => {
+			// Fetch the list of possible questions for the currently selected
 			// conversation.
-			if (option.next)
-				fetchPossibleNextQuestions(option.next.conversation)
-					.then(setPossibleNextQuestions)
-					.catch((error) => setErrorMessage(error.message))
-		}, [])
+			fetchPossibleNextQuestions(option.next?.conversation ?? '')
+				.then(setPossibleNextQuestions)
+				.catch((error) => setErrorMessage(error.message))
+		}, [option.next?.conversation])
 
 		return (
 			<div class="col-span-6 sm:col-span-3 grid grid-cols-4 rounded-lg border dark:bg-background-dark dark:border-gray-700 gap-2 p-4">
@@ -501,7 +503,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 						id="next-conversation-input"
 						options={[
 							{ text: 'None', value: '' },
-							...(possibleNextConversations?.map((convo) => {
+							...(conversations?.map((convo) => {
 								return {
 									text: convo.name,
 									value: convo.id,

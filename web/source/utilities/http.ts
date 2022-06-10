@@ -4,7 +4,7 @@
 import ky from 'ky'
 import { route } from 'preact-router'
 
-import { storage } from './storage'
+import { storage, cache } from './storage'
 import { errors } from './text'
 
 import type { Tokens } from '@/api'
@@ -14,7 +14,7 @@ const json = JSON
 /**
  * A set of options to pass to the wrapper function to make an HTTP request.
  */
-export interface KyOptions {
+export interface FetchOptions {
 	/**
 	 * The URL (relative to the `prefixUrl` set in the `_fetch` instance below) to
 	 * make the request to.
@@ -40,6 +40,11 @@ export interface KyOptions {
 	 * A JSON object to send as the request headers.
 	 */
 	headers?: Record<string, string | undefined>
+
+	/**
+	 * Whether or not to cache the response.
+	 */
+	cache?: boolean
 }
 
 /**
@@ -134,12 +139,12 @@ export const _fetch = ky.create({
  * A wrapper around `ky`, that converts the response to JSON automatically and
  * handles non-HTTP errors.
  *
- * @param {KyOptions} options - The request configuration.
+ * @param {FetchOptions} options - The request configuration.
  *
  * @returns {Promise<MentoringApiResponse<T>>} - The response data, wrapped in a Promise.
  */
 export const fetch = async <T>(
-	passedOptions: KyOptions,
+	passedOptions: FetchOptions,
 ): Promise<MentoringApiResponse<T>> => {
 	// Normalize the options
 	const options = passedOptions
@@ -150,7 +155,24 @@ export const fetch = async <T>(
 		...options.headers,
 	}
 
+	// The unique key that identifies the request; used when the response needs
+	// to be cached.
+	const requestIdentifier = btoa(
+		`${options.url}.${json.stringify(options.query)}`,
+	)
+	// Cache the response for 5 minutes, if needed.
+	const cacheTime = 5 * 60 * 1000
+
 	try {
+		// Check if the response exists in cache.
+		if (options.cache && options.method === 'get') {
+			const cachedResponse = cache.get(requestIdentifier)
+
+			// If it does, then return it.
+			if (typeof cachedResponse !== 'undefined')
+				return cachedResponse as MentoringApiResponse<T>
+		}
+
 		// Make the request, replacing any slashes at the beginning of the url
 		const response = await _fetch(options.url.replace(/^\/+/g, ''), {
 			method: options.method,
@@ -159,14 +181,17 @@ export const fetch = async <T>(
 			headers: options.headers,
 		})
 
-		// Check if the response is JSON or not.
-		if (response.headers.get('content-type')?.includes('application/json')) {
-			// If it is, parse it and return the json.
-			return (await response.json()) as MentoringApiResponse<T>
-		}
+		// Parse the response body.
+		const receivedResponse = response.headers
+			.get('content-type')
+			?.includes('application/json')
+			? ((await response.json()) as MentoringApiResponse<T>)
+			: ((await response.text()) as unknown as MentoringApiResponse<T>)
 
-		// Else return the response as a string.
-		return (await response.text()) as unknown as MentoringApiResponse<T>
+		// Cache it, if necessary, and then return it
+		if (options.cache && options.method === 'get' && !isErrorResponse(response))
+			cache.set(requestIdentifier, receivedResponse, cacheTime)
+		return receivedResponse
 	} catch (error: unknown) {
 		// If an error occurs, check if it is a network error.
 		if ((error as any).message?.includes('NetworkError')) {
