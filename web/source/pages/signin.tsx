@@ -123,6 +123,9 @@ export const SignInPage = () => {
 			json: signInForm,
 		})
 
+		// Stop loading.
+		setLoading(false)
+
 		// Handle any errors that might arise.
 		if (isErrorResponse(response)) {
 			const { error } = response
@@ -141,7 +144,6 @@ export const SignInPage = () => {
 					setErrorMessage(error.message)
 			}
 
-			setLoading(false)
 			return
 		}
 
@@ -153,7 +155,7 @@ export const SignInPage = () => {
 		const redirectTo = new URLSearchParams(window.location.search).get(
 			'redirect',
 		)
-		setLoading(false)
+
 		route(redirectTo ?? '/', true)
 	}
 

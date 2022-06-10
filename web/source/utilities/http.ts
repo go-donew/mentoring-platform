@@ -93,7 +93,7 @@ export const _fetch = ky.create({
 		afterResponse: [
 			async (request: any, _options: any, response: any) => {
 				// Only run this hook if the body is JSON.
-				if (!response.headers.get('content-type').includes('application/json'))
+				if (!response.headers.get('content-type')?.includes('application/json'))
 					return
 
 				const { status } = response

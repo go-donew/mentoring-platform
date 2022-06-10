@@ -172,6 +172,38 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 	}, [currentSuccess]) // Refresh these lists when the save button is pressed.
 
 	/**
+	 * Delete the conversation using the API.
+	 */
+	const deleteConversation = async (): Promise<void> => {
+		// Clear the error message.
+		setErrorMessage(undefined)
+
+		// Make the API call to delete the conversation.
+		const response = await fetch({
+			url: `/conversations/${conversation.id}`,
+			method: 'delete',
+		})
+
+		// Handle any errors that might arise.
+		if (isErrorResponse(response)) {
+			const { error } = response
+
+			switch (error.code) {
+				case 'entity-not-found':
+					setErrorMessage(errors.get('conversation-does-not-exist'))
+					break
+				default:
+					setErrorMessage(error.message)
+			}
+
+			return
+		}
+
+		// Then route the user to the conversation list page.
+		route('/conversations')
+	}
+
+	/**
 	 * Update the conversation using the API.
 	 */
 	const saveConversation = async (): Promise<void> => {
@@ -259,12 +291,14 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 	 *
 	 * @prop {Option} option - The option.
 	 * @prop {Function} save - The callback fired when the option is updated.
+	 * @prop {Function} delete - The callback fired when the option is to be deleted.
 	 *
 	 * @component
 	 */
 	const Option = (props: {
 		option: Option
 		save: (option: Option) => void
+		delete: () => void
 	}) => {
 		const { option } = props
 		// Define the state for the possible next conversations and questions for the option.
@@ -334,6 +368,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 				<div class="col-span-1 text-right">
 					<IconButton
 						id="remove-option-button"
+						action={() => props.delete()}
 						icon="remove"
 						class="w-fit text-gray-700 dark:text-gray-400"
 					/>
@@ -520,6 +555,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 	 * @prop {Question} question - The question.
 	 * @prop {number} number - The question number.
 	 * @prop {Function} save - The callback fired when the question is updated.
+	 * @prop {Function} delete - The callback fired when the option is to be deleted.
 	 *
 	 * @component
 	 */
@@ -527,6 +563,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 		question: QuestionFormState
 		number: number
 		save: (question: QuestionFormState) => void
+		delete: () => void
 	}) => {
 		const { question } = props
 
@@ -536,6 +573,14 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 				<h6 class="col-span-5 text-md font-medium leading-none text-gray-900 dark:text-white">
 					Question {props.number}
 				</h6>
+				<div class="col-span-1 text-right">
+					<IconButton
+						id="remove-question-button"
+						action={() => props.delete()}
+						icon="remove"
+						class="w-fit text-gray-700 dark:text-gray-400"
+					/>
+				</div>
 				<div class="col-span-6">
 					<ExpandableTextInput
 						id="text-input"
@@ -633,6 +678,16 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 									// Save the option.
 									const options = [...question.options]
 									options[index] = updatedOption
+
+									props.save({
+										...question,
+										options,
+									})
+								}}
+								delete={() => {
+									// Delete the option.
+									const options = [...question.options]
+									options.splice(index, 1)
 
 									props.save({
 										...question,
@@ -766,12 +821,18 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 
 										setQuestions(copyOfQuestions)
 									}}
+									delete={() => {
+										const copyOfQuestions = [...questions]
+										copyOfQuestions.splice(index, 1)
+
+										setQuestions(copyOfQuestions)
+									}}
 								/>
 							))}
 							<hr class="col-span-6 dark:border-gray-700" />
 						</div>
 					</div>
-					<div class="mt-4 grid grid-cols-6">
+					<div class="mt-4 grid grid-cols-6 gap-6">
 						<Button
 							id="back-button"
 							text="Back"
@@ -779,7 +840,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 							type="text"
 							class="col-span-2 md:col-span-1 text-left"
 						/>
-						<div class="hidden md:block md:col-span-3"></div>
+						<div class="hidden md:block md:col-span-2"></div>
 						<Button
 							id="add-question-button"
 							text="Add Question"
@@ -797,6 +858,13 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 								])
 							}
 							type="text"
+							class="col-span-2 md:col-span-1"
+						/>
+						<Button
+							id="delete-button"
+							text="Delete"
+							action={async () => deleteConversation()}
+							type="danger"
 							class="col-span-2 md:col-span-1"
 						/>
 						<Button

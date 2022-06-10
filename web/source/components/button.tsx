@@ -15,7 +15,7 @@ export const Button = (props: {
 	id: string
 	text: string
 	action: () => void
-	type: 'text' | 'filled'
+	type: 'text' | 'filled' | 'danger'
 	class?: string
 }) => (
 	<button
@@ -24,6 +24,8 @@ export const Button = (props: {
 		class={`px-auto md:px-4 py-2 justify-center items-center text-sm font-bold rounded-lg ${
 			props.type === 'filled'
 				? 'bg-primary dark:bg-primary-dark text-on-primary dark:text-on-primary-dark'
+				: props.type === 'danger'
+				? 'text-error dark:text-error-dark'
 				: 'text-on-background dark:text-on-background-dark'
 		} ${props.class}`}
 		onClick={props.action}

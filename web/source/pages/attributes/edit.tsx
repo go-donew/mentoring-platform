@@ -129,6 +129,38 @@ export const AttributeEditPage = (props: { attributeId: string }) => {
 	}, [])
 
 	/**
+	 * Delete the attribute using the API.
+	 */
+	const deleteAttribute = async (): Promise<void> => {
+		// Clear the error message.
+		setErrorMessage(undefined)
+
+		// Make the API call to delete the attribute.
+		const response = await fetch({
+			url: `/attributes/${attribute.id}`,
+			method: 'delete',
+		})
+
+		// Handle any errors that might arise.
+		if (isErrorResponse(response)) {
+			const { error } = response
+
+			switch (error.code) {
+				case 'entity-not-found':
+					setErrorMessage(errors.get('attribute-does-not-exist'))
+					break
+				default:
+					setErrorMessage(error.message)
+			}
+
+			return
+		}
+
+		// Then route the conversation to the attribute list page.
+		route('/attributes')
+	}
+
+	/**
 	 * Update the attribute using the API.
 	 */
 	const saveAttribute = async (): Promise<void> => {
@@ -312,21 +344,28 @@ export const AttributeEditPage = (props: { attributeId: string }) => {
 							</table>
 						</div>
 					</div>
-					<div class="mt-4 grid grid-cols-4 gap-4 md:grid-cols-6 md:gap-6">
-						<div class="hidden md:block md:col-span-4"></div>
+					<div class="mt-4 grid grid-cols-3 gap-3 md:grid-cols-6 md:gap-6">
+						<div class="hidden md:block md:col-span-3"></div>
 						<Button
 							id="back-button"
 							text="Cancel"
 							action={() => route('/attributes')}
 							type="text"
-							class="col-span-2 md:col-span-1"
+							class="col-span-1"
+						/>
+						<Button
+							id="delete-button"
+							text="Delete"
+							action={async () => deleteAttribute()}
+							type="danger"
+							class="col-span-1"
 						/>
 						<Button
 							id="save-button"
 							text="Save"
 							action={async () => saveAttribute()}
 							type="filled"
-							class="col-span-2 md:col-span-1"
+							class="col-span-1"
 						/>
 					</div>
 				</div>
