@@ -21,8 +21,13 @@
 			// button that is wired to use preact-router's navigation method, we need to
 			// redirect the user to the right page using the `route` function. This
 			// redirection is done by the `App` component, so the 404 page simply needs
-			// to go to `/?redirect={route}`.
-			window.location.href = `/?redirect=${window.location.pathname}`
+			// to go to `/?goto={route}`.
+
+			// Preserve the query parameters.
+			let queryParams = window.location.search
+			if (queryParams) queryParams = `?${queryParams.replace(/^\?*/, '')}`
+			// Redirect to the actual page.
+			window.location.href = `/?goto=${window.location.pathname}${queryParams}`
 		</script>
 	</head>
 </html>

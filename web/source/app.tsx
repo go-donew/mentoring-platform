@@ -67,25 +67,38 @@ export class App extends Component {
 	 */
 	componentDidMount = () => {
 		const queryParameters = new URLSearchParams(window.location.search)
-		const redirectTo = queryParameters.get('redirect')
+		const redirectTo = queryParameters.get('goto')?.replace(/\?$/, '')
 
-		if (redirectTo) route(redirectTo, true)
+		queryParameters.delete('goto')
+
+		if (redirectTo) {
+			if (queryParameters.toString() === '') return route(redirectTo, true)
+
+			const [relativePath, ...existingQueryParameters] = redirectTo.split('?')
+			for (const param of existingQueryParameters) {
+				const key = param.split('=')[0]
+				const val = param.split('=')[1]
+				queryParameters.append(key, val)
+			}
+			route(`${relativePath}?${queryParameters.toString()}`, true)
+		}
 	}
 
 	/**
 	 * The function that handles a change in routes.
 	 */
 	handleRoute = (event: { url: string }) => {
+		const currentUrl = event.url.replace(/\?*$/, '')
 		// Update the current URL for the navbar.
-		this.setState({ currentUrl: event.url })
+		this.setState({ currentUrl })
 		// All we need to do is check if the user is authenticated. If yes, then
 		// let them go ahead; else redirect them to the sign in page.
 		if (
 			!this.isUserSignedIn() &&
-			!event.url.startsWith('/signin') &&
-			!event.url.startsWith('/signup')
+			!currentUrl.startsWith('/signin') &&
+			!currentUrl.startsWith('/signup')
 		) {
-			route(`/signin?redirect=${event.url}`)
+			route(`/signin?redirect=${currentUrl}&error=expired-credentials`)
 		}
 	}
 

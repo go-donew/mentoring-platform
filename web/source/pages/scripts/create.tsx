@@ -12,6 +12,7 @@ import {
 	CodeEditor,
 	SelectInput,
 	Toast,
+	LoadingIndicator,
 	PageWrapper,
 } from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
@@ -228,10 +229,11 @@ export const ScriptCreatePage = () => {
 		content: exampleScript,
 	})
 
-	// Define a state for error messages and the list of attributes.
+	// Define a state for error messages, loading indicators and the list of attributes.
 	const [currentError, setErrorMessage] = useState<string | undefined>(
 		undefined,
 	)
+	const [isCreating, setIsCreating] = useState<boolean>(false)
 	// This list of attributes used to fill the dropdown, so Groot can choose.
 	const [attributes, setAttributes] = useState<Attribute[]>([])
 
@@ -260,6 +262,8 @@ export const ScriptCreatePage = () => {
 	const createScript = async () => {
 		// Clear the error message.
 		setErrorMessage(undefined)
+		setIsCreating(true)
+
 		// Delete any blank attribute IDs from the script.
 		script.input = script.input
 			? script.input.filter((attr) => Boolean(attr.id))
@@ -278,9 +282,13 @@ export const ScriptCreatePage = () => {
 			// If it does not exist, error out and restore the script.
 			if (!attribute) {
 				script.content = originalContents
-				return setErrorMessage(
+
+				setIsCreating(false)
+				setErrorMessage(
 					errors.get('script-attribute-not-found') + attributeName,
 				)
+
+				return
 			}
 
 			// Else replace the attribute name with the ID.
@@ -299,6 +307,9 @@ export const ScriptCreatePage = () => {
 			method: 'post',
 			json: script,
 		})
+
+		// Stop loading.
+		setIsCreating(false)
 
 		// Handle any errors that might arise.
 		if (isErrorResponse(response))
@@ -571,8 +582,9 @@ export const ScriptCreatePage = () => {
 							text="Create"
 							action={async () => createScript()}
 							type="filled"
-							class="col-span-2 md:col-span-1"
+							class={isCreating ? 'hidden' : 'col-span-2 md:col-span-1'}
 						/>
+						<LoadingIndicator isLoading={isCreating} />
 					</div>
 				</div>
 				<Toast id="error-message" type="error" text={currentError} />

@@ -50,7 +50,8 @@ export const Navbar = (props: { routes: Route[]; currentUrl: string }) => {
 		<nav
 			// Don't render the navbar on auth routes.
 			class={`${
-				props.currentUrl === '/signin' || props.currentUrl === '/signup'
+				props.currentUrl.startsWith('/signin') ||
+				props.currentUrl.startsWith('/signup')
 					? 'hidden'
 					: 'block'
 			} bg-surface dark:bg-surface-dark`}

@@ -10,6 +10,7 @@ import {
 	TextInput,
 	SelectInput,
 	Toast,
+	LoadingIndicator,
 	PageWrapper,
 } from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
@@ -69,10 +70,11 @@ export const ConversationCreatePage = () => {
 		ConversationCreateFormAction
 	>(reducer, {})
 
-	// Define a state for error messages.
+	// Define a state for error messages and loading indicators.
 	const [currentError, setErrorMessage] = useState<string | undefined>(
 		undefined,
 	)
+	const [isCreating, setIsCreating] = useState<boolean>(false)
 
 	/**
 	 * Create the conversation using the API.
@@ -80,6 +82,7 @@ export const ConversationCreatePage = () => {
 	const createConversation = async () => {
 		// Clear the error message.
 		setErrorMessage(undefined)
+		setIsCreating(true)
 
 		// Make sure the `once` field is set.
 		conversation.once =
@@ -91,6 +94,9 @@ export const ConversationCreatePage = () => {
 			method: 'post',
 			json: conversation,
 		})
+
+		// Stop loading.
+		setIsCreating(false)
 
 		// Handle any errors that might arise.
 		if (isErrorResponse(response))
@@ -197,8 +203,9 @@ export const ConversationCreatePage = () => {
 							text="Create"
 							action={async () => createConversation()}
 							type="filled"
-							class="col-span-2 md:col-span-1"
+							class={isCreating ? 'hidden' : 'col-span-2 md:col-span-1'}
 						/>
+						<LoadingIndicator isLoading={isCreating} />
 					</div>
 				</div>
 				<Toast id="error-message" type="error" text={currentError} />

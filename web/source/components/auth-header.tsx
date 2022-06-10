@@ -18,7 +18,11 @@ export const AuthHeader = (props: { mode: 'signin' | 'signup' }) => (
 			Or
 			<a
 				class="cursor-pointer font-medium text-primary dark:text-secondary-dark"
-				href={props.mode === 'signin' ? '/signup' : '/signin'}
+				href={
+					props.mode === 'signin'
+						? `/signup${window.location.search}`
+						: `/signin${window.location.search}`
+				}
 				data-ref={`${props.mode}-instead-button}`}
 			>
 				{' '}

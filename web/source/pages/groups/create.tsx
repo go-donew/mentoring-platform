@@ -6,11 +6,12 @@ import { route } from 'preact-router'
 
 import {
 	Button,
+	IconButton,
 	TextInput,
 	SelectInput,
 	Toast,
+	LoadingIndicator,
 	PageWrapper,
-	IconButton,
 } from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
 import { errors } from '@/utilities/text'
@@ -207,10 +208,11 @@ export const GroupCreatePage = () => {
 		{},
 	)
 
-	// Define a state for error messages and the list of users.
+	// Define a state for error messages, loading indicators and the list of users.
 	const [currentError, setErrorMessage] = useState<string | undefined>(
 		undefined,
 	)
+	const [isCreating, setIsCreating] = useState<boolean>(false)
 	// This list of users, conversations and reports is used to fill the dropdown,
 	// so Groot can choose.
 	const [users, setUsers] = useState<User[]>([])
@@ -272,6 +274,8 @@ export const GroupCreatePage = () => {
 	const createGroup = async () => {
 		// Clear the error message.
 		setErrorMessage(undefined)
+		setIsCreating(true)
+
 		// Delete any blank participant IDs from the group.
 		if (group.participants) delete group.participants['']
 		else group.participants = {}
@@ -305,6 +309,9 @@ export const GroupCreatePage = () => {
 			method: 'post',
 			json: group,
 		})
+
+		// Stop loading.
+		setIsCreating(false)
 
 		// Handle any errors that might arise.
 		if (isErrorResponse(response)) {
@@ -692,8 +699,9 @@ export const GroupCreatePage = () => {
 							text="Create"
 							action={async () => createGroup()}
 							type="filled"
-							class="col-span-2 md:col-span-1"
+							class={isCreating ? 'hidden' : 'col-span-2 md:col-span-1'}
 						/>
+						<LoadingIndicator isLoading={isCreating} />
 					</div>
 				</div>
 				<Toast id="error-message" type="error" text={currentError} />

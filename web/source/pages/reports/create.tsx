@@ -10,6 +10,7 @@ import {
 	TextInput,
 	SelectInput,
 	Toast,
+	LoadingIndicator,
 	PageWrapper,
 } from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
@@ -202,10 +203,11 @@ export const ReportCreatePage = () => {
 		ReportCreateFormAction
 	>(reducer, {})
 
-	// Define a state for error messages and the list of attributes.
+	// Define a state for error messages, loading indicators and the list of attributes.
 	const [currentError, setErrorMessage] = useState<string | undefined>(
 		undefined,
 	)
+	const [isCreating, setIsCreating] = useState<boolean>(false)
 	// This list of attributes used to fill the dropdown, so Groot can choose.
 	const [attributes, setAttributes] = useState<Attribute[]>([])
 
@@ -234,6 +236,8 @@ export const ReportCreatePage = () => {
 	const createReport = async () => {
 		// Clear the error message.
 		setErrorMessage(undefined)
+		setIsCreating(true)
+
 		// Delete any blank attribute IDs from the report.
 		report.input = report.input
 			? report.input.filter((attr) => Boolean(attr.id))
@@ -248,6 +252,9 @@ export const ReportCreatePage = () => {
 			method: 'post',
 			json: report,
 		})
+
+		// Stop loading.
+		setIsCreating(false)
 
 		// Handle any errors that might arise.
 		if (isErrorResponse(response))
@@ -421,8 +428,9 @@ export const ReportCreatePage = () => {
 							text="Create"
 							action={async () => createReport()}
 							type="filled"
-							class="col-span-2 md:col-span-1"
+							class={isCreating ? 'hidden' : 'col-span-2 md:col-span-1'}
 						/>
+						<LoadingIndicator isLoading={isCreating} />
 					</div>
 				</div>
 				<Toast id="error-message" type="error" text={currentError} />

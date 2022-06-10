@@ -6,11 +6,12 @@ import { route } from 'preact-router'
 
 import {
 	Button,
+	IconButton,
 	TextInput,
 	SelectInput,
 	Toast,
+	LoadingIndicator,
 	PageWrapper,
-	IconButton,
 } from '@/components'
 import { fetch, isErrorResponse } from '@/utilities/http'
 
@@ -69,10 +70,11 @@ export const AttributeCreatePage = () => {
 		AttributeCreateFormAction
 	>(reducer, {})
 
-	// Define a state for error messages and the list of conversations.
+	// Define a state for error messages, loading indicator and the list of conversations.
 	const [currentError, setErrorMessage] = useState<string | undefined>(
 		undefined,
 	)
+	const [isCreating, setIsCreating] = useState<boolean>(false)
 	// This list of conversations is used to fill the dropdown, so Groot can choose which
 	// conversations to add to the attribute.
 	const [conversations, setConversations] = useState<Conversation[]>([])
@@ -102,6 +104,8 @@ export const AttributeCreatePage = () => {
 	const createAttribute = async () => {
 		// Clear the error message.
 		setErrorMessage(undefined)
+		setIsCreating(true)
+
 		// Delete any blank conversation IDs from the attribute.
 		attribute.conversations = attribute.conversations
 			? attribute.conversations.filter(Boolean)
@@ -113,6 +117,9 @@ export const AttributeCreatePage = () => {
 			method: 'post',
 			json: attribute,
 		})
+
+		// Stop loading.
+		setIsCreating(false)
 
 		// Handle any errors that might arise.
 		if (isErrorResponse(response))
@@ -277,6 +284,10 @@ export const AttributeCreatePage = () => {
 							text="Create"
 							action={async () => createAttribute()}
 							type="filled"
+							class={isCreating ? 'hidden' : 'col-span-2 md:col-span-1'}
+						/>
+						<LoadingIndicator
+							isLoading={isCreating}
 							class="col-span-2 md:col-span-1"
 						/>
 					</div>
