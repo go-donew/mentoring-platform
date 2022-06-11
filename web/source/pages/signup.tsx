@@ -15,6 +15,7 @@ import {
 import { fetch, isErrorResponse } from '@/utilities/http'
 import { errors } from '@/utilities/text'
 import { storage } from '@/utilities/storage'
+import { isAuthenticated } from '@/utilities/auth'
 
 import type { User, Tokens } from '@/api'
 
@@ -51,6 +52,18 @@ interface SignUpFormAction {
  * @page
  */
 export const SignUpPage = () => {
+	// First and foremost, check that the user is not already signed in. If they
+	// are, redirect them to the home page or wherever they wanted to go.
+	if (isAuthenticated()) {
+		const redirectTo = new URLSearchParams(window.location.search).get(
+			'redirect',
+		)
+
+		route(redirectTo ?? '/', true)
+
+		return
+	}
+
 	/**
 	 * The reducer to update the form. The reducer will be called with
 	 * the current values of the form, and the action that was dispatched.
