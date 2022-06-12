@@ -178,7 +178,7 @@ export const ReportEditPage = (props: { reportId: string }) => {
 
 			// Then, replace all the attribute IDs with attribute names.
 			const attributeIdMatches = [
-				...fetchedReport.template.matchAll(/(\w{28})/g),
+				...fetchedReport.template.matchAll(/"(\w{28})"/g),
 			]
 			for (const [_match, attributeId] of attributeIdMatches) {
 				// Find the attribute.

@@ -20,7 +20,7 @@ const endpoint = createRouter()
  *
  * @security bearer
  *
- * @param {ListOrFindUsersPayload} request.body - The query to run and find users.
+ * @param {ListOrFindUsersPayload} request.query - The query to run and find users.
  *
  * @returns {ListOrFindUsersResponse} 200 - The users returned from the query. You must be `groot` to perform this query.
  * @returns {ImproperPayloadError} 400 - The name, email, phone or timestamps passed were invalid.
@@ -43,7 +43,11 @@ endpoint.get(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await users.find({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -79,7 +83,11 @@ endpoint.get(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await users.get({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -115,7 +123,11 @@ endpoint.delete(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await users.delete({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -132,7 +144,7 @@ endpoint.delete(
  * @security bearer
  *
  * @param {string} userId.path.required - The ID of the user whose attributes to list.
- * @param {ListOrFindUserAttributesPayload} request.body - The query to run and find attributes.
+ * @param {ListOrFindUserAttributesPayload} request.query - The query to run and find attributes.
  *
  * @returns {ListOrFindUserAttributesResponse} 200 - The attributes returned from the query. If no parameters are passed, then it returns all the attributes the user is a part of.
  * @returns {ImproperPayloadError} 400 - The query was invalid.
@@ -158,7 +170,11 @@ endpoint.get(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await attributes.find({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -202,7 +218,11 @@ endpoint.post(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await attributes.create({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -239,7 +259,11 @@ endpoint.get(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await attributes.get({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -278,7 +302,11 @@ endpoint.put(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await attributes.update({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -315,7 +343,11 @@ endpoint.delete(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await attributes.delete({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -352,7 +384,11 @@ endpoint.get(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await reports.get({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)

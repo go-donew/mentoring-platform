@@ -29,7 +29,11 @@ endpoint.get(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await meta.get({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)

@@ -133,6 +133,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 			const response = await fetch<{ questions: Question[] }>({
 				url: `/conversations/${props.conversationId}/questions`,
 				method: 'get',
+				query: { raw: 'true' },
 			})
 
 			// Handle any errors that might arise...
@@ -271,6 +272,29 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					delete option.next
 			}
 
+			// Replace all attribute names with actual IDs in the question.
+			const attributeNameMatches = [...question.text.matchAll(/"{(.*?)}"/g)]
+			// Keep a copy of the original incase an error is detected and we need to
+			// abort.
+			const originalContents = question.text
+			for (const [_match, attributeName] of attributeNameMatches) {
+				// Find the attribute.
+				const attribute = attributes.find((attr) => attr.name === attributeName)
+				// If it does not exist, error out and restore the question.
+				if (!attribute) {
+					question.text = originalContents
+					return setErrorMessage(
+						errors.get('question-attribute-not-found') + attributeName,
+					)
+				}
+
+				// Else replace the attribute name with the ID.
+				question.text = question.text.replace(
+					new RegExp(`"{${attribute.name}}"`, 'g'),
+					`"${attribute.id}"`,
+				)
+			}
+
 			const response =
 				typeof (question as Question).id === 'undefined'
 					? await fetch<{ question: Question }>({
@@ -345,6 +369,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 			const response = await fetch<{ questions: Question[] }>({
 				url: `/conversations/${conversationId}/questions`,
 				method: 'get',
+				query: { raw: 'true' },
 				cache: true,
 			})
 
@@ -567,7 +592,41 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 		save: (question: QuestionFormState) => void
 		delete: () => void
 	}) => {
-		const { question } = props
+		const [question, setQuestion] = useState<QuestionFormState>(props.question)
+
+		// Replace the attribute IDs with their names in the question text.
+		useEffect(() => {
+			const decodeQuestionText = async (
+				questionForm: QuestionFormState,
+			): Promise<QuestionFormState> => {
+				// Replace all the attribute IDs with attribute names.
+				const attributeIdMatches = [
+					...questionForm.text.matchAll(/"(\w{28})"/g),
+				]
+				for (const [_match, attributeId] of attributeIdMatches) {
+					// Find the attribute.
+					const attribute = attributes.find((attr) => attr.id === attributeId)
+					// If it does not exist, error out.
+					if (!attribute) {
+						throw new Error(
+							errors.get('report-attribute-not-found') + attributeId,
+						)
+					}
+
+					// Else replace the attribute name with the ID.
+					questionForm.text = questionForm.text.replace(
+						new RegExp(`"${attribute.id}"`, 'g'),
+						`"{${attribute.name}}"`,
+					)
+				}
+
+				return questionForm
+			}
+
+			decodeQuestionText(question)
+				.then(setQuestion)
+				.catch((error) => setErrorMessage(error.message))
+		})
 
 		return (
 			<>
@@ -588,6 +647,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 						id="text-input"
 						type="question-text"
 						value={question.text}
+						rows={4}
 						required={true}
 						update={(value: string) =>
 							props.save({
@@ -743,7 +803,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 				/>
 				<div class={typeof conversation.id === 'undefined' ? 'hidden' : ''}>
 					<div class="sm:rounded-lg">
-						<div class="grid grid-cols-6 gap-6">
+						<div class="grid grid-cols-6 gap-x-6 gap-y-4">
 							<div class="col-span-6 sm:col-span-3">
 								<TextInput
 									id="name-input"

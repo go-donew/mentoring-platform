@@ -18,7 +18,7 @@ const endpoint = createRouter()
  *
  * @security bearer
  *
- * @param {ListOrFindScriptsPayload} request.body - The query to run and find scripts.
+ * @param {ListOrFindScriptsPayload} request.query - The query to run and find scripts.
  *
  * @returns {ListOrFindScriptsResponse} 200 - The scripts returned from the query. You must be Groot.
  * @returns {ImproperPayloadError} 400 - The query was invalid.
@@ -41,7 +41,11 @@ endpoint.get(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await scripts.find({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -91,7 +95,11 @@ endpoint.post(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await scripts.create({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -124,7 +132,11 @@ endpoint.get(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await scripts.get({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -159,7 +171,11 @@ endpoint.put(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await scripts.update({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -192,7 +208,11 @@ endpoint.delete(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await scripts.delete({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -226,7 +246,11 @@ endpoint.put(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await scripts.run({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)

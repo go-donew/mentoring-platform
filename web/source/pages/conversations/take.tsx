@@ -130,10 +130,11 @@ export const TakeConversationPage = (props: { conversationId: string }) => {
 			return response.conversation
 		}
 
-		const fetchQuestions = async (): Promise<Question[]> => {
+		const fetchFirstQuestion = async (): Promise<Question | undefined> => {
 			const response = await fetch<{ questions: Question[] }>({
 				url: `/conversations/${props.conversationId}/questions`,
 				method: 'get',
+				query: { first: 'true' },
 			})
 
 			// Handle any errors that might arise...
@@ -147,21 +148,19 @@ export const TakeConversationPage = (props: { conversationId: string }) => {
 			}
 
 			// ...and if there are none, return the data.
-			return response.questions
+			return response.questions.find((question) => question.first)
 		}
 
 		fetchConversation()
 			.then(setConversation)
 			.catch((error) => setErrorMessage(error.message))
 
-		fetchQuestions()
-			.then((questions: Question[]) => {
-				// Find the first question and render it.
-				const firstQuestion = questions.find((question) => question.first)
+		fetchFirstQuestion()
+			.then((firstQuestion?: Question) => {
 				// If no first question exists, show an error.
 				if (!firstQuestion)
 					setErrorMessage(errors.get('first-question-not-found'))
-				// Else set the question.
+				// Else render the question.
 				setCurrentQuestion(firstQuestion)
 			})
 			.catch((error) => setErrorMessage(error.message))
@@ -229,7 +228,7 @@ export const TakeConversationPage = (props: { conversationId: string }) => {
 							<div class="grid grid-cols-6 gap-1">
 								<div class="col-span-6 pb-4 pt-2">
 									<div
-										class="pb-4 border-b border-gray-900 dark:border-gray-600 text-md text-gray-900 dark:text-white unreset"
+										class="pb-2 border-b border-gray-900 dark:border-gray-600 text-sm text-gray-900 dark:text-white unreset"
 										dangerouslySetInnerHTML={{
 											__html: renderMarkdown(currentQuestion.text),
 										}}

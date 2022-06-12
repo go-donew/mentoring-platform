@@ -19,7 +19,7 @@ const endpoint = createRouter()
  *
  * @security bearer
  *
- * @param {ListOrFindConversationsPayload} request.body - The query to run and find conversations.
+ * @param {ListOrFindConversationsPayload} request.query - The query to run and find conversations.
  *
  * @returns {ListOrFindConversationsResponse} 200 - The conversations that the user is allowed to take.
  * @returns {ImproperPayloadError} 400 - The query was invalid.
@@ -42,7 +42,11 @@ endpoint.get(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await conversations.find({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -84,7 +88,11 @@ endpoint.post(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await conversations.create({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -120,7 +128,11 @@ endpoint.get(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await conversations.get({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -155,7 +167,11 @@ endpoint.put(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await conversations.update({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -188,7 +204,11 @@ endpoint.delete(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await conversations.delete({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -205,7 +225,7 @@ endpoint.delete(
  * @security bearer
  *
  * @param {string} conversationId.path.required - The ID of the user whose questions to list.
- * @param {ListOrFindQuestionsPayload} request.body - The query to run and find questions.
+ * @param {ListOrFindQuestionsPayload} request.query - The query to run and find questions.
  *
  * @returns {ListOrFindQuestionsResponse} 200 - The questions returned from the query. If no parameters are passed, then it returns all the questions part of the conversation.
  * @returns {ImproperPayloadError} 400 - The query was invalid.
@@ -231,7 +251,11 @@ endpoint.get(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await questions.find({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -285,7 +309,11 @@ endpoint.post(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await questions.create({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -322,7 +350,11 @@ endpoint.get(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await questions.get({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -358,7 +390,11 @@ endpoint.put(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await questions.update({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -392,7 +428,11 @@ endpoint.delete(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await questions.delete({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -429,7 +469,11 @@ endpoint.put(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await questions.answer({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)

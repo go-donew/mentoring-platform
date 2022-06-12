@@ -18,7 +18,7 @@ const endpoint = createRouter()
  *
  * @security bearer
  *
- * @param {ListOrFindGroupsPayload} request.body - The query to run and find groups.
+ * @param {ListOrFindGroupsPayload} request.query - The query to run and find groups.
  *
  * @returns {ListOrFindGroupsResponse} 200 - The groups returned from the query. If no parameters are passed, then it returns all the groups the user is a part of.
  * @returns {ImproperPayloadError} 400 - The query was invalid.
@@ -41,7 +41,11 @@ endpoint.get(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await groups.find({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -91,7 +95,11 @@ endpoint.post(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await groups.create({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -125,7 +133,11 @@ endpoint.put(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await groups.join({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -161,7 +173,11 @@ endpoint.get(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await groups.get({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -199,7 +215,11 @@ endpoint.put(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await groups.update({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -232,7 +252,11 @@ endpoint.delete(
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await groups.delete({
 			context: { user: request.user!, rate: request.rateLimit },
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)

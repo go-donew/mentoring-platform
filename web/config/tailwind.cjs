@@ -30,9 +30,9 @@ const config = {
 			 */
 
 			// Define light mode colors.
-			primary: '#386FA4',
+			primary: '#386fa4',
 			'on-primary': '#ffffff',
-			secondary: '#59A5D8',
+			secondary: '#59a5d8',
 			'on-secondary': '#ffffff',
 			error: '#ba1b1b',
 			'on-error': '#ffffff',
@@ -42,9 +42,9 @@ const config = {
 			'on-surface': '#191c1a',
 
 			// Define dark mode colors.
-			'primary-dark': '#133C55',
+			'primary-dark': '#133c55',
 			'on-primary-dark': '#e2e3df',
-			'secondary-dark': '#59A5D8',
+			'secondary-dark': '#59a5d8',
 			'on-secondary-dark': '#e2e3df',
 			'error-dark': '#ffb4a9',
 			'on-error-dark': '#680003',

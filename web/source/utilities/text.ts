@@ -26,6 +26,7 @@ const text = {
 		'first-question-not-found': 'The conversation has no first question.',
 		'script-attribute-not-found': 'Could not find attribute with name ',
 		'report-attribute-not-found': 'Could not find attribute with name ',
+		'question-attribute-not-found': 'Could not find attribute with name ',
 		'not-allowed-to-take-conversation':
 			'You are not allowed to take the conversation at this time.',
 		'report-not-generated': 'This report is yet to be generated.',

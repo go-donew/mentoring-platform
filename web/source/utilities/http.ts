@@ -161,7 +161,7 @@ export const fetch = async <T>(
 		`${options.url}.${json.stringify(options.query)}`,
 	)
 	// Cache the response for 5 minutes, if needed.
-	const cacheTime = 5 * 60 * 1000
+	const cacheTime = 5 * 60
 
 	try {
 		// Check if the response exists in cache.
@@ -177,7 +177,7 @@ export const fetch = async <T>(
 		const response = await _fetch(options.url.replace(/^\/+/g, ''), {
 			method: options.method,
 			json: options.json,
-			searchParams: options.query,
+			searchParams: new URLSearchParams(options.query),
 			headers: options.headers,
 		})
 

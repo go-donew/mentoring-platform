@@ -37,7 +37,11 @@ endpoint.post(
 	'/signup',
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await auth.signUp({
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -73,7 +77,11 @@ endpoint.post(
 	'/signin',
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await auth.signIn({
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)
@@ -107,7 +115,11 @@ endpoint.post(
 	'/refresh-token',
 	async (request: Request, response: Response): Promise<void> => {
 		const result = await auth.refreshToken({
-			data: { ...request.body, ...request.params },
+			data: {
+				...request.body,
+				...request.params,
+				...(request.query.request as any),
+			},
 		})
 
 		if (result.error) response.sendError(result.error)

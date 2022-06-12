@@ -1,13 +1,17 @@
 // @/services/conversations/questions.ts
 // Service that handles question search, creation, modification, deletion operations.
 
+import { render } from 'ejs'
+
 import type { ServiceRequest, ServiceResponse, Query } from '@/types'
 
 import { ServerError } from '@/errors'
 import { Question, Option } from '@/models/question'
-import { UserAttribute } from '@/models/attribute'
+import { Attribute, UserAttribute } from '@/models/attribute'
+import { provider as users } from '@/provider/data/users'
+import { provider as attributes } from '@/provider/data/attributes'
+import { provider as userAttributes } from '@/provider/data/users/attributes'
 import { provider as questions } from '@/provider/data/conversations/questions'
-import { provider as attributes } from '@/provider/data/users/attributes'
 import { service as scripts } from '@/services/scripts'
 import { generateId, shuffle } from '@/utilities'
 
@@ -19,12 +23,14 @@ import { generateId, shuffle } from '@/utilities'
  * @property {boolean} last - Whether the question should be the last one in the conversation.
  * @property {boolean} randomizeOptionOrder - Whether the options for that question should be randomized.
  * @property {array<string>} tags - The question should have all the given tags.
+ * @property {boolean} raw - Whether or not to render the question text template.
  */
 export type ListOrFindQuestionsPayload = {
 	first?: boolean
 	last?: boolean
 	randomizeOptionOrder?: boolean
 	tags?: string[]
+	raw?: boolean
 }
 
 /**
@@ -52,21 +58,47 @@ const find = async (
 	try {
 		const query: Array<Query<Question>> = []
 		for (const [field, value] of Object.entries(request.data).filter(
-			([key, _]) => key !== 'conversationId',
+			([key, _]) => key !== 'conversationId' && key !== 'raw',
 		)) {
 			if (['tags'].includes(field))
 				for (const element of value as string[])
 					query.push({ field, operator: 'includes', value: element })
+			else if (['first', 'last', 'randomizeOptionOrder'].includes(field))
+				query.push({ field, operator: '==', value: Boolean(value) })
 			else query.push({ field, operator: '==', value })
 		}
 
 		questions.conversationId = request.data.conversationId
 		const foundQuestions = await questions.find(query)
 
-		for (const question of foundQuestions) {
-			question.options = question.randomizeOptionOrder
-				? shuffle(question.options)
-				: question.options.sort((a, b) => a.position - b.position)
+		// Prepare to render the template by fetching the user and their attributes
+		if (!request.data.raw) {
+			const user = await users.get(request.context!.user.id)
+			const input: Record<
+				string,
+				Attribute & { value: string | number | boolean }
+			> = {}
+
+			userAttributes.userId = request.context!.user.id
+			const fetchedUserAttributes = await userAttributes.find([])
+			for (const fetchedUserAttribute of fetchedUserAttributes) {
+				const attribute = await attributes.get(fetchedUserAttribute.id)
+				input[fetchedUserAttribute.id] = {
+					...attribute,
+					...fetchedUserAttribute,
+				}
+			}
+
+			// Sort the options and render the template.
+			for (const question of foundQuestions) {
+				question.options = question.randomizeOptionOrder
+					? shuffle(question.options)
+					: question.options.sort((a, b) => a.position - b.position)
+
+				question.text = render(question.text, {
+					context: { input, user },
+				})
+			}
 		}
 
 		const data = { questions: foundQuestions }
@@ -144,6 +176,16 @@ const create = async (
 }
 
 /**
+ * The payload needed to retrieve a question.
+ *
+ * @typedef {object} RetrieveQuestionPayload
+ * @property {boolean} raw - Whether or not to render the question text template.
+ */
+export type RetrieveQuestionsPayload = {
+	raw?: boolean
+}
+
+/**
  * The response from the retrieve question endpoint.
  *
  * @typedef {object} RetrieveQuestionResponse
@@ -161,15 +203,42 @@ export type RetrieveQuestionResponse = {
  * @returns {ServiceResponse} - The response from the data provider. If successful, the service will return the requested question.
  */
 const get = async (
-	request: ServiceRequest<{ conversationId: string; questionId: string }>,
+	request: ServiceRequest<{
+		conversationId: string
+		questionId: string
+		raw?: boolean
+	}>,
 ): Promise<ServiceResponse<RetrieveQuestionResponse>> => {
 	try {
 		questions.conversationId = request.data.conversationId
 		const question = await questions.get(request.data.questionId)
 
-		question.options = question.randomizeOptionOrder
-			? shuffle(question.options)
-			: question.options.sort((a, b) => a.position - b.position)
+		// Prepare to render the template by fetching the user and their attributes
+		if (!request.data.raw) {
+			const user = await users.get(request.context!.user.id)
+			const input: Record<
+				string,
+				Attribute & { value: string | number | boolean }
+			> = {}
+
+			userAttributes.userId = request.context!.user.id
+			const fetchedUserAttributes = await userAttributes.find([])
+			for (const fetchedUserAttribute of fetchedUserAttributes) {
+				const attribute = await attributes.get(fetchedUserAttribute.id)
+				input[fetchedUserAttribute.id] = {
+					...attribute,
+					...fetchedUserAttribute,
+				}
+			}
+
+			// Sort the options and render the template.
+			question.options = question.randomizeOptionOrder
+				? shuffle(question.options)
+				: question.options.sort((a, b) => a.position - b.position)
+			question.text = render(question.text, {
+				context: { input, user },
+			})
+		}
 
 		const data = { question }
 		return {
@@ -329,10 +398,10 @@ const answer = async (
 					? request.data.input ?? selectedOption.attribute.value // Fall back to the default if the user hasn't provided any input
 					: selectedOption.attribute.value // Else set the value as given
 
-			attributes.userId = request.context!.user.id
+			userAttributes.userId = request.context!.user.id
 			try {
 				// Retrieve the attribute, check if it exists
-				const attribute = await attributes.get(selectedOption.attribute.id)
+				const attribute = await userAttributes.get(selectedOption.attribute.id)
 				// If it does, update the value
 				attribute.value = answer
 				attribute.history.push({
@@ -345,7 +414,7 @@ const answer = async (
 					},
 				})
 				// Save the attribute
-				await attributes.update(attribute)
+				await userAttributes.update(attribute)
 			} catch {
 				// If the attribute does not exist, create it.
 				const attribute = new UserAttribute(
@@ -365,7 +434,7 @@ const answer = async (
 					request.context!.user.id,
 				)
 				// Save the attribute
-				await attributes.create(attribute)
+				await userAttributes.create(attribute)
 			}
 		}
 
@@ -385,9 +454,30 @@ const answer = async (
 			: undefined
 
 		if (next) {
+			// Prepare to render the template by fetching the user and their attributes
+			const user = await users.get(request.context!.user.id)
+			const input: Record<
+				string,
+				Attribute & { value: string | number | boolean }
+			> = {}
+
+			userAttributes.userId = request.context!.user.id
+			const fetchedUserAttributes = await userAttributes.find([])
+			for (const fetchedUserAttribute of fetchedUserAttributes) {
+				const attribute = await attributes.get(fetchedUserAttribute.id)
+				input[fetchedUserAttribute.id] = {
+					...attribute,
+					...fetchedUserAttribute,
+				}
+			}
+
+			// Sort the options and render the template.
 			next.options = next.randomizeOptionOrder
 				? shuffle(next.options)
 				: next.options.sort((a, b) => a.position - b.position)
+			next.text = render(next.text, {
+				context: { input, user },
+			})
 		}
 
 		const data = { next }
