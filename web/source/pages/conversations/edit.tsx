@@ -257,8 +257,6 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 				default:
 					setErrorMessage(error.message)
 			}
-
-			return
 		}
 	}
 
@@ -941,6 +939,9 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 
 										if ((deletedQuestion as Question).id)
 											deleteQuestion(deletedQuestion as Question)
+												.then(() => {})
+												.catch((error) => setErrorMessage(error.message))
+
 										setQuestions(copyOfQuestions)
 									}}
 								/>
