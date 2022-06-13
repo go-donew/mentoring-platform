@@ -20,6 +20,7 @@ const text = {
 		'attribute-does-not-exist': 'This attribute does not exist or was deleted.',
 		'conversation-does-not-exist':
 			'This conversation does not exist or was deleted.',
+		'question-does-not-exist': 'This question does not exist or was deleted.',
 		'could-not-save-question':
 			'An unexpected error occurred while saving the question.',
 		'option-was-not-selected': 'Please select an option to continue.',

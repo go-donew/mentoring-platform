@@ -95,6 +95,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 	const [currentSuccess, setSuccessMessage] = useState<string | undefined>(
 		undefined,
 	)
+	const [isSaving, setIsLoading] = useState<boolean>(false)
 	// This list of attributes, scripts, and conversations used to fill the
 	// dropdown, so Groot can choose which attribute to set when a question
 	// is answered.
@@ -198,12 +199,16 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 	const deleteConversation = async (): Promise<void> => {
 		// Clear the error message.
 		setErrorMessage(undefined)
+		setIsLoading(true)
 
 		// Make the API call to delete the conversation.
 		const response = await fetch({
 			url: `/conversations/${conversation.id}`,
 			method: 'delete',
 		})
+
+		// Stop loading.
+		setIsLoading(false)
 
 		// Handle any errors that might arise.
 		if (isErrorResponse(response)) {
@@ -225,11 +230,45 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 	}
 
 	/**
+	 * Delete a question using the API.
+	 */
+	const deleteQuestion = async (question: Question): Promise<void> => {
+		// Clear the error message.
+		setErrorMessage(undefined)
+		setIsLoading(true)
+
+		// Make the API call to delete the question.
+		const response = await fetch({
+			url: `/conversations/${conversation.id}/questions/${question.id}`,
+			method: 'delete',
+		})
+
+		// Stop loading.
+		setIsLoading(false)
+
+		// Handle any errors that might arise.
+		if (isErrorResponse(response)) {
+			const { error } = response
+
+			switch (error.code) {
+				case 'entity-not-found':
+					setErrorMessage(errors.get('question-does-not-exist'))
+					break
+				default:
+					setErrorMessage(error.message)
+			}
+
+			return
+		}
+	}
+
+	/**
 	 * Update the conversation using the API.
 	 */
 	const saveConversation = async (): Promise<void> => {
 		// Clear the error message.
 		setErrorMessage(undefined)
+		setIsLoading(true)
 
 		// Make the API call to update the conversation.
 		const conversationResponse = await fetch<{ conversation: Conversation }>({
@@ -250,14 +289,20 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					setErrorMessage(error.message)
 			}
 
+			setIsLoading(false)
 			return
 		}
 
 		// Make the API calls to save the questions.
 		const updatedQuestions = []
 		// First, check that there is a first question to the conversation.
-		if (!questions.some((question) => question.first))
-			return setErrorMessage(errors.get('first-question-not-found'))
+		if (!questions.some((question) => question.first)) {
+			setErrorMessage(errors.get('first-question-not-found'))
+			setIsLoading(false)
+
+			return
+		}
+
 		// Else continue onto saving the questions.
 		for (const question of questions) {
 			// Remove unnecessary fields like `next` and `attribute` from options if
@@ -283,9 +328,13 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 				// If it does not exist, error out and restore the question.
 				if (!attribute) {
 					question.text = originalContents
-					return setErrorMessage(
+
+					setErrorMessage(
 						errors.get('question-attribute-not-found') + attributeName,
 					)
+					setIsLoading(false)
+
+					return
 				}
 
 				// Else replace the attribute name with the ID.
@@ -325,6 +374,9 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 
 		// Re-set the questions so they all have IDs (if they were newly created).
 		setQuestions(updatedQuestions)
+
+		// Stop loading.
+		setIsLoading(false)
 
 		// Show a success toast, and make it disappear after a 2.5 seconds.
 		setSuccessMessage(messages.get('saved-conversation'))
@@ -885,8 +937,10 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 									}}
 									delete={() => {
 										const copyOfQuestions = [...questions]
-										copyOfQuestions.splice(index, 1)
+										const [deletedQuestion] = copyOfQuestions.splice(index, 1)
 
+										if ((deletedQuestion as Question).id)
+											deleteQuestion(deletedQuestion as Question)
 										setQuestions(copyOfQuestions)
 									}}
 								/>
@@ -934,6 +988,10 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 							text="Save"
 							action={async () => saveConversation()}
 							type="filled"
+							class={isSaving ? 'hidden' : 'col-span-2 md:col-span-1'}
+						/>
+						<LoadingIndicator
+							isLoading={isSaving}
 							class="col-span-2 md:col-span-1"
 						/>
 					</div>
