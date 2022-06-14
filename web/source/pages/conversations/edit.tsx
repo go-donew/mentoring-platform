@@ -1,7 +1,7 @@
 // source/pages/conversations/edit.tsx
 // Defines and exports the conversation edit page.
 
-import { useState, useEffect, useReducer, useMemo } from 'preact/hooks'
+import { useState, useEffect, useReducer } from 'preact/hooks'
 import { route } from 'preact-router'
 
 import {
@@ -167,29 +167,24 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 			return response.scripts
 		}
 
-		fetchConversation()
-			.then((conversation) =>
+		Promise.all([
+			fetchConversation(),
+			fetchConversations(),
+			fetchQuestions(),
+			fetchAttributes(),
+			fetchScripts(),
+		])
+			.then(([conversation, conversations, questions, attributes, scripts]) => {
 				handleConversationEdit({
 					type: 'set-conversation',
 					payload: conversation,
-				}),
-			)
-			.catch((error) => setErrorMessage(error.message))
+				})
 
-		fetchConversations()
-			.then(setConversations)
-			.catch((error) => setErrorMessage(error.message))
-
-		fetchQuestions()
-			.then(setQuestions)
-			.catch((error) => setErrorMessage(error.message))
-
-		fetchAttributes()
-			.then(setAttributes)
-			.catch((error) => setErrorMessage(error.message))
-
-		fetchScripts()
-			.then(setScripts)
+				setConversations(conversations)
+				setQuestions(questions)
+				setAttributes(attributes)
+				setScripts(scripts)
+			})
 			.catch((error) => setErrorMessage(error.message))
 	}, [currentSuccess]) // Refresh these lists when the save button is pressed.
 
@@ -407,20 +402,27 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 		 * be the next question.
 		 *
 		 * @param {string} conversationId - The ID of the conversation.
+		 * @param {boolean} useCache - Whether or not to use cache.
 		 *
 		 * @returns {Question[]}
 		 */
 		const fetchPossibleNextQuestions = async (
 			conversationId: string,
+			useCache = false,
 		): Promise<Question[]> => {
 			// Return a blank array if the conversation chosen is 'None'.
 			if (conversationId === '') return []
+			// If the conversation chosen is the current one, just return the questions list.
+			if (conversationId === conversation.id)
+				return questions.filter(
+					(form) => typeof (form as Question).id !== 'undefined',
+				) as Question[]
 
 			const response = await fetch<{ questions: Question[] }>({
 				url: `/conversations/${conversationId}/questions`,
 				method: 'get',
 				query: { raw: 'true' },
-				cache: true,
+				cache: useCache,
 			})
 
 			// Handle any errors that might arise...
@@ -429,10 +431,10 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 			return response.questions
 		}
 
-		useMemo(() => {
+		useEffect(() => {
 			// Fetch the list of possible questions for the currently selected
 			// conversation.
-			fetchPossibleNextQuestions(option.next?.conversation ?? '')
+			fetchPossibleNextQuestions(option.next?.conversation ?? '', true)
 				.then(setPossibleNextQuestions)
 				.catch((error) => setErrorMessage(error.message))
 		}, [option.next?.conversation])
