@@ -86,7 +86,9 @@ export const load = async (app: Application): Promise<void> => {
 			keyGenerator(request: Request): string {
 				const userIdentifier = request.user?.token
 				const requestIdentifier =
-					request.ip ?? request.ips[0] ?? request.socket.remoteAddress
+					request.ip ??
+					request.ips?.reverse()[0] ??
+					request.socket.remoteAddress
 
 				logger.http(
 					'[http/request] checking rate limit for %s',
