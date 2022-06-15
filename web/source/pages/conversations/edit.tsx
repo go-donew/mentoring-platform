@@ -389,6 +389,7 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 		option: Option
 		save: (option: Option) => void
 		delete: () => void
+		duplicate: () => void
 	}) => {
 		const { option } = props
 
@@ -445,6 +446,12 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 					Option {option.position}
 				</span>
 				<div class="col-span-1 text-right">
+					<IconButton
+						id="duplicate-option-button"
+						action={() => props.duplicate()}
+						icon="duplicate"
+						class="w-fit text-gray-700 dark:text-gray-400 mr-2"
+					/>
 					<IconButton
 						id="remove-option-button"
 						action={() => props.delete()}
@@ -802,6 +809,18 @@ export const ConversationEditPage = (props: { conversationId: string }) => {
 									// Delete the option.
 									const options = [...question.options]
 									options.splice(index, 1)
+
+									props.save({
+										...question,
+										options,
+									})
+								}}
+								duplicate={() => {
+									// Duplicate the option.
+									const options = [...question.options]
+									const duplicatedOption = { ...options[index] }
+									duplicatedOption.position = options.length + 1
+									options.push(duplicatedOption)
 
 									props.save({
 										...question,
