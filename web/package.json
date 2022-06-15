@@ -21,7 +21,7 @@
 		"format": "run-s format:*",
 		"test:tsc": "tsc --project config/tsconfig.json",
 		"test": "run-s test:*",
-		"clean": "del public/**/* !public/index.html !public/404.html !public/assets/**/* !public/favicon.ico *.log",
+		"clean": "del public/*.js public/*.css .cache/ *.log",
 		"develop": "run-p 'build:* --watch' start",
 		"prepare": "run-s compile"
 	},

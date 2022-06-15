@@ -1,33 +1,40 @@
 {
-  "name": "@donew-innovations/mentoring-platform",
-  "version": "0.0.0",
-  "description": "The DoNew Mentoring Platform monorepo.",
-  "workspaces": [
-    "config/eslint/",
-    "config/prettier/",
-    "config/tsconfig/",
-    "server/",
-    "web/"
-  ],
-  "engines": {
-    "node": "16",
-    "pnpm": "7"
-  },
-  "scripts": {
-    "clean": "pnpm --recursive --stream clean",
-    "compile": "pnpm --recursive --stream compile",
-    "lint": "pnpm --recursive --stream lint",
-    "format": "pnpm --recursive --stream format",
-    "emulate": "firebase emulators:exec --project donew-mentoring-api-sandbox --export-on-exit .cache/ --import .cache/ --ui",
-    "test:api": "pnpm --filter ./server test",
-    "test:app": "pnpm --filter ./web test",
-    "test": "pnpm emulate \"pnpm test:api && pnpm test:app\"",
-    "develop": "pnpm emulate \"pnpm --recursive --stream develop\"",
-    "deploy:sdbx": "firebase deploy --project donew-mentoring-api-sandbox --message \"$(git log --oneline -n 1 --format='%s [%h] (%aN <%aE>)')\"",
-    "deploy:prod": "firebase deploy --project donew-mentoring-api --message \"$(git log --oneline -n 1 --format='%s [%h] (%aN <%aE>)')\"",
-    "deploy": "pnpm deploy:sdbx && pnpm deploy:prod"
-  },
-  "devDependencies": {
-    "firebase-tools": "11.0.1"
-  }
+	"name": "@donew-innovations/mentoring-platform",
+	"version": "0.0.0",
+	"description": "The DoNew Mentoring Platform monorepo.",
+	"workspaces": [
+		"config/eslint/",
+		"config/prettier/",
+		"config/tsconfig/",
+		"server/",
+		"web/"
+	],
+	"engines": {
+		"node": "16",
+		"pnpm": "7"
+	},
+	"scripts": {
+		"clean": "pnpm --recursive --stream clean && del firebase-export-* .cache/ *.log",
+		"compile": "pnpm --recursive --stream compile",
+		"lint": "pnpm --recursive --stream lint",
+		"format": "pnpm --recursive --stream format",
+		"emulate": "firebase emulators:exec --project donew-mentoring-api-sandbox --export-on-exit .cache/ --import .cache/ --ui",
+		"test:api": "pnpm --filter ./server test",
+		"test:app": "pnpm --filter ./web test",
+		"test": "pnpm emulate \"pnpm test:api && pnpm test:app\"",
+		"develop": "pnpm emulate \"pnpm --recursive --stream develop\"",
+		"deploy:sdbx": "firebase deploy --project donew-mentoring-api-sandbox --message \"$(git log --oneline -n 1 --format='%s [%h] (%aN <%aE>)')\"",
+		"deploy:prod": "firebase deploy --project donew-mentoring-api --message \"$(git log --oneline -n 1 --format='%s [%h] (%aN <%aE>)')\"",
+		"deploy": "pnpm deploy:sdbx && pnpm deploy:prod",
+		"prepare": "husky install config/husky"
+	},
+	"devDependencies": {
+		"del-cli": "4.0.1",
+		"firebase-tools": "11.0.1",
+		"husky": "8.0.1",
+		"lint-staged": "13.0.1"
+	},
+	"lint-staged": {
+		"**/*": "pnpm format --"
+	}
 }
