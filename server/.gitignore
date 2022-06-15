@@ -4,7 +4,7 @@
 node_modules/
 build/
 coverage/
-test-export/
+docs/spec.json
 
 .idea/
 .vscode/

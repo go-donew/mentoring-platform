@@ -12,8 +12,12 @@
 	},
 	"scripts": {
 		"clean": "del-cli build/ coverage/ *.log",
-		"build": "tsup",
-		"watch": "tsup --watch",
+		"build:code": "tsup",
+		"build:spec": "tsx scripts/generate-spec.ts",
+		"build": "run-p build:*",
+		"watch:code": "tsup --watch",
+		"watch:spec": "watch \"tsx scripts/generate-spec.ts\" source/",
+		"watch": "run-p watch:*",
 		"format:code": "xo --fix {source,tests}/**/*.ts",
 		"format:rest": "prettier --write --ignore-path .gitignore .",
 		"format": "run-s format:*",
@@ -72,7 +76,9 @@
 		"ts-jest": "28.0.3",
 		"ts-node": "10.8.0",
 		"tsup": "6.0.1",
+		"tsx": "3.4.2",
 		"typescript": "4.7.2",
+		"watch": "1.0.2",
 		"xo": "0.49.0"
 	},
 	"tsup": {
