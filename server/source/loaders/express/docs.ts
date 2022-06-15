@@ -5,7 +5,7 @@ import { dirname, resolve as resolvePath } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { readFile } from 'node:fs/promises'
 
-import type { Application, Response } from 'express'
+import type { Application, Request, Response } from 'express'
 
 import { static as serve } from 'express'
 import { middleware as validate } from 'express-openapi-validator'
@@ -42,11 +42,14 @@ export const load = async (app: Application): Promise<void> => {
 		}),
 	)
 
-	// Use the validation middleware
+	// Use the validation middleware, and log when validation starts and ends.
 	app.use(
+		(request: Request) =>
+			logger.http('[http/request] validating request %s', request.id),
 		validate({
 			apiSpec: spec,
 			validateSecurity: false, // Let us take care of authorization
 		}),
+		() => logger.silly('[http/request] finished validating request'),
 	)
 }
