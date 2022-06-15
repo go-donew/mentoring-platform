@@ -211,6 +211,11 @@ export class FirebaseAuthProvider implements AuthProvider {
 					'incorrect-credentials',
 					'The password for that account was incorrect. Please try again with valid credentials.',
 				)
+			if ((error.message as string).startsWith('TOO_MANY_ATTEMPTS_TRY_LATER'))
+				throw new ServerError(
+					'too-many-requests',
+					'Too many sign in attempts were made in a short span of time. Please wait for a few minutes before trying again.',
+				)
 
 			throw new ServerError('backend-error')
 		}
