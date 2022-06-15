@@ -80,11 +80,20 @@ export const load = async (app: Application): Promise<void> => {
 				)
 				response.sendError('too-many-requests')
 			},
-			// Use the IP address of the client as the key
-			keyGenerator: (request: Request): string =>
-				request.user
-					? request.user.token
-					: request.ip ?? request.ips[0] ?? request.socket.remoteAddress,
+			// Use the bearer token or the IP address of the client as the key if
+			// they are not signed in.
+			keyGenerator: (request: Request): string => {
+				const userIdentifier = request.user?.token
+				const requestIdentifier =
+					request.ip ?? request.ips[0] ?? request.socket.remoteAddress
+
+				logger.http(
+					'[http/request] checking rate limit for %s',
+					userIdentifier ? request.user!.id : requestIdentifier,
+				)
+
+				return userIdentifier ?? requestIdentifier
+			},
 		}),
 	)
 }
