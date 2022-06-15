@@ -86,8 +86,11 @@ export const load = async (app: Application): Promise<void> => {
 			keyGenerator(request: Request): string {
 				const userIdentifier = request.user?.token
 				const requestIdentifier =
+					(request.headers['x-forwarded-for'] as string)?.split(',')[0] ??
+					request.headers['fastly-client-ip'] ??
 					request.ip ??
-					request.ips?.reverse()[0] ??
+					request.ips[0] ??
+					request.connection.remoteAddress ??
 					request.socket.remoteAddress
 
 				logger.http(

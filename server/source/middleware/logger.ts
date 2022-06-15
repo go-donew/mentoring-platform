@@ -21,9 +21,12 @@ export const logRequests =
 		const requestTimestamp = Date.now()
 		logger.http(
 			'[http/request] received request from %s - %s %s (%s)',
-			request.headers['x-forwarded-for'] ??
-				request.connection.remoteAddress ??
+			(request.headers['x-forwarded-for'] as string)?.split(',')[0] ??
 				request.headers['fastly-client-ip'] ??
+				request.ip ??
+				request.ips[0] ??
+				request.connection.remoteAddress ??
+				request.socket.remoteAddress ??
 				'unknown',
 			request.method.toLowerCase(),
 			request.url,
