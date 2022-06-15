@@ -64,16 +64,17 @@ export const load = async (app: Application): Promise<void> => {
 			// Authenticated users can make 2k requests per hour, while
 			// unauthenticated users can make only 50 per hour. Groot can make 10k
 			// requests in an hour. Users viewing documentation can make 500 per hour
-			max: (request: Request): number =>
-				request.user
+			max(request: Request): number {
+				return request.user
 					? request.user.isGroot
 						? 10_000
 						: 2000
 					: request.url.startsWith('/api/docs')
 					? 500
-					: 50,
+					: 50
+			},
 			// Send a `too-many-requests` error when you have exceeded the limit
-			handler(request: Request, response: Response) {
+			handler(request: Request, response: Response): void {
 				logger.http(
 					'[http/request] rate limited request %s',
 					stringify(request.user),
@@ -82,7 +83,7 @@ export const load = async (app: Application): Promise<void> => {
 			},
 			// Use the bearer token or the IP address of the client as the key if
 			// they are not signed in.
-			keyGenerator: (request: Request): string => {
+			keyGenerator(request: Request): string {
 				const userIdentifier = request.user?.token
 				const requestIdentifier =
 					request.ip ?? request.ips[0] ?? request.socket.remoteAddress

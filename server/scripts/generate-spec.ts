@@ -53,7 +53,7 @@ const config = {
 	],
 
 	// Don't expose any endpoint, we are simply parsing the code for now.
-	exposeSwaggerUI: false,
+	exposeSwaggerUI: false, // eslint-disable-line @typescript-eslint/naming-convention
 }
 
 // Generate the documentation
