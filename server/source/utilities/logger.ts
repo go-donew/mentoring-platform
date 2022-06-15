@@ -30,7 +30,7 @@ addColors(colors)
 export const logger = createLogger({
 	transports: [new transports.Console()],
 	format: format.combine(
-		format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+		format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
 		format.colorize({ all: true }),
 		format.splat(),
 		format.printf(
