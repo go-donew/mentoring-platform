@@ -45,7 +45,7 @@ export const load = async (app: Application): Promise<void> => {
 	// Use the validation middleware
 	app.use(
 		validate({
-			apiSpec: spec as any,
+			apiSpec: spec,
 			validateSecurity: false, // Let us take care of authorization
 		}),
 	)
