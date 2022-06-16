@@ -1,12 +1,12 @@
 // @/provider/data/script.ts
 // Retrieves, creates, updates and deletes scripts in Firebase.
 
-import { getFirestore } from 'firebase-admin/firestore'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
-import type { FirebaseError } from 'firebase-admin'
 
 import { Script } from '@/models/script'
 import { ServerError } from '@/errors'
+import { firestore } from '@/provider/data/firestore'
+
 import type { Query, DataProvider } from '@/types'
 
 /**
@@ -23,7 +23,7 @@ class ScriptProvider implements DataProvider<Script> {
 	 */
 	async find(queries: Array<Query<Script>>): Promise<Script[]> {
 		// Build the query
-		const scriptsRef = getFirestore().collection('scripts')
+		const scriptsRef = firestore.collection('scripts')
 		let foundScripts = scriptsRef.orderBy('name')
 		for (const query of queries) {
 			let { field } = query
@@ -58,7 +58,11 @@ class ScriptProvider implements DataProvider<Script> {
 			}
 
 			// Add it to the array
-			scripts.push(plainToInstance(Script, data, { excludePrefixes: ['__'] }))
+			scripts.push(
+				plainToInstance(Script, data as Record<string, any>, {
+					excludePrefixes: ['__'],
+				}),
+			)
 		}
 
 		return scripts
@@ -76,9 +80,9 @@ class ScriptProvider implements DataProvider<Script> {
 		// Fetch the script from Firestore
 		let doc
 		try {
-			doc = await getFirestore().collection('scripts').doc(id).get()
+			doc = await firestore.collection('scripts').doc(id).get()
 		} catch (caughtError: unknown) {
-			const error = caughtError as FirebaseError
+			const error = caughtError as any
 			// Handle a not found error, but pass on the rest as a backend error
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
@@ -96,7 +100,9 @@ class ScriptProvider implements DataProvider<Script> {
 		}
 
 		// Return the object as an instance of the `Script` class
-		return plainToInstance(Script, data, { excludePrefixes: ['__'] })
+		return plainToInstance(Script, data as Record<string, any>, {
+			excludePrefixes: ['__'],
+		})
 	}
 
 	/**
@@ -111,7 +117,7 @@ class ScriptProvider implements DataProvider<Script> {
 		// Convert the `Script` instance to a firebase document and save it
 		try {
 			// Check if the document exists
-			const scriptDocument = await getFirestore()
+			const scriptDocument = await firestore
 				.collection('scripts')
 				.doc(data.id)
 				.get()
@@ -134,10 +140,7 @@ class ScriptProvider implements DataProvider<Script> {
 			for (const tag of Object.keys(serializedScript.tags))
 				serializedScript.__tags[tag] = true
 			// Add the data into the database
-			await getFirestore()
-				.collection('scripts')
-				.doc(data.id)
-				.set(serializedScript)
+			await firestore.collection('scripts').doc(data.id).set(serializedScript)
 
 			// If the transaction was successful, return the created script
 			return data
@@ -160,7 +163,7 @@ class ScriptProvider implements DataProvider<Script> {
 		// Update given fields for the script in Firestore
 		try {
 			// First retrieve the script
-			const existingScriptDoc = await getFirestore()
+			const existingScriptDoc = await firestore
 				.collection('scripts')
 				.doc(data.id!)
 				.get()
@@ -183,10 +186,7 @@ class ScriptProvider implements DataProvider<Script> {
 			for (const tag of Object.keys(serializedScript.tags))
 				serializedScript.__tags[tag] = true
 			// Merge the data with the existing data in the database
-			await getFirestore()
-				.collection('scripts')
-				.doc(data.id!)
-				.set(serializedScript)
+			await firestore.collection('scripts').doc(data.id!).set(serializedScript)
 
 			// If the transaction was successful, return the updated script
 			return plainToInstance(
@@ -194,7 +194,7 @@ class ScriptProvider implements DataProvider<Script> {
 				{
 					...existingScriptDoc.data(),
 					...data,
-				},
+				} as Record<string, any>,
 				{ excludePrefixes: ['__'] },
 			)
 		} catch (error: unknown) {
@@ -205,7 +205,7 @@ class ScriptProvider implements DataProvider<Script> {
 			const error_ =
 				error instanceof ServerError
 					? error
-					: (error as FirebaseError).code === 'not-found'
+					: (error as any).code === 'not-found'
 					? new ServerError('entity-not-found')
 					: new ServerError('backend-error')
 			throw error_
@@ -223,9 +223,9 @@ class ScriptProvider implements DataProvider<Script> {
 	async delete(id: string): Promise<void> {
 		// Delete the document
 		try {
-			await getFirestore().collection('scripts').doc(id).delete()
+			await firestore.collection('scripts').doc(id).delete()
 		} catch (caughtError: unknown) {
-			const error = caughtError as FirebaseError
+			const error = caughtError as any
 			// Handle a not found error, but pass on the rest as a backend error
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')

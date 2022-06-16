@@ -1,13 +1,12 @@
 // @/provider/data/conversation.ts
 // Retrieves, creates, updates and deletes conversations in Firebase.
 
-import { getFirestore } from 'firebase-admin/firestore'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
-import type { FirebaseError } from 'firebase-admin'
 
 import { ServerError } from '@/errors'
 import { Conversation } from '@/models/conversation'
 import { logger, stringify } from '@/utilities/logger'
+import { firestore } from '@/provider/data/firestore'
 
 import type { Query, DataProvider } from '@/types'
 
@@ -31,7 +30,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 			'[firebase/conversations/find] parsing query - %s',
 			stringify(queries),
 		)
-		const conversationsRef = getFirestore().collection('conversations')
+		const conversationsRef = firestore.collection('conversations')
 		let foundConversations = conversationsRef.orderBy('name')
 		for (const query of queries) {
 			let { field } = query
@@ -83,7 +82,9 @@ class ConversationProvider implements DataProvider<Conversation> {
 
 			// Add it to the array
 			conversations.push(
-				plainToInstance(Conversation, data, { excludePrefixes: ['__'] }),
+				plainToInstance(Conversation, data as Record<string, any>, {
+					excludePrefixes: ['__'],
+				}),
 			)
 
 			logger.silly('[firebase/conversations/find] succesfully parsed a doc')
@@ -110,7 +111,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 		let doc
 		try {
 			logger.silly('[firebase/conversations/get] calling get on ref')
-			doc = await getFirestore().collection('conversations').doc(id).get()
+			doc = await firestore.collection('conversations').doc(id).get()
 			logger.silly('[firebase/conversations/get] received doc from firestore')
 		} catch (error: unknown) {
 			logger.warn(
@@ -122,7 +123,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 			const error_ =
 				error instanceof ServerError
 					? error
-					: (error as FirebaseError).code === 'not-found'
+					: (error as any).code === 'not-found'
 					? new ServerError('entity-not-found')
 					: new ServerError('backend-error')
 			throw error_
@@ -140,7 +141,9 @@ class ConversationProvider implements DataProvider<Conversation> {
 
 		// Return the object as an instance of the `Conversation` class
 		logger.info('[firebase/conversations/get] fetched conversation succesfully')
-		return plainToInstance(Conversation, data, { excludePrefixes: ['__'] })
+		return plainToInstance(Conversation, data as Record<string, any>, {
+			excludePrefixes: ['__'],
+		})
 	}
 
 	/**
@@ -163,7 +166,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 			logger.silly(
 				'[firebase/conversations/create] checking if a doc with the same id exists',
 			)
-			const conversationDocument = await getFirestore()
+			const conversationDocument = await firestore
 				.collection('conversations')
 				.doc(data.id)
 				.get()
@@ -186,7 +189,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 
 			// Add the data into the database
 			logger.silly('[firebase/conversations/create] calling set on ref')
-			await getFirestore()
+			await firestore
 				.collection('conversations')
 				.doc(data.id)
 				.set(serializedConversation)
@@ -228,7 +231,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 			logger.silly(
 				'[firebase/conversations/update] checking if conversation exists in firestore',
 			)
-			const existingConversationDoc = await getFirestore()
+			const existingConversationDoc = await firestore
 				.collection('conversations')
 				.doc(data.id!)
 				.get()
@@ -254,7 +257,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 				serializedConversation.__tags[tag] = true
 			// Merge the data with the existing data in the database
 			logger.silly('[firebase/conversations/update] calling merge set on ref')
-			await getFirestore()
+			await firestore
 				.collection('conversations')
 				.doc(data.id!)
 				.set(serializedConversation)
@@ -265,11 +268,10 @@ class ConversationProvider implements DataProvider<Conversation> {
 			)
 			return plainToInstance(
 				Conversation,
-
 				{
 					...existingConversationDoc.data(),
 					...data,
-				},
+				} as Record<string, any>,
 				{ excludePrefixes: ['__'] },
 			)
 		} catch (error: unknown) {
@@ -283,7 +285,7 @@ class ConversationProvider implements DataProvider<Conversation> {
 			const error_ =
 				error instanceof ServerError
 					? error
-					: (error as FirebaseError).code === 'not-found'
+					: (error as any).code === 'not-found'
 					? new ServerError('entity-not-found')
 					: new ServerError('backend-error')
 			throw error_
@@ -303,12 +305,12 @@ class ConversationProvider implements DataProvider<Conversation> {
 		// Delete the document
 		try {
 			logger.silly('[firebase/conversations/delete] calling delete on ref')
-			await getFirestore().collection('conversations').doc(id).delete()
+			await firestore.collection('conversations').doc(id).delete()
 			logger.info(
 				'[firebase/conversations/delete] sucessfully deleted conversation',
 			)
 		} catch (caughtError: unknown) {
-			const error = caughtError as FirebaseError
+			const error = caughtError as any
 			logger.warn(
 				'[firebase/conversations/delete] received error while deleting conversation - %s',
 				stringify(error),

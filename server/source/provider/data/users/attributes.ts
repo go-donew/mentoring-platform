@@ -1,12 +1,12 @@
 // @/provider/data/attributes.ts
 // Retrieves, creates, updates and deletes a user's attributes in Firebase.
 
-import { getFirestore } from 'firebase-admin/firestore'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
-import type { FirebaseError } from 'firebase-admin'
 
 import { ServerError } from '@/errors'
 import { UserAttribute } from '@/models/attribute'
+import { firestore } from '@/provider/data/firestore'
+
 import type { Query, DataProvider } from '@/types'
 
 /**
@@ -33,7 +33,7 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 			)
 
 		// Build the query
-		const attributesRef = getFirestore()
+		const attributesRef = firestore
 			.collection('users')
 			.doc(this.userId)
 			.collection('attributes')
@@ -73,7 +73,9 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 			}
 
 			attributes.push(
-				plainToInstance(UserAttribute, data, { excludePrefixes: ['__'] }),
+				plainToInstance(UserAttribute, data as Record<string, any>, {
+					excludePrefixes: ['__'],
+				}),
 			)
 		}
 
@@ -97,14 +99,14 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 		// Fetch the attribute from Firestore
 		let doc
 		try {
-			doc = await getFirestore()
+			doc = await firestore
 				.collection('users')
 				.doc(this.userId)
 				.collection('attributes')
 				.doc(id)
 				.get()
 		} catch (caughtError: unknown) {
-			const error = caughtError as FirebaseError
+			const error = caughtError as any
 			// Handle a not found error, but pass on the rest as a backend error
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
@@ -129,7 +131,9 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 		}
 
 		// Return the object as an instance of the `UserAttribute` class
-		return plainToInstance(UserAttribute, data, { excludePrefixes: ['__'] })
+		return plainToInstance(UserAttribute, data as Record<string, any>, {
+			excludePrefixes: ['__'],
+		})
 	}
 
 	/**
@@ -148,10 +152,7 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 
 		// Check if the attribute is a valid attribute
 		try {
-			const doc = await getFirestore()
-				.collection('attributes')
-				.doc(data.id)
-				.get()
+			const doc = await firestore.collection('attributes').doc(data.id).get()
 			if (!doc.exists || !doc.data()) throw new Error('Trigger the catch block')
 		} catch {
 			throw new ServerError(
@@ -163,7 +164,7 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 		// Convert the `UserAttribute` instance to a firebase document and save it
 		try {
 			// Check if the document exists
-			const attributeDocument = await getFirestore()
+			const attributeDocument = await firestore
 				.collection('users')
 				.doc(this.userId)
 				.collection('attributes')
@@ -179,7 +180,7 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 			const serializedUserAttribute = instanceToPlain(data)
 			serializedUserAttribute._userId = this.userId
 			// Add the data into the database
-			await getFirestore()
+			await firestore
 				.collection('users')
 				.doc(this.userId)
 				.collection('attributes')
@@ -212,7 +213,7 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 		// Update given fields for the attribute in Firestore
 		try {
 			// First retrieve the attribute
-			const existingUserAttributeDoc = await getFirestore()
+			const existingUserAttributeDoc = await firestore
 				.collection('users')
 				.doc(this.userId)
 				.collection('attributes')
@@ -241,7 +242,7 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 
 			serializedUserAttribute._userId = this.userId
 			// Merge the data with the existing data in the database
-			await getFirestore()
+			await firestore
 				.collection('users')
 				.doc(this.userId)
 				.collection('attributes')
@@ -260,7 +261,7 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 			const error_ =
 				error instanceof ServerError
 					? error
-					: (error as FirebaseError).code === 'not-found'
+					: (error as any).code === 'not-found'
 					? new ServerError('entity-not-found')
 					: new ServerError('backend-error')
 			throw error_
@@ -283,14 +284,14 @@ class UserAttributeProvider implements DataProvider<UserAttribute> {
 
 		// Delete the document
 		try {
-			await getFirestore()
+			await firestore
 				.collection('users')
 				.doc(this.userId)
 				.collection('attributes')
 				.doc(id)
 				.delete()
 		} catch (caughtError: unknown) {
-			const error = caughtError as FirebaseError
+			const error = caughtError as any
 			// Handle a not found error, but pass on the rest as a backend error
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')

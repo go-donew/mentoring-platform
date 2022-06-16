@@ -329,7 +329,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 
 			throw new ServerError(
 				'invalid-token',
-				(error as FirebaseError).code === 'auth/id-token-revoked'
+				(error as any).code === 'auth/id-token-revoked'
 					? 'This bearer token was revoked. Please sign in again to retrieve a new set of tokens.'
 					: undefined,
 			)
@@ -385,7 +385,7 @@ export class FirebaseAuthProvider implements AuthProvider {
 		try {
 			await getAuth().deleteUser(userId)
 		} catch (caughtError: unknown) {
-			const error = caughtError as FirebaseError
+			const error = caughtError as any
 			logger.silly(
 				'[firebase/auth/delete-account] received error while deleting user account - %s',
 				stringify(error),

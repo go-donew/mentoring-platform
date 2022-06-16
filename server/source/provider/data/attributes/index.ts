@@ -1,13 +1,13 @@
 // @/provider/data/attribute.ts
 // Retrieves, creates, updates and deletes attributes in Firebase.
 
-import { getFirestore } from 'firebase-admin/firestore'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
-import type { FirebaseError } from 'firebase-admin'
 
 import { Attribute } from '@/models/attribute'
 import { ServerError } from '@/errors'
 import { logger, stringify } from '@/utilities/logger'
+import { firestore } from '@/provider/data/firestore'
+
 import type { Query, DataProvider } from '@/types'
 
 /**
@@ -26,7 +26,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 		logger.info('[firebase/attributes/find] finding attributes by query')
 
 		// Build the query
-		const attributesRef = getFirestore().collection('attributes')
+		const attributesRef = firestore.collection('attributes')
 		let foundAttributes = attributesRef.orderBy('name')
 		for (const query of queries) {
 			let { field } = query
@@ -78,7 +78,9 @@ class AttributeProvider implements DataProvider<Attribute> {
 
 			// Add it to the array
 			attributes.push(
-				plainToInstance(Attribute, data, { excludePrefixes: ['__'] }),
+				plainToInstance(Attribute, data as Record<string, any>, {
+					excludePrefixes: ['__'],
+				}),
 			)
 
 			logger.silly('[firebase/attributes/find] succesfully parsed a doc')
@@ -102,7 +104,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 		let doc
 		try {
 			logger.silly('[firebase/attributes/get] calling get on ref')
-			doc = await getFirestore().collection('attributes').doc(id).get()
+			doc = await firestore.collection('attributes').doc(id).get()
 			logger.silly('[firebase/attributes/get] received doc from firestore')
 		} catch (error: unknown) {
 			logger.warn(
@@ -114,7 +116,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 			const error_ =
 				error instanceof ServerError
 					? error
-					: (error as FirebaseError).code === 'not-found'
+					: (error as any).code === 'not-found'
 					? new ServerError('entity-not-found')
 					: new ServerError('backend-error')
 			throw error_
@@ -133,7 +135,9 @@ class AttributeProvider implements DataProvider<Attribute> {
 
 		// Return the object as an instance of the `Attribute` class
 		logger.info('[firebase/attributes/get] fetched attribute succesfully')
-		return plainToInstance(Attribute, data, { excludePrefixes: ['__'] })
+		return plainToInstance(Attribute, data as Record<string, any>, {
+			excludePrefixes: ['__'],
+		})
 	}
 
 	/**
@@ -152,7 +156,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 			logger.silly(
 				'[firebase/attributes/create] checking if a doc with the same id exists',
 			)
-			const attributeDocument = await getFirestore()
+			const attributeDocument = await firestore
 				.collection('attributes')
 				.doc(data.id)
 				.get()
@@ -178,7 +182,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 				serializedAttribute.__tags[tag] = true
 			// Add the data into the database
 			logger.silly('[firebase/attributes/create] calling set on ref')
-			await getFirestore()
+			await firestore
 				.collection('attributes')
 				.doc(data.id)
 				.set(serializedAttribute)
@@ -212,7 +216,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 			logger.silly(
 				'[firebase/attributes/update] checking if attribute exists in firestore',
 			)
-			const existingAttributeDoc = await getFirestore()
+			const existingAttributeDoc = await firestore
 				.collection('attributes')
 				.doc(data.id!)
 				.get()
@@ -241,7 +245,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 				serializedAttribute.__tags[tag] = true
 			// Merge the data with the existing data in the database
 			logger.silly('[firebase/attributes/update] calling merge set on ref')
-			await getFirestore()
+			await firestore
 				.collection('attributes')
 				.doc(data.id!)
 				.set(serializedAttribute)
@@ -253,7 +257,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 				{
 					...existingAttributeDoc.data(),
 					...data,
-				},
+				} as Record<string, any>,
 				{ excludePrefixes: ['__'] },
 			)
 		} catch (error: unknown) {
@@ -267,7 +271,7 @@ class AttributeProvider implements DataProvider<Attribute> {
 			const error_ =
 				error instanceof ServerError
 					? error
-					: (error as FirebaseError).code === 'not-found'
+					: (error as any).code === 'not-found'
 					? new ServerError('entity-not-found')
 					: new ServerError('backend-error')
 			throw error_
@@ -287,10 +291,10 @@ class AttributeProvider implements DataProvider<Attribute> {
 		// Delete the document
 		try {
 			logger.silly('[firebase/attributes/delete] calling delete on ref')
-			await getFirestore().collection('attributes').doc(id).delete()
+			await firestore.collection('attributes').doc(id).delete()
 			logger.info('[firebase/attributes/delete] sucessfully deleted attribute')
 		} catch (caughtError: unknown) {
-			const error = caughtError as FirebaseError
+			const error = caughtError as any
 			// Handle a not found error, but pass on the rest as a backend error
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')

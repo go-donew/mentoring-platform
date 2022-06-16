@@ -1,12 +1,12 @@
 // @/provider/data/report.ts
 // Retrieves, creates, updates and deletes reports in Firebase.
 
-import { getFirestore } from 'firebase-admin/firestore'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
-import type { FirebaseError } from 'firebase-admin'
 
 import { Report } from '@/models/report'
 import { ServerError } from '@/errors'
+import { firestore } from '@/provider/data/firestore'
+
 import type { Query, DataProvider } from '@/types'
 
 /**
@@ -23,7 +23,7 @@ class ReportProvider implements DataProvider<Report> {
 	 */
 	async find(queries: Array<Query<Report>>): Promise<Report[]> {
 		// Build the query
-		const reportsRef = getFirestore().collection('reports')
+		const reportsRef = firestore.collection('reports')
 		let foundReports = reportsRef.orderBy('name')
 		for (const query of queries) {
 			let { field } = query
@@ -58,7 +58,11 @@ class ReportProvider implements DataProvider<Report> {
 			}
 
 			// Add it to the array
-			reports.push(plainToInstance(Report, data, { excludePrefixes: ['__'] }))
+			reports.push(
+				plainToInstance(Report, data as Record<string, any>, {
+					excludePrefixes: ['__'],
+				}),
+			)
 		}
 
 		return reports
@@ -76,9 +80,9 @@ class ReportProvider implements DataProvider<Report> {
 		// Fetch the report from Firestore
 		let doc
 		try {
-			doc = await getFirestore().collection('reports').doc(id).get()
+			doc = await firestore.collection('reports').doc(id).get()
 		} catch (caughtError: unknown) {
-			const error = caughtError as FirebaseError
+			const error = caughtError as any
 			// Handle a not found error, but pass on the rest as a backend error
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
@@ -96,7 +100,9 @@ class ReportProvider implements DataProvider<Report> {
 		}
 
 		// Return the object as an instance of the `Report` class
-		return plainToInstance(Report, data, { excludePrefixes: ['__'] })
+		return plainToInstance(Report, data as Record<string, any>, {
+			excludePrefixes: ['__'],
+		})
 	}
 
 	/**
@@ -111,7 +117,7 @@ class ReportProvider implements DataProvider<Report> {
 		// Convert the `Report` instance to a firebase document and save it
 		try {
 			// Check if the document exists
-			const reportDocument = await getFirestore()
+			const reportDocument = await firestore
 				.collection('reports')
 				.doc(data.id)
 				.get()
@@ -131,10 +137,7 @@ class ReportProvider implements DataProvider<Report> {
 			for (const tag of Object.keys(serializedReport.tags))
 				serializedReport.__tags[tag] = true
 			// Add the data into the database
-			await getFirestore()
-				.collection('reports')
-				.doc(data.id)
-				.set(serializedReport)
+			await firestore.collection('reports').doc(data.id).set(serializedReport)
 
 			// If the transaction was successful, return the created report
 			return data
@@ -157,7 +160,7 @@ class ReportProvider implements DataProvider<Report> {
 		// Update given fields for the report in Firestore
 		try {
 			// First retrieve the report
-			const existingReportDoc = await getFirestore()
+			const existingReportDoc = await firestore
 				.collection('reports')
 				.doc(data.id!)
 				.get()
@@ -177,10 +180,7 @@ class ReportProvider implements DataProvider<Report> {
 			for (const tag of Object.keys(serializedReport.tags))
 				serializedReport.__tags[tag] = true
 			// Merge the data with the existing data in the database
-			await getFirestore()
-				.collection('reports')
-				.doc(data.id!)
-				.set(serializedReport)
+			await firestore.collection('reports').doc(data.id!).set(serializedReport)
 
 			// If the transaction was successful, return the updated report
 			return plainToInstance(
@@ -188,7 +188,7 @@ class ReportProvider implements DataProvider<Report> {
 				{
 					...existingReportDoc.data(),
 					...data,
-				},
+				} as Record<string, any>,
 				{ excludePrefixes: ['__'] },
 			)
 		} catch (error: unknown) {
@@ -198,7 +198,7 @@ class ReportProvider implements DataProvider<Report> {
 			const error_ =
 				error instanceof ServerError
 					? error
-					: (error as FirebaseError).code === 'not-found'
+					: (error as any).code === 'not-found'
 					? new ServerError('entity-not-found')
 					: new ServerError('backend-error')
 			throw error_
@@ -216,9 +216,9 @@ class ReportProvider implements DataProvider<Report> {
 	async delete(id: string): Promise<void> {
 		// Delete the document
 		try {
-			await getFirestore().collection('reports').doc(id).delete()
+			await firestore.collection('reports').doc(id).delete()
 		} catch (caughtError: unknown) {
-			const error = caughtError as FirebaseError
+			const error = caughtError as any
 			// Handle a not found error, but pass on the rest as a backend error
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')

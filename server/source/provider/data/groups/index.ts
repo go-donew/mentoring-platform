@@ -1,12 +1,12 @@
 // @/provider/data/group.ts
 // Retrieves, creates, updates and deletes groups in Firebase.
 
-import { getFirestore } from 'firebase-admin/firestore'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
-import type { FirebaseError } from 'firebase-admin'
 
 import { Group } from '@/models/group'
 import { ServerError } from '@/errors'
+import { firestore } from '@/provider/data/firestore'
+
 import type { Query, DataProvider } from '@/types'
 
 /**
@@ -23,7 +23,7 @@ class GroupProvider implements DataProvider<Group> {
 	 */
 	async find(queries: Array<Query<Group>>): Promise<Group[]> {
 		// Build the query
-		const groupsRef = getFirestore().collection('groups')
+		const groupsRef = firestore.collection('groups')
 		let foundGroups = groupsRef.orderBy('name')
 		for (const query of queries) {
 			let { field } = query
@@ -58,7 +58,11 @@ class GroupProvider implements DataProvider<Group> {
 			}
 
 			// Add it to the array
-			groups.push(plainToInstance(Group, data, { excludePrefixes: ['__'] }))
+			groups.push(
+				plainToInstance(Group, data as Record<string, any>, {
+					excludePrefixes: ['__'],
+				}),
+			)
 		}
 
 		return groups
@@ -76,9 +80,9 @@ class GroupProvider implements DataProvider<Group> {
 		// Fetch the group from Firestore
 		let doc
 		try {
-			doc = await getFirestore().collection('groups').doc(id).get()
+			doc = await firestore.collection('groups').doc(id).get()
 		} catch (caughtError: unknown) {
-			const error = caughtError as FirebaseError
+			const error = caughtError as any
 			// Handle a not found error, but pass on the rest as a backend error
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
@@ -96,7 +100,9 @@ class GroupProvider implements DataProvider<Group> {
 		}
 
 		// Return the object as an instance of the `Group` class
-		return plainToInstance(Group, data, { excludePrefixes: ['__'] })
+		return plainToInstance(Group, data as Record<string, any>, {
+			excludePrefixes: ['__'],
+		})
 	}
 
 	/**
@@ -111,7 +117,7 @@ class GroupProvider implements DataProvider<Group> {
 		// Convert the `Group` instance to a firebase document and save it
 		try {
 			// Check if the document exists
-			const groupDocument = await getFirestore()
+			const groupDocument = await firestore
 				.collection('groups')
 				.doc(data.id)
 				.get()
@@ -137,10 +143,7 @@ class GroupProvider implements DataProvider<Group> {
 			for (const tag of Object.keys(serializedGroup.tags))
 				serializedGroup.__tags[tag] = true
 			// Add the data into the database
-			await getFirestore()
-				.collection('groups')
-				.doc(data.id)
-				.set(serializedGroup)
+			await firestore.collection('groups').doc(data.id).set(serializedGroup)
 
 			// If the transaction was successful, return the created group
 			return data
@@ -163,7 +166,7 @@ class GroupProvider implements DataProvider<Group> {
 		// Update given fields for the group in Firestore
 		try {
 			// First retrieve the group
-			const existingGroupDoc = await getFirestore()
+			const existingGroupDoc = await firestore
 				.collection('groups')
 				.doc(data.id!)
 				.get()
@@ -189,10 +192,7 @@ class GroupProvider implements DataProvider<Group> {
 			for (const tag of Object.keys(serializedGroup.tags))
 				serializedGroup.__tags[tag] = true
 			// Merge the data with the existing data in the database
-			await getFirestore()
-				.collection('groups')
-				.doc(data.id!)
-				.set(serializedGroup)
+			await firestore.collection('groups').doc(data.id!).set(serializedGroup)
 
 			// If the transaction was successful, return the updated group
 			return plainToInstance(
@@ -200,7 +200,7 @@ class GroupProvider implements DataProvider<Group> {
 				{
 					...existingGroupDoc.data(),
 					...data,
-				},
+				} as Record<string, any>,
 				{ excludePrefixes: ['__'] },
 			)
 		} catch (error: unknown) {
@@ -211,7 +211,7 @@ class GroupProvider implements DataProvider<Group> {
 			const error_ =
 				error instanceof ServerError
 					? error
-					: (error as FirebaseError).code === 'not-found'
+					: (error as any).code === 'not-found'
 					? new ServerError('entity-not-found')
 					: new ServerError('backend-error')
 			throw error_
@@ -229,9 +229,9 @@ class GroupProvider implements DataProvider<Group> {
 	async delete(id: string): Promise<void> {
 		// Delete the document
 		try {
-			await getFirestore().collection('groups').doc(id).delete()
+			await firestore.collection('groups').doc(id).delete()
 		} catch (caughtError: unknown) {
-			const error = caughtError as FirebaseError
+			const error = caughtError as any
 			// Handle a not found error, but pass on the rest as a backend error
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')

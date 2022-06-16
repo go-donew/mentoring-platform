@@ -2,6 +2,7 @@
 	"extends": "@donew-innovations/tsconfig",
 	"include": ["../source/"],
 	"compilerOptions": {
+		"skipLibCheck": true,
 		"baseUrl": "../",
 		"paths": {
 			"@/*": ["source/*"]

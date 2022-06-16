@@ -6,10 +6,12 @@
 	"hosting": {
 		"public": "web/public/",
 		"cleanUrls": true,
-		"rewrites": [{
-			"source": "/api/**",
-			"function": "app"
-		}]
+		"rewrites": [
+			{
+				"source": "/api/**",
+				"function": "app"
+			}
+		]
 	},
 	"emulators": {
 		"auth": {

@@ -1,12 +1,12 @@
 // @/provider/data/users.ts
 // Retrieves, creates, updates and deletes users in Firebase.
 
-import { getFirestore } from 'firebase-admin/firestore'
 import { instanceToPlain, plainToInstance } from 'class-transformer'
-import type { FirebaseError } from 'firebase-admin'
 
 import { ServerError } from '@/errors'
 import { User } from '@/models/user'
+import { firestore } from '@/provider/data/firestore'
+
 import type { Query, DataProvider } from '@/types'
 
 /**
@@ -23,7 +23,7 @@ class UserProvider implements DataProvider<User> {
 	 */
 	async find(queries: Array<Query<User>>): Promise<User[]> {
 		// Build the query
-		const usersQuery = getFirestore().collection('users')
+		const usersQuery = firestore.collection('users')
 		for (const query of queries) {
 			let { field } = query
 			let operator = query.operator as '<' | '<=' | '==' | '!=' | '>=' | '>'
@@ -60,7 +60,7 @@ class UserProvider implements DataProvider<User> {
 			data.lastSignedIn = data.lastSignedIn.toDate()
 
 			// Add it to the array
-			users.push(plainToInstance(User, data))
+			users.push(plainToInstance(User, data as Record<string, any>))
 		}
 
 		return users
@@ -78,9 +78,9 @@ class UserProvider implements DataProvider<User> {
 		// Fetch the user from Firestore
 		let doc
 		try {
-			doc = await getFirestore().collection('users').doc(id).get()
+			doc = await firestore.collection('users').doc(id).get()
 		} catch (caughtError: unknown) {
-			const error = caughtError as FirebaseError
+			const error = caughtError as any
 			// Handle a not found error, but pass on the rest as a backend error
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
@@ -101,7 +101,7 @@ class UserProvider implements DataProvider<User> {
 		data.lastSignedIn = data.lastSignedIn.toDate()
 
 		// Return the object as an instance of the `User` class
-		return plainToInstance(User, data)
+		return plainToInstance(User, data as Record<string, any>)
 	}
 
 	/**
@@ -116,7 +116,7 @@ class UserProvider implements DataProvider<User> {
 		// Convert the `User` instance to a firebase document and save it
 		try {
 			// Check if the document exists
-			const userDocument = await getFirestore()
+			const userDocument = await firestore
 				.collection('users')
 				.doc(data.id)
 				.get()
@@ -131,7 +131,7 @@ class UserProvider implements DataProvider<User> {
 			// of `class-transformer`
 			delete data.password
 			const serializedUser = instanceToPlain(data)
-			await getFirestore().collection('users').doc(data.id).set(serializedUser)
+			await firestore.collection('users').doc(data.id).set(serializedUser)
 
 			// If the transaction was successful, return the created user
 			return data
@@ -154,7 +154,7 @@ class UserProvider implements DataProvider<User> {
 		// Update given fields for the user in Firestore
 		try {
 			// First retrieve the user
-			const userDocument = await getFirestore()
+			const userDocument = await firestore
 				.collection('users')
 				.doc(data.id!)
 				.get()
@@ -165,7 +165,7 @@ class UserProvider implements DataProvider<User> {
 			}
 
 			// Else update away!
-			await getFirestore()
+			await firestore
 				.collection('users')
 				.doc(data.id!)
 				.set(instanceToPlain(data))
@@ -174,7 +174,7 @@ class UserProvider implements DataProvider<User> {
 			return plainToInstance(User, {
 				...userDocument.data(),
 				...data,
-			})
+			} as Record<string, any>)
 		} catch (error: unknown) {
 			// Pass on any error as a backend error
 			console.trace(error)
@@ -183,7 +183,7 @@ class UserProvider implements DataProvider<User> {
 			const error_ =
 				error instanceof ServerError
 					? error
-					: (error as FirebaseError).code === 'not-found'
+					: (error as any).code === 'not-found'
 					? new ServerError('entity-not-found')
 					: new ServerError('backend-error')
 			throw error_
@@ -201,9 +201,9 @@ class UserProvider implements DataProvider<User> {
 	async delete(id: string): Promise<void> {
 		// Delete the document
 		try {
-			await getFirestore().collection('users').doc(id).delete()
+			await firestore.collection('users').doc(id).delete()
 		} catch (caughtError: unknown) {
-			const error = caughtError as FirebaseError
+			const error = caughtError as any
 			// Handle a not found error, but pass on the rest as a backend error
 			if (error.code === 'not-found') {
 				throw new ServerError('entity-not-found')
