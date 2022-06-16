@@ -1,0 +1,4 @@
+# .gitignore
+# A list of files and folders within this package that Git should ignore.
+
+build/

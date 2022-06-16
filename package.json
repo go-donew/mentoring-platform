@@ -1,0 +1,16 @@
+{
+	"name": "@donew-innovations/mentoring-platform",
+	"version": "0.0.1",
+	"description": "The DoNew Mentoring Platform monorepo; contains the source code for the DoNew Mentoring UI and API.",
+	"workspaces": [
+		"config/eslint/",
+		"config/prettier/",
+		"config/tsconfig/",
+		"modules/server/"
+	],
+	"engines": {
+		"node": "16",
+		"pnpm": "7"
+	},
+	"scripts": {}
+}

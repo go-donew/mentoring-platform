@@ -1,0 +1,10 @@
+# .gitignore
+# A list of files and folders within this package that GCloud should ignore.
+
+.git/
+.gitignore
+
+node_modules/
+
+# Also ignore files listed in `.gitignore`.
+#!include:.gitignore

@@ -1,0 +1,5 @@
+packages:
+  - 'config/eslint/'
+  - 'config/prettier/'
+  - 'config/tsconfig/'
+  - 'modules/server/'
