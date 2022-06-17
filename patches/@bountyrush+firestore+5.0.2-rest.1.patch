@@ -1,0 +1,32 @@
+# patches/@bountyrush+firestore+5.0.2-rest.1.patch
+# A patch that adds support for Firestore emulators.
+
+diff --git a/node_modules/@bountyrush/firestore/build/src/v1rest/firestore_client.js b/node_modules/@bountyrush/firestore/build/src/v1rest/firestore_client.js
+index eb57519..6d3e7ed 100644
+--- a/node_modules/@bountyrush/firestore/build/src/v1rest/firestore_client.js
++++ b/node_modules/@bountyrush/firestore/build/src/v1rest/firestore_client.js
+@@ -1,7 +1,6 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.FirestoreClient = void 0;
+-console.time('Started loading firestore_client rest');
+ const firestore_1 = require("googleapis/build/src/apis/firestore");
+ // eslint-disable-next-line node/no-extraneous-import
+ const googleapis_common_1 = require("googleapis-common");
+@@ -16,7 +15,6 @@ const batchGetDocumentsRequest_1 = require("./models/batchGetDocumentsRequest");
+ const runQueryRequest_1 = require("./models/runQueryRequest");
+ const listCollectionIdsRequest_1 = require("./models/listCollectionIdsRequest");
+ const partitionQueryRequest_1 = require("./models/partitionQueryRequest");
+-console.timeEnd('Started loading firestore_client rest');
+ class FirestoreClient {
+     constructor(settings) {
+         this.settings = settings;
+@@ -26,7 +24,7 @@ class FirestoreClient {
+                 'https://www.googleapis.com/auth/datastore',
+             ],
+         });
+-        this.client = (0, firestore_1.firestore)({ version: 'v1' });
++        this.client = (0, firestore_1.firestore)({ version: 'v1', rootUrl: process.env.FIREBASE_DB_EMULATOR_HOST ? `http://${process.env.FIREBASE_DB_EMULATOR_HOST}`: undefined });
+     }
+     getProjectId() {
+         if (!this.authClient) {

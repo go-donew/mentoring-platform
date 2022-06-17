@@ -4,10 +4,8 @@
 import pluginify from 'fastify-plugin'
 import { parse } from 'stacktrace-parser'
 
-import fetch from 'got'
-import { Firestore } from '@bountyrush/firestore'
-
 import { ServerError } from '../utilities/errors.js'
+import { database } from '../provider/database.js'
 
 /**
  * Registers plugins with the passed server instance.
@@ -26,19 +24,20 @@ export const plugins = pluginify((server, _options, done) => {
 		done()
 	})
 
-	// Handle not found errors.
-	server.setNotFoundHandler((_request, reply) => {
-		const error = new ServerError('route-not-found')
+	// Decorate the server instance with the database and auth services.
+	server.decorate('database', database)
 
-		reply.status(error.status).send(error.send())
+	// Handle not found errors.
+	server.setNotFoundHandler((_request, _reply) => {
+		throw new ServerError('route-not-found')
 	})
 	// Handle server errors.
-	server.setErrorHandler((caughtError, request, reply) => {
+	server.setErrorHandler((caughtError, _request, reply) => {
 		const error = caughtError instanceof ServerError ? caughtError : new ServerError('server-crash')
 
 		// If it is a server error, just forward it onward to the user.
 		if (caughtError instanceof ServerError) {
-			server.log.http('sending error', caughtError.status, caughtError.code)
+			server.log.http('sending error %s %s', caughtError.status, caughtError.code)
 		} else {
 			// Otherwise, return a 500 to the user and print out neat diagnostic
 			// information as to what the error was and where it occurred.
@@ -48,16 +47,13 @@ export const plugins = pluginify((server, _options, done) => {
 
 			// Then print the error.
 			server.log.error(
+				caughtError,
 				`caught server error: '${caughtError.message}' in ${stack.file}:${stack.lineNumber}:${stack.column}`,
 			)
 		}
 
 		reply.status(error.status).send(error.send())
 	})
-
-	// Decorate the server instance with Firestore and Got.
-	server.decorate('database', new Firestore())
-	server.decorate('fetch', fetch)
 
 	done()
 })

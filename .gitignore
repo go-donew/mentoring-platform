@@ -1,12 +1,17 @@
 # .gitignore
 # A list of files and folders that should not be tracked by Git.
 
-**/node_modules/
+node_modules/
+build/
+.cache/
 
-**/.idea/
-**/.vscode/
+package-lock.json
+firebase.json
 
-**/*.log
-**/*.tgz
-**/*.bak
-**/*.tmp
+.idea/
+.vscode/
+
+*.log
+*.tgz
+*.bak
+*.tmp

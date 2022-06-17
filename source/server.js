@@ -10,9 +10,7 @@ import { options } from './utilities/logger.js'
 
 // Log colorfully when we are in a development environment, else use the
 // standard JSON logger.
-if (config.prod) {
-	delete options.transport
-}
+if (config.prod) delete options.transport
 
 // Create the Fastify server.
 const server = createServer({
