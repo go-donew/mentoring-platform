@@ -9,5 +9,12 @@ import { handlers } from '../handlers/index.js'
  * @param server The server instance to register the routes with.
  */
 export const routes = async (server) => {
+	server.post('/auth/signup', {
+		handler: handlers.auth.signup,
+		schema: {
+			body: { $ref: 'schemas#/definitions/UserDTO' },
+		},
+	})
+
 	server.get('/users', handlers.users.list)
 }

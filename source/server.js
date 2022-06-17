@@ -4,6 +4,7 @@
 import createServer from 'fastify'
 
 import { plugins } from './loaders/plugins.js'
+import { schemas } from './loaders/schemas.js'
 import { routes } from './loaders/routes.js'
 import { config } from './utilities/config.js'
 import { options } from './utilities/logger.js'
@@ -19,7 +20,8 @@ const server = createServer({
 	disableRequestLogging: true,
 })
 
-// Load the middleware, and the routes.
+// Load the schemas, middleware, and the routes.
+server.register(schemas)
 server.register(plugins)
 server.register(routes)
 
