@@ -9,7 +9,7 @@ export const signup = async (request, reply) => {
 
 	server.log.silly('signing user up')
 
-	const user = server.auth.signup({
+	const { user, tokens } = await server.auth.signup({
 		name: request.body.name,
 		email: request.body.email,
 		password: request.body.password,

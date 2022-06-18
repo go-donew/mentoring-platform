@@ -4,21 +4,20 @@
 import { spawn } from 'node:child_process'
 import { exit, kill } from 'node:process'
 
+import waitOn from 'wait-on'
 import nodemon from 'nodemon'
 
 // Start the Firestore emulator.
 const emulator = spawn(
-	'firebase',
-	['emulators:start', '--only firestore,auth', '--project donew-mentoring-api-sandbox'],
-	{
-		stdio: 'ignore',
-		detached: true,
-	},
+	'pnpm',
+	['firebase', 'emulators:start', '--only', 'firestore,auth', '--project', 'donew-mentoring-api-sandbox'],
+	{ stdio: 'inherit' },
 )
-emulator.unref()
+// Then wait for it to start.
+await waitOn({ resources: ['http://localhost:4000'] })
 
 nodemon({
-	exec: 'functions-framework --quiet --target api --port 4242',
+	exec: 'pnpm functions-framework --quiet --target api --port 4242',
 	quiet: true,
 	watch: ['source/'],
 	env: {

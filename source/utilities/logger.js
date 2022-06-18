@@ -1,7 +1,12 @@
 // source/utilities/logger.ts
-// Exports configuration for the logger.
+// Exports a logger.
 
-export const options = {
+import pino from 'pino'
+
+import { config } from './config.js'
+
+// The options for the logger.
+const options = {
 	customLevels: {
 		silly: 10,
 		info: 20,
@@ -21,3 +26,9 @@ export const options = {
 	},
 	level: 'silly',
 }
+// Log colorfully when we are in a development environment, else use the
+// standard JSON logger.
+if (config.prod) delete options.transport
+
+// Export the logger
+export const logger = pino(options)

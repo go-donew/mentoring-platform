@@ -4,8 +4,9 @@
 import pluginify from 'fastify-plugin'
 import { parse } from 'stacktrace-parser'
 
-import { ServerError } from '../utilities/errors.js'
 import { database } from '../provider/database.js'
+import { auth } from '../provider/auth.js'
+import { ServerError } from '../utilities/errors.js'
 
 /**
  * Registers plugins with the passed server instance.
@@ -32,6 +33,7 @@ export const plugins = pluginify((server, _, done) => {
 
 	// Decorate the server instance with the database and auth services.
 	server.decorate('database', database)
+	server.decorate('auth', auth)
 
 	// Handle not found errors.
 	server.setNotFoundHandler((_request, _reply) => {

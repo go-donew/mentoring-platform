@@ -6,17 +6,12 @@ import createServer from 'fastify'
 import { plugins } from './loaders/plugins.js'
 import { schemas } from './loaders/schemas.js'
 import { routes } from './loaders/routes.js'
-import { config } from './utilities/config.js'
-import { options } from './utilities/logger.js'
-
-// Log colorfully when we are in a development environment, else use the
-// standard JSON logger.
-if (config.prod) delete options.transport
+import { logger } from './utilities/logger.js'
 
 // Create the Fastify server.
 const server = createServer({
-	// Configure the logger.
-	logger: options,
+	// Set the logger to the custom pino instance.
+	logger: logger,
 	disableRequestLogging: true,
 })
 
