@@ -8,6 +8,6 @@ import { config } from '../utilities/config.js'
 // If we are in a development environment, connect to the emulator. In the
 // Cloud Functions environment, we will be provided project info via the
 // `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
-const options = config.services.database.credentials
+const options = config.services.database
 
 export const database = new Firestore(options)
