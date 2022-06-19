@@ -6,6 +6,7 @@ import { parse } from 'stacktrace-parser'
 
 import { database } from '../provider/database.js'
 import { auth } from '../provider/auth.js'
+import { logger } from '../utilities/logger.js'
 import { ServerError } from '../utilities/errors.js'
 
 /**
@@ -22,12 +23,12 @@ export const plugins = pluginify((server, _, done) => {
 
 	// Log the request as it comes.
 	server.addHook('onRequest', (request, _, done) => {
-		server.log.http('received request from %s - %s %s', request.ip, request.method.toLowerCase(), request.url)
+		logger.http('received request from %s - %s %s', request.ip, request.method.toLowerCase(), request.url)
 		done()
 	})
 	// Log the response's status code and response time.
 	server.addHook('onResponse', (_, reply, done) => {
-		server.log.http('sent response %s in %s ms', reply.statusCode, reply.getResponseTime().toFixed(3))
+		logger.http('sent response %s in %s ms', reply.statusCode, reply.getResponseTime().toFixed(3))
 		done()
 	})
 
@@ -43,12 +44,12 @@ export const plugins = pluginify((server, _, done) => {
 	server.setErrorHandler((caughtError, _request, reply) => {
 		if (caughtError instanceof ServerError) {
 			// If it is a server error, just forward it onward to the user.
-			server.log.http('sending error %s %s', caughtError.status, caughtError.code)
+			logger.http('sending error %s %s', caughtError.status, caughtError.code)
 			reply.status(caughtError.status).send(caughtError.send())
 		} else if (caughtError.validation) {
 			// If it is a validation error, parse the error and send it as a
 			// 400 improper-payload error.
-			server.log.http('validation error occurred - %j', caughtError.validation)
+			logger.http('validation error occurred - %j', caughtError.validation)
 			// Get a comprehensible message.
 			const message = `An error occurred while validating your request: ${caughtError.message}`
 			const error = new ServerError('improper-payload', message)
@@ -62,7 +63,7 @@ export const plugins = pluginify((server, _, done) => {
 			stack.file = stack.file.replace(/^.*\/source/g, './source')
 
 			// Then print the error and send back a 500 server-crash error.
-			server.log.error(
+			logger.error(
 				caughtError,
 				`caught server error: '${caughtError.message}' in ${stack.file}:${stack.lineNumber}:${stack.column}`,
 			)

@@ -2,46 +2,51 @@
 // Generates a `package-lock.json` file, and then deploys the function.
 
 import { rm, writeFile } from 'node:fs/promises'
-import { stdout, stderr } from 'node:process'
-import { spawn } from 'node:child_process'
+import { stdout } from 'node:process'
+
+import { logger } from './utilities/logger.js'
+import { exec } from './utilities/commands.js'
 
 const json = JSON
 
-/**
- * Runs a command using `spawn()`.
- */
-const exec = (...spawnArgs) => {
-	return new Promise((resolve, reject) => {
-		// Start the process.
-		const child = spawn(...spawnArgs)
-		// Pipe its output to the same channel as this process.
-		child.stdout.on('data', (content) => stdout.write(content.toString()))
-		child.stderr.on('data', (content) => stderr.write(content.toString()))
-		// Once it's finished, resolve/reject the promise based
-		// on the process' exit code.
-		child.on('close', (code) => (code === 0 ? resolve() : reject(code)))
-	})
+const main = async () => {
+	logger.title('scripts/deploy')
+
+	// Prepare for the deploy.
+	logger.info('preparing environment for deploy')
+
+	// Delete the existing `node_modules/` folder and get npm to install packages
+	// its way.
+	logger.info('generating `package-lock.json` using npm')
+	await rm('node_modules/', { recursive: true })
+	await exec('npm install', { quiet: true })
+	logger.success('successfully generated npm lockfile')
+
+	// Generate a firebase config file.
+	logger.info('writing `firebase.json` config file')
+	await writeFile(
+		'firebase.json',
+		json.stringify({
+			functions: {
+				source: '.',
+				runtime: 'nodejs16',
+			},
+		}),
+	)
+	logger.success('sucessfully saved deploy config')
+
+	// Then deploy the function.
+	await exec('firebase deploy --only functions:api --project donew-mentoring-api-sandbox')
+	stdout.write('\n')
+
+	// Cleanup the environment.
+	logger.info('cleaning up')
+
+	// Re-install the node modules using pnpm.
+	await exec('pnpm install', { quiet: true })
+	await rm('firebase.json')
+
+	logger.success('sucessfully deployed function')
 }
 
-// Delete the existing `node_modules/` folder.
-await rm('node_modules/', { recursive: true })
-// Get npm to install packages its way.
-await exec('npm', ['install'])
-
-// Generate a firebase config file.
-await writeFile(
-	'firebase.json',
-	json.stringify({
-		functions: {
-			source: '.',
-			runtime: 'nodejs16',
-		},
-	}),
-)
-// Then deploy the function.
-await exec('firebase', ['deploy', '--only', 'functions:api', '--project', 'donew-mentoring-api-sandbox'])
-
-// Re-install the node modules using pnpm.
-await exec('pnpm', ['install'])
-// Delete the firebase config file.
-await rm('firebase.json')
+main()

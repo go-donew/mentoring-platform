@@ -8,23 +8,25 @@ import { config } from './config.js'
 // The options for the logger.
 const options = {
 	customLevels: {
-		silly: 10,
-		info: 20,
-		http: 30,
-		warn: 40,
-		error: 50,
-		fatal: 60,
+		silly: 40,
+		info: 50,
+		http: 60,
+		warn: 70,
+		error: 80,
+		fatal: 90,
 	},
 	transport: {
 		target: 'pino-pretty',
 		options: {
 			translateTime: 'SYS:standard',
 			ignore: 'pid,hostname',
-			customLevels: 'silly:10,info:20,http:30,warn:40,error:50,fatal:60',
+			customLevels: 'silly:40,info:50,http:60,warn:70,error:80,fatal:90',
 			customColors: 'silly:magenta,info:green,http:blue,warn:yellow,error:red,fatal:red',
 		},
 	},
 	level: 'silly',
+	useLevelLabels: true,
+	useOnlyCustomLevels: true,
 }
 // Log colorfully when we are in a development environment, else use the
 // standard JSON logger.

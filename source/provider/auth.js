@@ -118,8 +118,10 @@ export const auth = {
 	 * @returns {Promise<UserAndTokens>} - The user's profile and tokens.
 	 */
 	signup: async ({ name, email, password }) => {
+		logger.silly('creating account for user')
+
 		// First, create their account.
-		const { error, localId: id } = await fetch(endpoints.signup, {
+		let { error, localId: id } = await fetch(endpoints.signup, {
 			method: 'post',
 			json: { email, password },
 		}).json()
@@ -144,9 +146,12 @@ export const auth = {
 			if (error.message.startsWith('TOO_MANY_ATTEMPTS_TRY_LATER')) throw new ServerError('too-many-requests')
 		}
 
+		logger.silly('succesfully created account')
+		logger.silly(`attempting to set claims on user's bearer token`)
+
 		// Once we have created the account, set profile details like name, phone
 		// number, etc. as custom claims on their bearer token.
-		await fetch(endpoints.update, {
+		;({ error } = await fetch(endpoints.update, {
 			method: 'post',
 			json: {
 				localId: id,
@@ -158,13 +163,36 @@ export const auth = {
 					},
 				}),
 			},
-		})
+		}))
+
+		// If an error occurs at this point, just log it and return a 500 backend-error.
+		if (error) {
+			logger.error(error, `could not set profile on user's bearer token due to error`)
+			throw new ServerError('backend-error')
+		}
+
+		logger.silly(`successfully set claims on user's bearer token`)
+		logger.silly('retrieving tokens for user')
 
 		// Then, sign in again to retrieve the user's tokens.
-		const { idToken: bearer, refreshToken: refresh } = await fetch(endpoints.signin, {
+		let bearer,
+			refresh = undefined
+		;({
+			error,
+			idToken: bearer,
+			refreshToken: refresh,
+		} = await fetch(endpoints.signin, {
 			method: 'post',
 			json: { email, password, returnSecureToken: true },
-		}).json()
+		}).json())
+
+		// If an error occurs at this point, just log it and return a 500 backend-error.
+		if (error) {
+			logger.error(error, `could not retrieve tokens for user due to error`)
+			throw new ServerError('backend-error')
+		}
+
+		logger.silly('sucessfully retrieved tokens for user')
 
 		// Then return the profile and tokens.
 		return {
