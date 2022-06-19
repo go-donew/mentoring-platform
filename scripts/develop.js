@@ -55,4 +55,4 @@ const main = async () => {
 	})
 }
 
-main()
+main().catch((error) => logger.error('an error occurred:', error.message))

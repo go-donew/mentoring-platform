@@ -1,0 +1,12 @@
+# .gcloudignore
+# A list of files and folders that should not be uploaded to GCP.
+
+.gitignore
+.git*
+
+node_modules/
+.cache/
+.idea/
+.vscode/
+
+pnpm-lock.yaml
