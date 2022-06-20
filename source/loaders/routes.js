@@ -12,7 +12,14 @@ export const routes = async (server) => {
 	server.post('/auth/signup', {
 		handler: handlers.auth.signup,
 		schema: {
-			body: { $ref: 'dtos#/definitions/UserDTO' },
+			body: { $ref: 'dtos#/definitions/NameEmailPassword' },
+		},
+	})
+
+	server.post('/auth/signin', {
+		handler: handlers.auth.signin,
+		schema: {
+			body: { $ref: 'dtos#/definitions/EmailPassword' },
 		},
 	})
 

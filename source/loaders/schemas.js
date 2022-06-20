@@ -37,7 +37,7 @@ export const schemas = pluginify((server, _, done) => {
 		$id: 'dtos',
 		type: 'object',
 		definitions: {
-			UserDTO: {
+			NameEmailPassword: {
 				type: 'object',
 				properties: {
 					name: { type: 'string' },
@@ -45,6 +45,14 @@ export const schemas = pluginify((server, _, done) => {
 					password: { type: 'string' },
 				},
 				required: ['name', 'email', 'password'],
+			},
+			EmailPassword: {
+				type: 'object',
+				properties: {
+					email: { type: 'string' },
+					password: { type: 'string' },
+				},
+				required: ['email', 'password'],
 			},
 		},
 	})

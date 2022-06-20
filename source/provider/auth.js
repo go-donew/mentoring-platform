@@ -203,4 +203,55 @@ export const auth = {
 			},
 		}
 	},
+
+	/**
+	 * Signs a user into their account.
+	 *
+	 * @param {EmailPassword} userDto - The email and password of the user.
+	 *
+	 * @returns {Promise<UserAndTokens>} - The user's profile and tokens.
+	 */
+	signin: async ({ email, password }) => {
+		logger.silly('retrieving tokens for user')
+
+		// Sign in to retrieve the user's tokens.
+		const {
+			error,
+			idToken: bearer,
+			refreshToken: refresh,
+		} = await fetch(endpoints.signin, {
+			method: 'post',
+			json: { email, password, returnSecureToken: true },
+		}).json()
+
+		logger.error(error)
+
+		if (error?.message) {
+			if (error.message.startsWith('EMAIL_NOT_FOUND'))
+				throw new ServerError(
+					'entity-not-found',
+					'A user with that email address does not exist. Perhaps you meant to sign up instead?.',
+				)
+			if (error.message.startsWith('INVALID_EMAIL'))
+				throw new ServerError(
+					'improper-payload',
+					'The email address passed in the request body was invalid. Please try again with a valid email address.',
+				)
+			if (error.message.startsWith('INVALID_PASSWORD')) throw new ServerError('incorrect-credentials')
+			if (error.message.startsWith('TOO_MANY_ATTEMPTS_TRY_LATER')) throw new ServerError('too-many-requests')
+
+			throw new ServerError('backend-error')
+		}
+
+		logger.silly('sucessfully retrieved tokens for user')
+
+		// Then return the profile and tokens.
+		return {
+			user: await getUserProfileFromToken(bearer),
+			tokens: {
+				bearer,
+				refresh,
+			},
+		}
+	},
 }

@@ -25,3 +25,25 @@ export const signup = async (request, reply) => {
 		data: { user, tokens },
 	}
 }
+
+/**
+ * Sign a user into their account.
+ */
+export const signin = async (request, reply) => {
+	const server = request.server
+
+	logger.info('signing user into their account')
+
+	const { user, tokens } = await server.auth.signin({
+		email: request.body.email,
+		password: request.body.password,
+	})
+
+	logger.info('sucessfully signed user into their account')
+
+	reply.status(200)
+	return {
+		meta: { status: 200 },
+		data: { user, tokens },
+	}
+}
