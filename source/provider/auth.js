@@ -84,7 +84,7 @@ const getUserProfileFromToken = async (token) => {
 	return {
 		...payload.donew.profile,
 		...payload.donew.roles,
-		lastSignedIn: payload.iat,
+		lastSignedIn: new Date(payload.iat).toISOString(),
 	}
 }
 

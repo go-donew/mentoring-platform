@@ -23,6 +23,20 @@ export const schemas = pluginify((server, _, done) => {
 					lastSignedIn: { type: 'string' },
 				},
 			},
+			Tokens: {
+				type: 'object',
+				properties: {
+					bearer: { type: 'string' },
+					tokens: { type: 'string' },
+				},
+			},
+		},
+	})
+
+	server.addSchema({
+		$id: 'dtos',
+		type: 'object',
+		definitions: {
 			UserDTO: {
 				type: 'object',
 				properties: {
