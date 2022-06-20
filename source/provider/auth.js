@@ -56,11 +56,11 @@ const getUserProfileFromToken = async (token) => {
 	logger.silly('parsing jwt for user profile')
 
 	// First, get the headers and find the ID of the key used to sign the JWT.
-	const [headers, payload] = token
+	const [rawHeaders, rawPayload] = token
 		.split('.')
 		.map((part) => buffer.from(part, 'base64').toString('ascii'))
 		.filter((part) => part !== '')
-		.map(json.parse)
+	const [headers, payload] = [rawHeaders, rawPayload].map(json.parse)
 	logger.silly('successfully parsed jwt')
 
 	if (config.prod) {
