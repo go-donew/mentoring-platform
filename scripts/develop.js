@@ -1,7 +1,7 @@
 // scripts/develop.ts
 // Watches the `source/` folder for changes and reloads the function then.
 
-import { exit, kill, stdout } from 'node:process'
+import { exit, stdout } from 'node:process'
 
 import waitOn from 'wait-on'
 import nodemon from 'nodemon'

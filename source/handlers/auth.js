@@ -16,10 +16,11 @@ export const signup = async (request, reply) => {
 		email: request.body.email,
 		password: request.body.password,
 	})
+	await server.database.doc(`users/${user.id}`).set(user)
 
 	logger.info('sucessfully created user account')
 
-	reply.status(201)
+	reply.code(201)
 	return {
 		meta: { status: 201 },
 		data: { user, tokens },
@@ -41,7 +42,7 @@ export const signin = async (request, reply) => {
 
 	logger.info('sucessfully signed user into their account')
 
-	reply.status(200)
+	reply.code(200)
 	return {
 		meta: { status: 200 },
 		data: { user, tokens },

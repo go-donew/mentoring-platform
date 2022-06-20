@@ -35,6 +35,8 @@ export const plugins = pluginify((server, _, done) => {
 	// Decorate the server instance with the database and auth services.
 	server.decorate('database', database)
 	server.decorate('auth', auth)
+	// Decorate the request with the user making it.
+	server.decorateRequest('user', undefined)
 
 	// Handle not found errors.
 	server.setNotFoundHandler((_request, _reply) => {
@@ -45,7 +47,7 @@ export const plugins = pluginify((server, _, done) => {
 		if (caughtError instanceof ServerError) {
 			// If it is a server error, just forward it onward to the user.
 			logger.http('sending error %s %s', caughtError.status, caughtError.code)
-			reply.status(caughtError.status).send(caughtError.send())
+			reply.code(caughtError.status).send(caughtError.send())
 		} else if (caughtError.validation) {
 			// If it is a validation error, parse the error and send it as a
 			// 400 improper-payload error.
@@ -54,7 +56,7 @@ export const plugins = pluginify((server, _, done) => {
 			const message = `An error occurred while validating your request: ${caughtError.message}`
 			const error = new ServerError('improper-payload', message)
 			// Then send the error.
-			reply.status(error.status).send(error.send())
+			reply.code(error.status).send(error.send())
 		} else {
 			// Otherwise, return a 500 to the user and print out neat diagnostic
 			// information as to what the error was and where it occurred.
@@ -69,7 +71,7 @@ export const plugins = pluginify((server, _, done) => {
 			)
 
 			const error = new ServerError('server-crash')
-			reply.status(error.status).send(error.send())
+			reply.code(error.status).send(error.send())
 		}
 	})
 

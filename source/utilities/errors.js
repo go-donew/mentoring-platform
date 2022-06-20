@@ -13,7 +13,7 @@ export const errors = {
 
 	// Error to return when the bearer token passed by the user is invalid.
 	'invalid-token': {
-		message: `Could not find a valid access token in the 'Authorization' header. Please retrieve an access token by authenticating via the sign in endpoint, and place it in the 'Authorization' header.`,
+		message: `Could not find a valid access token in the 'Authorization' header. Please retrieve an access token by authenticating via the sign in endpoint, and pass it in the 'Authorization' header.`,
 		status: 401,
 	},
 

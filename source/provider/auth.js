@@ -43,51 +43,6 @@ const getServiceAccountToken = async () => {
 	} else return 'owner'
 }
 
-/**
- * Returns a user from the metadata in a bearer token.
- *
- * @param {string} token - The bearer token passed in the `Authorization` header.
- *
- * @returns {Promise<User>} - The user profile.
- */
-const getUserProfileFromToken = async (token) => {
-	const { credentials, projectId } = config.services.auth
-
-	logger.silly('parsing jwt for user profile')
-
-	// First, get the headers and find the ID of the key used to sign the JWT.
-	const [rawHeaders, rawPayload] = token
-		.split('.')
-		.map((part) => buffer.from(part, 'base64').toString('ascii'))
-		.filter((part) => part !== '')
-	const [headers, payload] = [rawHeaders, rawPayload].map(json.parse)
-	logger.silly('successfully parsed jwt')
-
-	if (config.prod) {
-		const publicKey = credentials.publicKeys[headers.kid]
-		if (!publicKey) {
-			logger.error('could not retrieve public key with id %s to verify jwt', headers.kid)
-
-			throw new ServerError('backend-error', 'An error occurred while validating your access token.')
-		}
-
-		// Then verify the JWT with that public key.
-		jwt.verify(token, publicKey, {
-			// Ensure the algorithm, audience and issuer are set properly.
-			algorithms: ['RS256'],
-			audience: projectId,
-			issuer: `https://securetoken.google.com/${projectId}`,
-		})
-		logger.silly('successfully verified jwt')
-	}
-
-	return {
-		...payload.donew.profile,
-		...payload.donew.roles,
-		lastSignedIn: new Date(payload.iat).toISOString(),
-	}
-}
-
 const token = await getServiceAccountToken()
 const endpoints = {
 	signup: 'v1/accounts:signUp',
@@ -113,7 +68,7 @@ export const auth = {
 	/**
 	 * Creates an account for a user.
 	 *
-	 * @param {UserDTO} userDto - The name, email and password of the user to create.
+	 * @param {NameEmailPassword} userDto - The name, email and password of the user to create.
 	 *
 	 * @returns {Promise<UserAndTokens>} - The user's profile and tokens.
 	 */
@@ -196,11 +151,8 @@ export const auth = {
 
 		// Then return the profile and tokens.
 		return {
-			user: await getUserProfileFromToken(bearer),
-			tokens: {
-				bearer,
-				refresh,
-			},
+			user: await auth.parseToken(bearer),
+			tokens: { bearer, refresh },
 		}
 	},
 
@@ -230,7 +182,7 @@ export const auth = {
 			if (error.message.startsWith('EMAIL_NOT_FOUND'))
 				throw new ServerError(
 					'entity-not-found',
-					'A user with that email address does not exist. Perhaps you meant to sign up instead?.',
+					'A user with that email address does not exist. Perhaps you meant to sign up instead?',
 				)
 			if (error.message.startsWith('INVALID_EMAIL'))
 				throw new ServerError(
@@ -247,11 +199,56 @@ export const auth = {
 
 		// Then return the profile and tokens.
 		return {
-			user: await getUserProfileFromToken(bearer),
+			user: await auth.parseToken(bearer),
 			tokens: {
 				bearer,
 				refresh,
 			},
+		}
+	},
+
+	/**
+	 * Returns a user from the metadata in a bearer token.
+	 *
+	 * @param {string} token - The bearer token passed in the `Authorization` header.
+	 *
+	 * @returns {Promise<User>} - The user profile.
+	 */
+	parseToken: async (token) => {
+		const { credentials, projectId } = config.services.auth
+
+		logger.silly('parsing jwt for user profile')
+
+		// First, get the headers and find the ID of the key used to sign the JWT.
+		const [rawHeaders, rawPayload] = token
+			.split('.')
+			.map((part) => buffer.from(part, 'base64').toString('ascii'))
+			.filter((part) => part !== '')
+		const [headers, payload] = [rawHeaders, rawPayload].map(json.parse)
+		logger.silly('successfully parsed jwt')
+
+		if (config.prod) {
+			const publicKey = credentials.publicKeys[headers.kid]
+			if (!publicKey) {
+				logger.error('could not retrieve public key with id %s to verify jwt', headers.kid)
+
+				throw new ServerError('backend-error', 'An error occurred while validating your access token.')
+			}
+
+			// Then verify the JWT with that public key.
+			jwt.verify(token, publicKey, {
+				// Ensure the algorithm, audience and issuer are set properly.
+				algorithms: ['RS256'],
+				audience: projectId,
+				issuer: `https://securetoken.google.com/${projectId}`,
+			})
+			logger.silly('successfully verified jwt')
+		}
+
+		return {
+			...payload.donew.profile,
+			...payload.donew.roles,
+			lastSignedIn: new Date(payload.iat).toISOString(),
 		}
 	},
 }

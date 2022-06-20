@@ -2,6 +2,7 @@
 // Loads and registers all the routes for the server.
 
 import { handlers } from '../handlers/index.js'
+import { authenticateUser } from '../middleware/authenticate.js'
 
 /**
  * Registers routes with the passed server instance.
@@ -23,5 +24,8 @@ export const routes = async (server) => {
 		},
 	})
 
-	server.get('/users', handlers.users.list)
+	server.get('/users', {
+		preHandler: [authenticateUser],
+		handler: handlers.users.list,
+	})
 }

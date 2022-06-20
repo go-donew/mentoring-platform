@@ -16,7 +16,7 @@ export const list = async (request, reply) => {
 
 	logger.silly('fetched user list successfully')
 
-	reply.status(200)
+	reply.code(200)
 	return {
 		meta: { status: 200 },
 		data: users,
