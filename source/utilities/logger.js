@@ -21,7 +21,8 @@ const options = {
 			translateTime: 'SYS:standard',
 			ignore: 'pid,hostname',
 			customLevels: 'silly:40,info:50,http:60,warn:70,error:80,fatal:90',
-			customColors: 'silly:magenta,info:green,http:blue,warn:yellow,error:red,fatal:red',
+			customColors:
+				'silly:magenta,info:green,http:blue,warn:yellow,error:red,fatal:red',
 		},
 	},
 	level: 'silly',

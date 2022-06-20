@@ -23,12 +23,21 @@ export const plugins = pluginify((server, _, done) => {
 
 	// Log the request as it comes.
 	server.addHook('onRequest', (request, _, done) => {
-		logger.http('received request from %s - %s %s', request.ip, request.method.toLowerCase(), request.url)
+		logger.http(
+			'received request from %s - %s %s',
+			request.ip,
+			request.method.toLowerCase(),
+			request.url,
+		)
 		done()
 	})
 	// Log the response's status code and response time.
 	server.addHook('onResponse', (_, reply, done) => {
-		logger.http('sent response %s in %s ms', reply.statusCode, reply.getResponseTime().toFixed(3))
+		logger.http(
+			'sent response %s in %s ms',
+			reply.statusCode,
+			reply.getResponseTime().toFixed(3),
+		)
 		done()
 	})
 

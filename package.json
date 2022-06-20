@@ -8,6 +8,8 @@
 	"scripts": {
 		"develop": "node ./scripts/develop.js",
 		"deploy": "node ./scripts/deploy.js",
+		"lint": "xo && prettier --check .",
+		"format": "xo --fix && prettier --write .",
 		"postinstall": "patch-package"
 	},
 	"dependencies": {
@@ -26,6 +28,23 @@
 		"chalk": "5.0.1",
 		"firebase-tools": "11.1.0",
 		"nodemon": "2.0.16",
-		"wait-on": "6.0.1"
+		"prettier": "2.7.1",
+		"wait-on": "6.0.1",
+		"xo": "0.50.0"
+	},
+	"xo": {
+		"prettier": true,
+		"rules": {
+			"capitalized-comments": 0
+		}
+	},
+	"prettier": {
+		"semi": false,
+		"useTabs": true,
+		"singleQuote": true,
+		"bracketSpacing": true,
+		"trailingComma": "all",
+		"proseWrap": "always",
+		"endOfLine": "lf"
 	}
 }

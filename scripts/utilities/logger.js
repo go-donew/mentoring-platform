@@ -7,7 +7,9 @@ import chalk from 'chalk'
 export const logger = {
 	title: (text) => console.info(chalk.blue.bold(`=== ${text} ===\n`)),
 	info: (...text) => console.info(chalk.cyan.bold('i '), chalk.cyan(...text)),
-	success: (...text) => console.info(chalk.green.bold('✔ '), chalk.green(...text)),
-	warn: (...text) => console.info(chalk.yellow.bold('! '), chalk.yellow(...text)),
+	success: (...text) =>
+		console.info(chalk.green.bold('✔ '), chalk.green(...text)),
+	warn: (...text) =>
+		console.info(chalk.yellow.bold('! '), chalk.yellow(...text)),
 	error: (...text) => console.info(chalk.red.bold('✗ '), chalk.red(...text)),
 }

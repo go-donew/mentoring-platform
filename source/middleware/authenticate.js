@@ -10,7 +10,9 @@ export const authenticateUser = (request, _, done) => {
 	const server = request.server
 
 	// Get the authorization token from the `Authorization` header or the `token` parameter.
-	const token = (request.headers.authorization ?? request.query.token)?.replace(/bearer/i, '')?.trim()
+	const token = (request.headers.authorization ?? request.query.token)
+		?.replace(/bearer/i, '')
+		?.trim()
 	if (!token) throw new ServerError('invalid-token')
 
 	// Parse the token and get the user's profile from it.

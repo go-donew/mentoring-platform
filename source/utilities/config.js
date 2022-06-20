@@ -6,18 +6,24 @@ import { env } from 'node:process'
 import fetch from 'got'
 
 const json = JSON
-const environment = env.NODE_ENV?.toLowerCase().startsWith('prod') ? 'production' : 'development'
-const googleCreds = environment === 'production' ? json.parse(env.GOOGLE_SERVICE_ACCOUNT) : {}
+const number = Number
+const environment = env.NODE_ENV?.toLowerCase().startsWith('prod')
+	? 'production'
+	: 'development'
+const googleCreds =
+	environment === 'production' ? json.parse(env.GOOGLE_SERVICE_ACCOUNT) : {}
 const publicKeys =
 	environment === 'production'
-		? await fetch('https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com').json()
+		? await fetch(
+				'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com',
+		  ).json()
 		: {}
 
 export const config = {
 	// Whether we are in a development environment or not.
 	prod: environment === 'production',
 	// The port to bind the server to.
-	port: parseInt(env.PORT ?? '4242'),
+	port: number.parseInt(env.PORT ?? '4242', 10),
 
 	// The configuration for the database and auth services.
 	services: {

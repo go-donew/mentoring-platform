@@ -16,11 +16,11 @@ export const exec = (command, options) => {
 		let output = ''
 		child.stdout.on('data', (content) => {
 			output += content.toString()
-			options?.quiet ? {} : stdout.write(content.toString())
+			if (options?.quiet) stdout.write(content.toString())
 		})
 		child.stderr.on('data', (content) => {
 			output += content.toString()
-			options?.quiet ? {} : stderr.write(content.toString())
+			if (options?.quiet) stderr.write(content.toString())
 		})
 		// Once it's finished, resolve/reject the promise based
 		// on the process' exit code.

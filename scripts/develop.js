@@ -14,9 +14,12 @@ const main = async () => {
 
 	// Start the emulators.
 	logger.info('starting emulators')
-	exec('pnpm firebase emulators:start --only firestore,auth --project donew-mentoring-api-sandbox', {
-		quiet: true,
-	})
+	exec(
+		'pnpm firebase emulators:start --only firestore,auth --project donew-mentoring-api-sandbox',
+		{
+			quiet: true,
+		},
+	)
 	// Then wait for it to start.
 	await waitOn({ resources: ['http://localhost:4000'] })
 	logger.success('successfully started emulators')

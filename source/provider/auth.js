@@ -40,7 +40,9 @@ const getServiceAccountToken = async () => {
 		logger.silly('successfully generated service account jwt')
 
 		return token
-	} else return 'owner'
+	}
+
+	return 'owner'
 }
 
 const token = await getServiceAccountToken()
@@ -56,7 +58,9 @@ const endpoints = {
 const fetch = got.extend({
 	// Set the prefix URL to the server URL so we can mention only the endpoint
 	// path in the rest of the code.
-	prefixUrl: `${config.services.auth.host.includes('localhost') ? 'http' : 'https'}://${config.services.auth.host}/`,
+	prefixUrl: `${
+		config.services.auth.host.includes('localhost') ? 'http' : 'https'
+	}://${config.services.auth.host}/`,
 	// Don't throw errors, just return them as responses and we will handle
 	// the rest.
 	throwHttpErrors: false,
@@ -72,7 +76,7 @@ export const auth = {
 	 *
 	 * @returns {Promise<UserAndTokens>} - The user's profile and tokens.
 	 */
-	signup: async ({ name, email, password }) => {
+	async signup({ name, email, password }) {
 		logger.silly('creating account for user')
 
 		// First, create their account.
@@ -98,7 +102,8 @@ export const auth = {
 					'improper-payload',
 					'The password passed in the request body was too weak. Please try again with a longer (> 6 letters) password.',
 				)
-			if (error.message.startsWith('TOO_MANY_ATTEMPTS_TRY_LATER')) throw new ServerError('too-many-requests')
+			if (error.message.startsWith('TOO_MANY_ATTEMPTS_TRY_LATER'))
+				throw new ServerError('too-many-requests')
 		}
 
 		logger.silly('succesfully created account')
@@ -122,7 +127,10 @@ export const auth = {
 
 		// If an error occurs at this point, just log it and return a 500 backend-error.
 		if (error) {
-			logger.error(error, `could not set profile on user's bearer token due to error`)
+			logger.error(
+				error,
+				`could not set profile on user's bearer token due to error`,
+			)
 			throw new ServerError('backend-error')
 		}
 
@@ -130,8 +138,8 @@ export const auth = {
 		logger.silly('retrieving tokens for user')
 
 		// Then, sign in again to retrieve the user's tokens.
-		let bearer,
-			refresh = undefined
+		let bearer
+		let refresh
 		;({
 			error,
 			idToken: bearer,
@@ -163,7 +171,7 @@ export const auth = {
 	 *
 	 * @returns {Promise<UserAndTokens>} - The user's profile and tokens.
 	 */
-	signin: async ({ email, password }) => {
+	async signin({ email, password }) {
 		logger.silly('retrieving tokens for user')
 
 		// Sign in to retrieve the user's tokens.
@@ -189,8 +197,10 @@ export const auth = {
 					'improper-payload',
 					'The email address passed in the request body was invalid. Please try again with a valid email address.',
 				)
-			if (error.message.startsWith('INVALID_PASSWORD')) throw new ServerError('incorrect-credentials')
-			if (error.message.startsWith('TOO_MANY_ATTEMPTS_TRY_LATER')) throw new ServerError('too-many-requests')
+			if (error.message.startsWith('INVALID_PASSWORD'))
+				throw new ServerError('incorrect-credentials')
+			if (error.message.startsWith('TOO_MANY_ATTEMPTS_TRY_LATER'))
+				throw new ServerError('too-many-requests')
 
 			throw new ServerError('backend-error')
 		}
@@ -214,7 +224,7 @@ export const auth = {
 	 *
 	 * @returns {Promise<User>} - The user profile.
 	 */
-	parseToken: async (token) => {
+	async parseToken(token) {
 		const { credentials, projectId } = config.services.auth
 
 		logger.silly('parsing jwt for user profile')
@@ -224,15 +234,23 @@ export const auth = {
 			.split('.')
 			.map((part) => buffer.from(part, 'base64').toString('ascii'))
 			.filter((part) => part !== '')
-		const [headers, payload] = [rawHeaders, rawPayload].map(json.parse)
+		const [headers, payload] = [rawHeaders, rawPayload].map((part) =>
+			json.parse(part),
+		)
 		logger.silly('successfully parsed jwt')
 
 		if (config.prod) {
 			const publicKey = credentials.publicKeys[headers.kid]
 			if (!publicKey) {
-				logger.error('could not retrieve public key with id %s to verify jwt', headers.kid)
+				logger.error(
+					'could not retrieve public key with id %s to verify jwt',
+					headers.kid,
+				)
 
-				throw new ServerError('backend-error', 'An error occurred while validating your access token.')
+				throw new ServerError(
+					'backend-error',
+					'An error occurred while validating your access token.',
+				)
 			}
 
 			// Then verify the JWT with that public key.
