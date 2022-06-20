@@ -7,7 +7,7 @@ import fetch from 'got'
 
 const json = JSON
 const environment = env.NODE_ENV?.toLowerCase().startsWith('prod') ? 'production' : 'development'
-const googleCreds = environment === 'production' ? json.parse(env.GOOGLE_SERVICE_ACCOUNT, 'utf8') : {}
+const googleCreds = environment === 'production' ? json.parse(env.GOOGLE_SERVICE_ACCOUNT) : {}
 const publicKeys =
 	environment === 'production'
 		? await fetch('https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com').json()
