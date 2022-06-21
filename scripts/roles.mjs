@@ -3,7 +3,7 @@
 
 import { Buffer as buffer } from 'node:buffer'
 import { env, exit } from 'node:process'
-import { spinner } from 'zx/experimental'
+import { spinner } from 'zx/experimental.js'
 import { question } from 'zx'
 
 import got from 'got'
@@ -95,7 +95,7 @@ const bearer = await spinner(
 				`could not retrieve user details due to error`,
 				json.stringify(error, undefined, '  '),
 			)
-		else return bearer
+		return bearer
 	},
 )
 logger.success('successfully retrieved bearer token')

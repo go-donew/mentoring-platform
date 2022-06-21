@@ -1,7 +1,7 @@
 // scripts/deploy
 // Generates a `package-lock.json` file, and then deploys the function.
 
-import { spinner } from 'zx/experimental'
+import { spinner } from 'zx/experimental.js'
 
 import { logger } from './utilities/logger.js'
 

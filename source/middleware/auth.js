@@ -71,6 +71,7 @@ export const authorizeUser = (context) => async (request, _) => {
 		logger.error('user is not authenticated')
 		throw new ServerError('not-allowed')
 	}
+
 	// Else, check if the user is authorized to access it.
 	logger.silly('user is authenticated; checking authorization')
 

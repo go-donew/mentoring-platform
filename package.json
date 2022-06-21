@@ -38,8 +38,12 @@
 	"xo": {
 		"prettier": true,
 		"rules": {
-			"capitalized-comments": 0
-		}
+			"capitalized-comments": 0,
+			"no-await-in-loop": 0
+		},
+		"globals": [
+			"$"
+		]
 	},
 	"prettier": {
 		"semi": false,

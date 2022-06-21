@@ -2,7 +2,7 @@
 // Watches the `source/` folder for changes and reloads the function then.
 
 import { exit, stdout } from 'node:process'
-import { spinner } from 'zx/experimental'
+import { spinner } from 'zx/experimental.js'
 
 import waitOn from 'wait-on'
 import nodemon from 'nodemon'
@@ -14,6 +14,7 @@ logger.title('scripts/develop')
 // Start the emulators.
 await spinner(logger.status('starting emulators'), async () => {
 	// Let the process run in the background, and return when the Emulator UI is up.
+	// eslint-disable-next-line no-unused-expressions
 	$`pnpm firebase emulators:start --only firestore,auth --project donew-mentoring-api-sandbox`
 	await waitOn({ resources: ['http://localhost:4000'] })
 })
