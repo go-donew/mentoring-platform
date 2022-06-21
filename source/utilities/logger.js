@@ -32,6 +32,8 @@ const options = {
 // Log colorfully when we are in a development environment, else use the
 // standard JSON logger.
 if (config.prod) delete options.transport
+// Log only errors in a test environment.
+if (config.test) options.level = 'error'
 
 // Export the logger
 export const logger = pino(options)

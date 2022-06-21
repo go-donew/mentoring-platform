@@ -2,7 +2,7 @@
 // Watches the `source/` folder for changes and reloads the function then.
 
 import { exit, stdout } from 'node:process'
-import { spinner } from 'zx/experimental.js'
+import { spinner } from 'zx/experimental'
 
 import waitOn from 'wait-on'
 import nodemon from 'nodemon'
@@ -28,15 +28,7 @@ nodemon({
 	exec: 'pnpm functions-framework --quiet --target api --port 4242',
 	quiet: true,
 	watch: ['source/'],
-	env: {
-		PORT: 4242,
-		NODE_ENV: 'development',
-		FIREBASE_PROJECT_ID: 'donew-mentoring-api-sandbox',
-		FIREBASE_DB_EMULATOR_HOST: 'localhost:8080',
-		FIREBASE_AUTH_EMULATOR_HOST: 'localhost:9099',
-		FIRESTORE_USE_REST_API: true,
-		FIREBASE_API_KEY: 'something-complex',
-	},
+	env: (await fs.readJson('package.json')).env.dev,
 })
 
 // Do stuff when events occur.

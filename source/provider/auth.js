@@ -41,6 +41,7 @@ const getServiceAccountToken = async () => {
 		return token
 	}
 
+	// The emulator only needs us to pass `owner` instead of an actual token.
 	return 'owner'
 }
 

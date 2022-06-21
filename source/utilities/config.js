@@ -9,6 +9,8 @@ import { json, number } from '../utilities/globals.js'
 
 const environment = env.NODE_ENV?.toLowerCase().startsWith('prod')
 	? 'production'
+	: env.NODE_ENV?.toLowerCase().startsWith('test')
+	? 'test'
 	: 'development'
 const googleCreds =
 	environment === 'production' ? json.parse(env.GOOGLE_SERVICE_ACCOUNT) : {}
@@ -22,6 +24,7 @@ const publicKeys =
 export const config = {
 	// Whether we are in a development environment or not.
 	prod: environment === 'production',
+	test: environment === 'test',
 	// The port to bind the server to.
 	port: number.parseInt(env.PORT ?? '4242', 10),
 

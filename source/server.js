@@ -1,24 +1,15 @@
 // source/server.ts
-// Binds the server to the port specified.
+// Exports the server for GCP.
 
-import createServer from 'fastify'
-
-import { plugins } from './loaders/plugins.js'
-import { schemas } from './loaders/schemas.js'
-import { routes } from './loaders/routes.js'
+import { build } from './loaders/index.js'
 import { logger } from './utilities/logger.js'
 
 // Create the Fastify server.
-const server = createServer({
-	// Set the logger to the custom pino instance.
-	logger: false,
+const server = build({
+	// Use a custom Pino logger.
+	logger: logger,
 	disableRequestLogging: true,
 })
-
-// Load the schemas, middleware, and the routes.
-server.register(schemas)
-server.register(plugins)
-server.register(routes)
 
 logger.info('server ready to receive requests')
 

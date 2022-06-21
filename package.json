@@ -9,6 +9,7 @@
 		"clean": "zx ./scripts/clean.mjs",
 		"develop": "zx ./scripts/develop.mjs",
 		"deploy": "zx ./scripts/deploy.mjs",
+		"test": "zx ./scripts/test.mjs",
 		"lint": "xo && prettier --check .",
 		"format": "xo --fix && prettier --write .",
 		"roles": "zx ./scripts/roles.mjs",
@@ -27,6 +28,7 @@
 	},
 	"devDependencies": {
 		"@google-cloud/functions-framework": "3.1.2",
+		"jest": "28.1.1",
 		"chalk": "5.0.1",
 		"firebase-tools": "11.1.0",
 		"nodemon": "2.0.16",
@@ -34,6 +36,15 @@
 		"wait-on": "6.0.1",
 		"xo": "0.50.0",
 		"zx": "7.0.1"
+	},
+	"prettier": {
+		"semi": false,
+		"useTabs": true,
+		"singleQuote": true,
+		"bracketSpacing": true,
+		"trailingComma": "all",
+		"proseWrap": "always",
+		"endOfLine": "lf"
 	},
 	"xo": {
 		"prettier": true,
@@ -45,13 +56,35 @@
 			"$"
 		]
 	},
-	"prettier": {
-		"semi": false,
-		"useTabs": true,
-		"singleQuote": true,
-		"bracketSpacing": true,
-		"trailingComma": "all",
-		"proseWrap": "always",
-		"endOfLine": "lf"
+	"jest": {
+		"testMatch": [
+			"<rootDir>/tests/**/*.js"
+		],
+		"transform": {},
+		"maxConcurrency": 1,
+		"collectCoverage": true,
+		"coverageProvider": "v8"
+	},
+	"env": {
+		"dev": {
+			"PORT": "4242",
+			"NODE_ENV": "development",
+			"FIREBASE_PROJECT_ID": "donew-mentoring-api-sandbox",
+			"FIREBASE_DB_EMULATOR_HOST": "localhost:8080",
+			"FIREBASE_AUTH_EMULATOR_HOST": "localhost:9099",
+			"FIRESTORE_USE_REST_API": "true",
+			"FIREBASE_API_KEY": "something-complex"
+		},
+		"test": {
+			"PORT": "4242",
+			"NODE_ENV": "test",
+			"FIREBASE_PROJECT_ID": "donew-mentoring-api-sandbox",
+			"FIREBASE_DB_EMULATOR_HOST": "localhost:8080",
+			"FIREBASE_AUTH_EMULATOR_HOST": "localhost:9099",
+			"FIRESTORE_USE_REST_API": "true",
+			"FIREBASE_API_KEY": "something-complex",
+			"FORCE_COLOR": "2",
+			"NODE_OPTIONS": "--experimental-vm-modules"
+		}
 	}
 }

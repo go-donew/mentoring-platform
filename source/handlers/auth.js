@@ -39,6 +39,7 @@ export const signin = async (request, reply) => {
 		email: request.body.email,
 		password: request.body.password,
 	})
+	await server.database.doc(`users/${user.id}`).set(user)
 
 	logger.info('sucessfully signed user into their account')
 

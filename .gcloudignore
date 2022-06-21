@@ -5,6 +5,7 @@
 .git*
 
 node_modules/
+coverage/
 .cache/
 .idea/
 .vscode/

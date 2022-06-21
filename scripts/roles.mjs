@@ -3,7 +3,7 @@
 
 import { Buffer as buffer } from 'node:buffer'
 import { env, exit } from 'node:process'
-import { spinner } from 'zx/experimental.js'
+import { spinner } from 'zx/experimental'
 import { question } from 'zx'
 
 import got from 'got'
