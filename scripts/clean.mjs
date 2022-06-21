@@ -7,3 +7,5 @@ logger.title('scripts/clean')
 
 await $`rm -rf *.log *.tgz *.bak *.tmp .cache/`
 await $`rm -rf package-lock.json firebase.json`
+
+logger.end()

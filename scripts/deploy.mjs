@@ -34,4 +34,6 @@ await spinner(logger.status('cleaning up'), async () => {
 	await $`rm -rf node_modules`
 	await $`pnpm install`
 })
-logger.success('done')
+logger.success('succesfully restored environment')
+
+logger.end()

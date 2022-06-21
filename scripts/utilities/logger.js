@@ -12,5 +12,6 @@ export const logger = {
 	warn: (...text) =>
 		console.info(chalk.yellow.bold('! '), chalk.yellow(...text)),
 	error: (...text) => console.info(chalk.red.bold('✗ '), chalk.red(...text)),
+	end: () => console.log(),
 	status: (...text) => chalk.blue.dim(...text),
 }
