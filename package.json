@@ -6,8 +6,9 @@
 	"main": "./source/server.js",
 	"exports": "./source/server.js",
 	"scripts": {
-		"develop": "node ./scripts/develop.js",
-		"deploy": "node ./scripts/deploy.js",
+		"clean": "zx ./scripts/clean.mjs",
+		"develop": "zx ./scripts/develop.mjs",
+		"deploy": "zx ./scripts/deploy.mjs",
 		"lint": "xo && prettier --check .",
 		"format": "xo --fix && prettier --write .",
 		"postinstall": "patch-package"
@@ -30,7 +31,8 @@
 		"nodemon": "2.0.16",
 		"prettier": "2.7.1",
 		"wait-on": "6.0.1",
-		"xo": "0.50.0"
+		"xo": "0.50.0",
+		"zx": "7.0.1"
 	},
 	"xo": {
 		"prettier": true,
