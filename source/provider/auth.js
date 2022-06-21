@@ -9,8 +9,7 @@ import jwt from 'jsonwebtoken'
 import { ServerError } from '../utilities/errors.js'
 import { config } from '../utilities/config.js'
 import { logger } from '../utilities/logger.js'
-
-const json = JSON
+import { json } from '../utilities/globals.js'
 
 /**
  * Generates a token for making requests to the authentication service.

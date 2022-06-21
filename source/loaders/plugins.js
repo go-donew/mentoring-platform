@@ -17,9 +17,9 @@ import { ServerError } from '../utilities/errors.js'
 export const plugins = pluginify((server, _, done) => {
 	// Functions already parses the body for us, so we pass on the parsed body.
 	// See https://www.fastify.io/docs/latest/Guides/Serverless/#google-cloud-functions.
-	server.addContentTypeParser('application/json', {}, (_, body, done) => {
-		done(undefined, body.body)
-	})
+	server.addContentTypeParser('application/json', {}, (_, body, done) =>
+		done(undefined, body.body),
+	)
 
 	// Log the request as it comes.
 	server.addHook('onRequest', (request, _, done) => {

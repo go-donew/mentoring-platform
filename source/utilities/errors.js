@@ -26,7 +26,7 @@ export const errors = {
 
 	// Error to return when the user is not authorized to perform an operation.
 	'not-allowed': {
-		message: `You cannot perform this operation.`,
+		message: `You are not authorized to perform this operation.`,
 		status: 403,
 	},
 

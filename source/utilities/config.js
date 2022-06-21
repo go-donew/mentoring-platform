@@ -5,8 +5,8 @@ import { env } from 'node:process'
 
 import fetch from 'got'
 
-const json = JSON
-const number = Number
+import { json, number } from '../utilities/globals.js'
+
 const environment = env.NODE_ENV?.toLowerCase().startsWith('prod')
 	? 'production'
 	: 'development'
