@@ -11,7 +11,8 @@
 		"deploy": "zx ./scripts/deploy.mjs",
 		"lint": "xo && prettier --check .",
 		"format": "xo --fix && prettier --write .",
-		"postinstall": "patch-package"
+		"roles": "zx ./scripts/roles.mjs",
+		"prepare": "patch-package"
 	},
 	"dependencies": {
 		"@bountyrush/firestore": "5.0.2-rest.1",
