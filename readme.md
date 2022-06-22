@@ -7,5 +7,6 @@
 	<img alt="Github Workflow Status" src="https://img.shields.io/github/workflow/status/donew-innovations/mentoring-api/CI/perf"/>
 	<img alt="GitHub Stars" src="https://img.shields.io/github/stars/donew-innovations/mentoring-api"/>
 </div>
+<br>
 
 > The REST API that powers the DoNew Mentoring Platform.

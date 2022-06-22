@@ -26,16 +26,20 @@ test('post /auth/signup | 400 improper-payload', async () => {
 	const { meta, error, data } = json.parse(response.payload)
 	const expectedError = new ServerError('improper-payload')
 
+	// Check that the request body contains only the `meta` and `error` fields,
+	// and that the error returned is a 400 improper-payload error.
+	expect(data).toEqual(undefined)
 	expect(meta?.status).toEqual(expectedError.status)
 	expect(error?.code).toEqual(expectedError.code)
+	// Ensure the error message is regarding the missing `name` field.
 	expect(error?.message).toMatch(/'name'/)
-	expect(data).toEqual(undefined)
 })
 
 test('post /auth/signup | 201 created', async () => {
 	const response = await server.inject({
 		method: 'post',
 		url: '/auth/signup',
+		// Make a valid request this time.
 		payload: await readFile('tests/fixtures/name-email-password.json'),
 		headers: {
 			'content-type': 'application/json',
