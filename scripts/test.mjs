@@ -30,14 +30,18 @@ stdout.write('\n')
 
 try {
 	// Run the tests.
-	await $`pnpm jest ${argv.watch ? '--watch' : ''}`.pipe(stdout)
+	const options = [
+		argv.watch && '--watch',
+		argv.coverage && '--coverage',
+	].filter((option) => option !== undefined)
+	await $`pnpm jest ${options}`.pipe(stdout)
 
-	// Once they finish, kill the emulators.
+	// Once they finish, kill the emulator and exit peacefully.
 	logger.success('sucessfully ran all tests')
 	logger.end()
+
 	await spinner(logger.status('stopping emulators'), () => emulators.kill())
 
-	// Then exit successfully.
 	exit(0)
 } catch (error) {
 	// If an error occurs, print an error and kill the emulators.
