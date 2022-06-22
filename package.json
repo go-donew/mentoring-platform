@@ -10,8 +10,8 @@
 		"develop": "zx ./scripts/develop.mjs",
 		"deploy": "zx ./scripts/deploy.mjs",
 		"test": "zx ./scripts/test.mjs",
-		"lint": "xo && prettier --check .",
-		"format": "xo --fix && prettier --write .",
+		"lint": "xo {source,tests}/**/*.js && prettier --check .",
+		"format": "xo --fix {source,tests}/**/*.js && prettier --write .",
 		"roles": "zx ./scripts/roles.mjs",
 		"prepare": "patch-package"
 	},
