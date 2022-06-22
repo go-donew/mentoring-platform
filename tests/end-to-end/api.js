@@ -1,6 +1,8 @@
 // tests/end-to-end/api.js
 // Test all endpoints of the API.
 
+import { readFile } from 'node:fs/promises'
+
 import { build } from '../../source/loaders/index.js'
 import { json } from '../../source/utilities/globals.js'
 import { ServerError } from '../../source/utilities/errors.js'
@@ -14,10 +16,8 @@ test('post /auth/signup | 400 improper-payload', async () => {
 	const response = await server.inject({
 		method: 'post',
 		url: '/auth/signup',
-		payload: json.stringify({
-			email: 'someone@example.com',
-			password: 'happiness',
-		}),
+		// Don't pass the name of the user in the request body.
+		payload: await readFile('tests/fixtures/email-password.json'),
 		headers: {
 			'content-type': 'application/json',
 		},
@@ -36,11 +36,7 @@ test('post /auth/signup | 201 created', async () => {
 	const response = await server.inject({
 		method: 'post',
 		url: '/auth/signup',
-		payload: json.stringify({
-			name: 'Someone',
-			email: 'someone@example.com',
-			password: 'happiness',
-		}),
+		payload: await readFile('tests/fixtures/name-email-password.json'),
 		headers: {
 			'content-type': 'application/json',
 		},
