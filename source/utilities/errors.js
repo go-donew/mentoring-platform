@@ -20,7 +20,7 @@ export const errors = {
 	// Error to return when the credentials (usually password) passed by the user
 	// were incorrect.
 	'incorrect-credentials': {
-		message: `The credentials passed were invalid. Please pass valid credentials and try again.`,
+		message: `The credentials passed were incorrect. Please pass valid credentials and try again.`,
 		status: 401,
 	},
 
