@@ -1,5 +1,5 @@
-// scripts/develop
-// Watches the `source/` folder for changes and reloads the function then.
+// scripts/test
+// Runs all the tests for the server.
 
 import { stdout, env, exit } from 'node:process'
 import { spinner } from 'zx/experimental'
@@ -9,7 +9,7 @@ import waitOn from 'wait-on'
 import { logger } from './utilities/logger.js'
 import { object } from './utilities/globals.js'
 
-logger.title('scripts/develop')
+logger.title('scripts/test')
 
 // Setup the environment.
 const config = (await fs.readJson('package.json')).env.test
@@ -30,7 +30,7 @@ stdout.write('\n')
 
 try {
 	// Run the tests.
-	await $`pnpm jest`.pipe(stdout)
+	await $`pnpm jest ${argv.watch ? '--watch' : ''}`.pipe(stdout)
 
 	// Once they finish, kill the emulators.
 	logger.success('sucessfully ran all tests')

@@ -26,7 +26,7 @@ index eb57519..6d3e7ed 100644
              ],
          });
 -        this.client = (0, firestore_1.firestore)({ version: 'v1' });
-+        this.client = (0, firestore_1.firestore)({ version: 'v1', rootUrl: process.env.FIREBASE_DB_EMULATOR_HOST ? `http://${process.env.FIREBASE_DB_EMULATOR_HOST}`: undefined });
++        this.client = (0, firestore_1.firestore)({ version: 'v1', rootUrl: process.env.FIRESTORE_EMULATOR_HOST ? `http://${process.env.FIRESTORE_EMULATOR_HOST}`: undefined });
      }
      getProjectId() {
          if (!this.authClient) {

@@ -37,7 +37,7 @@ export const config = {
 				  }
 				: {
 						projectId: env.FIREBASE_PROJECT_ID,
-						host: env.FIREBASE_DB_EMULATOR_HOST,
+						host: env.FIRESTORE_EMULATOR_HOST,
 				  },
 		auth:
 			environment === 'production'
@@ -53,7 +53,7 @@ export const config = {
 				  }
 				: {
 						projectId: env.FIREBASE_PROJECT_ID,
-						host: `${env.FIREBASE_AUTH_EMULATOR_HOST}/identitytoolkit.googleapis.com`,
+						host: `${env.IDENTITY_EMULATOR_HOST}/identitytoolkit.googleapis.com`,
 				  },
 	},
 }
