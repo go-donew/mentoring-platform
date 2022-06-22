@@ -19,6 +19,6 @@ export const list = async (request, reply) => {
 	reply.code(200)
 	return {
 		meta: { status: 200 },
-		data: users,
+		data: { users },
 	}
 }

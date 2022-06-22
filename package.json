@@ -58,7 +58,7 @@
 	},
 	"jest": {
 		"testMatch": [
-			"<rootDir>/tests/end-to-end/*.js"
+			"<rootDir>/tests/end-to-end/api.js"
 		],
 		"transform": {},
 		"maxConcurrency": 1,
