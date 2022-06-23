@@ -70,8 +70,6 @@ jobs:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
       - name: Setup Google Cloud CLI
         uses: google-github-actions/setup-gcloud@v0
-      - name: Verify Google Cloud CLI state
-        run: gcloud info
       - name: Install dependencies
         run: pnpm install
       - name: Deploy
