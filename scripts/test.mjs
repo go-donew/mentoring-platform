@@ -4,6 +4,7 @@
 import { stdout, env, exit } from 'node:process'
 import { spinner } from 'zx/experimental'
 
+import { config as loadConfig } from 'dotenv'
 import waitOn from 'wait-on'
 
 import { logger } from './utilities/logger.js'
@@ -12,7 +13,7 @@ import { object } from './utilities/globals.js'
 logger.title('scripts/test')
 
 // Setup the environment.
-const config = (await fs.readJson('package.json')).env.test
+const config = loadConfig({ path: 'config/env/test.env' })
 for (const [variable, value] of object.entries(config)) env[variable] = value
 
 // Start the emulators.

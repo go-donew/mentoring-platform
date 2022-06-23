@@ -29,6 +29,7 @@
 	"devDependencies": {
 		"@google-cloud/functions-framework": "3.1.2",
 		"chalk": "5.0.1",
+		"dotenv": "16.0.1",
 		"firebase-tools": "11.1.0",
 		"jest": "28.1.1",
 		"nodemon": "2.0.16",
@@ -71,27 +72,5 @@
 		"maxConcurrency": 1,
 		"collectCoverage": true,
 		"coverageProvider": "v8"
-	},
-	"env": {
-		"dev": {
-			"PORT": "4242",
-			"NODE_ENV": "development",
-			"FIREBASE_PROJECT_ID": "donew-mentoring-api-sandbox",
-			"FIREBASE_API_KEY": "something-complex",
-			"FIRESTORE_USE_REST_API": "true",
-			"FIRESTORE_EMULATOR_HOST": "localhost:8080",
-			"IDENTITY_EMULATOR_HOST": "localhost:9099"
-		},
-		"test": {
-			"PORT": "4242",
-			"NODE_ENV": "test",
-			"FIREBASE_PROJECT_ID": "donew-mentoring-api-sandbox",
-			"FIREBASE_API_KEY": "something-complex",
-			"FIRESTORE_USE_REST_API": "true",
-			"FIRESTORE_EMULATOR_HOST": "localhost:8080",
-			"IDENTITY_EMULATOR_HOST": "localhost:9099",
-			"FORCE_COLOR": "2",
-			"NODE_OPTIONS": "--experimental-vm-modules"
-		}
 	}
 }

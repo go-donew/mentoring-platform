@@ -4,12 +4,16 @@
 import { exit, stdout } from 'node:process'
 import { spinner } from 'zx/experimental'
 
+import { config as loadConfig } from 'dotenv'
 import waitOn from 'wait-on'
 import nodemon from 'nodemon'
 
 import { logger } from './utilities/logger.js'
 
 logger.title('scripts/develop')
+
+// Read the development configuration file.
+const config = loadConfig({ path: 'config/env/dev.env' })
 
 // Start the emulators.
 await spinner(logger.status('starting emulators'), async () => {
@@ -28,7 +32,7 @@ nodemon({
 	exec: 'pnpm functions-framework --quiet --target api --port 4242',
 	quiet: true,
 	watch: ['source/'],
-	env: (await fs.readJson('package.json')).env.dev,
+	env: config,
 })
 
 // Do stuff when events occur.
