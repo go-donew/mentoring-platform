@@ -184,8 +184,6 @@ export const auth = {
 			json: { email, password, returnSecureToken: true },
 		}).json()
 
-		logger.error(error)
-
 		if (error?.message) {
 			if (error.message.startsWith('EMAIL_NOT_FOUND'))
 				throw new ServerError(
@@ -202,6 +200,7 @@ export const auth = {
 			if (error.message.startsWith('TOO_MANY_ATTEMPTS_TRY_LATER'))
 				throw new ServerError('too-many-requests')
 
+			logger.error(error, 'could not sign in due to error')
 			throw new ServerError('backend-error')
 		}
 

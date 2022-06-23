@@ -22,3 +22,25 @@ export const list = async (request, reply) => {
 		data: { users },
 	}
 }
+
+/**
+ * Retrieve a user from the database.
+ */
+export const get = async (request, reply) => {
+	const server = request.server
+
+	const userId = request.params.userId
+
+	logger.silly('fetching user %s from database', userId)
+
+	const refs = await server.database.doc(`users/${userId}`).get()
+	const user = refs.data()
+
+	logger.silly('fetched user data successfully')
+
+	reply.code(200)
+	return {
+		meta: { status: 200 },
+		data: { user },
+	}
+}

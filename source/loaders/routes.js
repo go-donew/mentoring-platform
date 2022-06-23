@@ -28,4 +28,15 @@ export const routes = async (server) => {
 		preHandler: [authenticateUser(), authorizeUser('groot')],
 		handler: handlers.users.list,
 	})
+
+	server.get('/users/:userId', {
+		preHandler: [
+			authenticateUser(),
+			authorizeUser({
+				subject: 'user',
+				roles: ['self', 'mentor', 'supermentor'],
+			}),
+		],
+		handler: handlers.users.get,
+	})
 }

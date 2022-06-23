@@ -47,6 +47,9 @@ export const users = () => {
 		})
 
 		const { meta, error, data } = json.parse(response.payload)
+		const expectedData = users.map((user) => {
+			return { ...user } // Make a copy of the data for the comparisons.
+		})
 
 		// Check the status code and ensure there are no errors.
 		expect(meta?.status).toEqual(200)
@@ -55,11 +58,56 @@ export const users = () => {
 		expect(data.users.length).toEqual(users.length)
 		expect(data.users).toEqual(
 			expect.arrayContaining(
-				users.map((user) => {
+				expectedData.map((user) => {
 					delete user.tokens
 					return user
 				}),
 			),
 		)
+	})
+
+	test('get /users/{userId} | 403 not-allowed [not user themself]', async () => {
+		const loki = users.find((user) => user.groot === false)
+		const groot = users.find((user) => user.groot === true)
+
+		// Try getting groot's profile as loki.
+		const response = await server.inject({
+			method: 'get',
+			url: `/users/${groot.id}`,
+			headers: {
+				authorization: loki.tokens.bearer,
+			},
+		})
+
+		const { meta, error, data } = json.parse(response.payload)
+		const expectedError = new ServerError('not-allowed')
+
+		// Check that the request body contains only the `meta` and `error` fields,
+		// and that the error returned is a 403 not-allowed error.
+		expect(data).toEqual(undefined)
+		expect(meta?.status).toEqual(expectedError.status)
+		expect(error?.code).toEqual(expectedError.code)
+	})
+
+	test('get /users/{userId} | 200 okay', async () => {
+		const loki = users.find((user) => user.groot === false)
+
+		const response = await server.inject({
+			method: 'get',
+			url: `/users/${loki.id}`,
+			headers: {
+				authorization: loki.tokens.bearer,
+			},
+		})
+
+		const { meta, error, data } = json.parse(response.payload)
+		const expectedData = { ...loki }
+		delete expectedData.tokens
+
+		// Check the status code and ensure there are no errors.
+		expect(meta?.status).toEqual(200)
+		expect(error).toEqual(undefined)
+		// Make sure all the created users are returned.
+		expect(data.user).toEqual(expectedData)
 	})
 }

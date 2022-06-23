@@ -19,7 +19,7 @@ export const authenticateUser = () => async (request, _) => {
 		?.replace(/bearer/i, '')
 		?.trim()
 	if (!token) {
-		logger.error('found no bearer token in request')
+		logger.warn('found no bearer token in request')
 		throw new ServerError('invalid-token')
 	}
 
@@ -137,7 +137,7 @@ export const authorizeUser = (context) => async (request, _) => {
 		}
 
 		// If the user matches none of the above roles, return a 403 not-allowed error.
-		logger.error(
+		logger.warn(
 			'user is unauthorized to perform this operation on user %s',
 			request.params.userId,
 		)
