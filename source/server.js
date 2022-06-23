@@ -7,7 +7,7 @@ import { logger } from './utilities/logger.js'
 // Create the Fastify server.
 const server = build({
 	// Use a custom Pino logger.
-	logger: logger,
+	logger,
 	disableRequestLogging: true,
 })
 
