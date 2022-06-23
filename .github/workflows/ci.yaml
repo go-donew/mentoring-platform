@@ -1,0 +1,78 @@
+# .github/workflows/ci.yaml
+# Lints and tests the server every time a commit is pushed to the remote
+# repository. If both steps pass, then the code is also deployed to GCP.
+
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Setup PNPM 7
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
+      - name: Setup Node 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: 'https://registry.npmjs.org/'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Check for lint/formatting errors
+        run: pnpm lint
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Setup PNPM 7
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
+      - name: Setup Node 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: 'https://registry.npmjs.org/'
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Test the application
+        run: pnpm test
+  deploy:
+    name: Deploy
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+      - name: Setup PNPM 7
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
+      - name: Setup Node 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          registry-url: 'https://registry.npmjs.org/'
+          cache: 'pnpm'
+      - name: Authenticate with Google Cloud credentials
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+      - name: Setup Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v0
+      - name: Verify Google Cloud CLI state
+        run: gcloud info
+      - name: Install dependencies
+        run: pnpm install
+      - name: Deploy
+        run: pnpm deploy
