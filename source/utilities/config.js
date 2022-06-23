@@ -12,14 +12,44 @@ const environment = env.NODE_ENV?.toLowerCase().startsWith('prod')
 	: env.NODE_ENV?.toLowerCase().startsWith('test')
 	? 'test'
 	: 'development'
-const googleCreds =
-	environment === 'production' ? json.parse(env.GOOGLE_SERVICE_ACCOUNT) : {}
-const publicKeys =
-	environment === 'production'
-		? await fetch(
-				'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com',
-		  ).json()
-		: {}
+
+/**
+ * Returns the configuration for the auth and database services, depending on
+ * whether we are in a production or development environment.
+ */
+const fetchServiceConfig = async () => {
+	if (environment === 'production') {
+		const account = json.parse(env.GOOGLE_SERVICE_ACCOUNT)
+		const publicKeys = await fetch(
+			'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com',
+		).json()
+
+		return {
+			database: { credentials: account },
+			auth: {
+				credentials: {
+					email: account.client_email,
+					privateKey: account.private_key,
+					privateKeyId: account.private_key_id,
+					publicKeys,
+				},
+				host: 'identitytoolkit.googleapis.com',
+				projectId: account.project_id,
+			},
+		}
+	}
+
+	return {
+		database: {
+			projectId: env.FIREBASE_PROJECT_ID,
+			host: env.FIRESTORE_EMULATOR_HOST,
+		},
+		auth: {
+			projectId: env.FIREBASE_PROJECT_ID,
+			host: `${env.IDENTITY_EMULATOR_HOST}/identitytoolkit.googleapis.com`,
+		},
+	}
+}
 
 export const config = {
 	// Whether we are in a development environment or not.
@@ -29,31 +59,5 @@ export const config = {
 	port: number.parseInt(env.PORT ?? '4242', 10),
 
 	// The configuration for the database and auth services.
-	services: {
-		database:
-			environment === 'production'
-				? {
-						credentials: googleCreds,
-				  }
-				: {
-						projectId: env.FIREBASE_PROJECT_ID,
-						host: env.FIRESTORE_EMULATOR_HOST,
-				  },
-		auth:
-			environment === 'production'
-				? {
-						credentials: {
-							email: googleCreds.client_email,
-							privateKey: googleCreds.private_key,
-							privateKeyId: googleCreds.private_key_id,
-							publicKeys,
-						},
-						host: 'identitytoolkit.googleapis.com',
-						projectId: googleCreds.project_id,
-				  }
-				: {
-						projectId: env.FIREBASE_PROJECT_ID,
-						host: `${env.IDENTITY_EMULATOR_HOST}/identitytoolkit.googleapis.com`,
-				  },
-	},
+	services: await fetchServiceConfig(),
 }
