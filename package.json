@@ -10,7 +10,7 @@
 		"develop": "zx ./scripts/develop.mjs",
 		"deploy": "zx ./scripts/deploy.mjs",
 		"test": "zx ./scripts/test.mjs",
-		"lint": "xo {source,tests}/**/*.js && prettier --check .",
+		"lint": "xo {source,tests}/**/*.js && prettier --check --ignore-path .gitignore .",
 		"format": "xo --fix {source,tests}/**/*.js && prettier --write .",
 		"roles": "zx ./scripts/roles.mjs",
 		"prepare": "patch-package"
@@ -54,7 +54,13 @@
 			"no-await-in-loop": 0
 		},
 		"globals": [
-			"$"
+			"$",
+			"describe",
+			"test",
+			"it",
+			"expect",
+			"beforeAll",
+			"afterAll"
 		]
 	},
 	"jest": {

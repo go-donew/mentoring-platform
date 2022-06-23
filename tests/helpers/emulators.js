@@ -47,13 +47,14 @@ export const seedDatabase = async ({ server, test }) => {
 			})
 			const { meta, error, data } = json.parse(response.payload)
 
-			if (meta.status !== 201) throw new Error(error.message)
-			else return data
+			if (meta.status === 201) return data
+			throw new Error(error.message)
 		}
 
-		let [groot, loki] = (
-			await Promise.all(['groot', 'loki'].map(createUser))
-		).map((data) => {
+		const [grootDetails, lokiDetails] = await Promise.all(
+			['groot', 'loki'].map((name) => createUser(name)),
+		)
+		let [groot, loki] = [grootDetails, lokiDetails].map((data) => {
 			return {
 				...data.user,
 				tokens: data.tokens,

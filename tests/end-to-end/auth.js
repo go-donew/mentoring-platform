@@ -11,9 +11,11 @@ import { ServerError } from '../../source/utilities/errors.js'
 export const auth = () => {
 	// Create the server before running all the tests.
 	let server
-	beforeAll(() => (server = build({ disableRequestLogging: true })))
+	beforeAll(() => {
+		server = build({ disableRequestLogging: true })
+	})
 	// After all the tests, clear the data from the emulators.
-	afterAll(async () => await teardownEmulators())
+	afterAll(() => teardownEmulators())
 
 	test('post /auth/signup | 400 improper-payload [no name]', async () => {
 		const response = await server.inject({

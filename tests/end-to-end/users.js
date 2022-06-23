@@ -9,13 +9,14 @@ import { ServerError } from '../../source/utilities/errors.js'
 
 export const users = () => {
 	// Create the server and seed the database before running all the tests.
-	let server, users
+	let server
+	let users
 	beforeAll(async () => {
 		server = build({ disableRequestLogging: true })
 		users = await seedDatabase({ server, test: 'users' })
 	})
 	// After all the tests, clear the data from the emulators.
-	afterAll(async () => await teardownEmulators())
+	afterAll(() => teardownEmulators())
 
 	test('get /users | 403 not-allowed [non-groot user]', async () => {
 		const response = await server.inject({
