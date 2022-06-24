@@ -3,12 +3,16 @@
 
 import pluginify from 'fastify-plugin'
 
+import { logger } from '../utilities/logger.js'
+
 /**
  * Registers the schemas with the passed server instance.
  *
  * @param server The server instance to register the schemas with.
  */
 export const schemas = pluginify((server, _, done) => {
+	logger.silly('registering schemas')
+
 	server.addSchema({
 		$id: 'schemas',
 		type: 'object',
@@ -56,6 +60,8 @@ export const schemas = pluginify((server, _, done) => {
 			},
 		},
 	})
+
+	logger.silly('successfully registered schemas')
 
 	done()
 })

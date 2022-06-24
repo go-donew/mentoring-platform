@@ -11,17 +11,17 @@ import { authenticateUser, authorizeUser } from '../middleware/auth.js'
  */
 export const routes = async (server) => {
 	server.post('/auth/signup', {
-		handler: handlers.auth.signup,
 		schema: {
 			body: { $ref: 'dtos#/definitions/NameEmailPassword' },
 		},
+		handler: handlers.auth.signup,
 	})
 
 	server.post('/auth/signin', {
-		handler: handlers.auth.signin,
 		schema: {
 			body: { $ref: 'dtos#/definitions/EmailPassword' },
 		},
+		handler: handlers.auth.signin,
 	})
 
 	server.get('/users', {
