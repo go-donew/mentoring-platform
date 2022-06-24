@@ -13,7 +13,7 @@ import { object } from './utilities/globals.js'
 logger.title('scripts/test')
 
 // Setup the environment.
-const config = loadConfig({ path: 'config/env/test.env' })
+const { parsed: config } = loadConfig({ path: 'config/env/test.env' })
 for (const [variable, value] of object.entries(config)) env[variable] = value
 
 // Start the emulators.

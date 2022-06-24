@@ -13,7 +13,7 @@ import { logger } from './utilities/logger.js'
 logger.title('scripts/develop')
 
 // Read the development configuration file.
-const config = loadConfig({ path: 'config/env/dev.env' })
+const { parsed: config } = loadConfig({ path: 'config/env/dev.env' })
 
 // Start the emulators.
 await spinner(logger.status('starting emulators'), async () => {
@@ -27,9 +27,10 @@ logger.success('successfully started emulators')
 // Then watch the `source/` directory, and keep restarting the server
 // whenever a change occurs.
 logger.info('watching `source/` for changes')
+logger.info('running server on port', config.PORT)
 stdout.write('\n')
 nodemon({
-	exec: 'pnpm functions-framework --quiet --target api --port 4242',
+	exec: `pnpm functions-framework --quiet --target api --port ${config.PORT}`,
 	quiet: true,
 	watch: ['source/'],
 	env: config,

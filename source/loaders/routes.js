@@ -3,6 +3,7 @@
 
 import { handlers } from '../handlers/index.js'
 import { authenticateUser, authorizeUser } from '../middleware/auth.js'
+import { logger } from '../utilities/logger.js'
 
 /**
  * Registers routes with the passed server instance.
@@ -10,6 +11,8 @@ import { authenticateUser, authorizeUser } from '../middleware/auth.js'
  * @param server The server instance to register the routes with.
  */
 export const routes = async (server) => {
+	logger.silly('registering routes')
+
 	server.post('/auth/signup', {
 		schema: {
 			body: { $ref: 'dtos#/definitions/NameEmailPassword' },
@@ -39,4 +42,6 @@ export const routes = async (server) => {
 		],
 		handler: handlers.users.get,
 	})
+
+	logger.silly('sucessfully registered routes')
 }
