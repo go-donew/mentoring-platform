@@ -255,8 +255,8 @@ export const auth = {
 		} = await fetchFromSecureTokenServer(endpoints.token, {
 			method: 'post',
 			json: {
-				grant_type: 'refresh_token',
-				refresh_token: refreshToken,
+				grant_type: 'refresh_token', // eslint-disable-line camelcase
+				refresh_token: refreshToken, // eslint-disable-line camelcase
 			},
 		}).json()
 
