@@ -160,6 +160,29 @@ export const auth = () => {
 		expect(error?.message).toMatch(/incorrect/)
 	})
 
+	test('post /auth/signin | 404 entity-not-found [wrong email]', async () => {
+		const response = await server.inject({
+			method: 'post',
+			url: '/auth/signin',
+			// Pass an wrong email in the request body.
+			payload: loadFixture('auth/wrong-email-password'),
+			headers: {
+				'content-type': 'application/json',
+			},
+		})
+
+		const { meta, error, data } = json.parse(response.payload)
+		const expectedError = new ServerError('entity-not-found')
+
+		// Check that the request body contains only the `meta` and `error` fields,
+		// and that the error returned is a 404 entity-not-found error.
+		expect(data).toEqual(undefined)
+		expect(meta?.status).toEqual(expectedError.status)
+		expect(error?.code).toEqual(expectedError.code)
+		// Ensure the error message is regarding the wrong email.
+		expect(error?.message).toMatch(/email address does not exist/)
+	})
+
 	test('post /auth/signin | 200 okay', async () => {
 		const response = await server.inject({
 			method: 'post',
@@ -188,26 +211,60 @@ export const auth = () => {
 		expect(typeof data.tokens.refresh).toEqual('string')
 	})
 
-	test('post /auth/signin | 404 entity-not-found [wrong email]', async () => {
+	test('post /auth/refresh-token | 400 improper-payload [invalid refresh token]', async () => {
 		const response = await server.inject({
 			method: 'post',
-			url: '/auth/signin',
-			// Pass an wrong email in the request body.
-			payload: loadFixture('auth/wrong-email-password'),
+			url: '/auth/refresh-token',
+			// Pass an invalid refresh token in the request body.
+			payload: loadFixture('auth/invalid-refresh-token'),
 			headers: {
 				'content-type': 'application/json',
 			},
 		})
 
 		const { meta, error, data } = json.parse(response.payload)
-		const expectedError = new ServerError('entity-not-found')
+		const expectedError = new ServerError('improper-payload')
 
 		// Check that the request body contains only the `meta` and `error` fields,
-		// and that the error returned is a 404 entity-not-found error.
+		// and that the error returned is a 400 improper-payload error.
 		expect(data).toEqual(undefined)
 		expect(meta?.status).toEqual(expectedError.status)
 		expect(error?.code).toEqual(expectedError.code)
-		// Ensure the error message is regarding the wrong email.
-		expect(error?.message).toMatch(/email address does not exist/)
+		// Ensure the error message is regarding the invalid refresh token.
+		expect(error?.message).toMatch(/was invalid/)
+	})
+
+	test('post /auth/refresh-token | 200 okay', async () => {
+		// First fetch a set of tokens to refresh.
+		const { payload: userPayload } = await server.inject({
+			method: 'post',
+			url: '/auth/signin',
+			payload: loadFixture('auth/email-password'),
+			headers: {
+				'content-type': 'application/json',
+			},
+		})
+		const {
+			data: { tokens },
+		} = json.parse(userPayload)
+
+		// Then make the API call to refresh the tokens.
+		const response = await server.inject({
+			method: 'post',
+			url: '/auth/refresh-token',
+			payload: { refreshToken: tokens.refresh },
+			headers: {
+				'content-type': 'application/json',
+			},
+		})
+
+		const { meta, error, data } = json.parse(response.payload)
+
+		// Check the status code and ensure there are no errors.
+		expect(meta?.status).toEqual(200)
+		expect(error).toEqual(undefined)
+		// Make sure the tokens are returned.
+		expect(typeof data.tokens.bearer).toEqual('string')
+		expect(typeof data.tokens.refresh).toEqual('string')
 	})
 }

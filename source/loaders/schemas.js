@@ -58,6 +58,13 @@ export const schemas = pluginify((server, _, done) => {
 				},
 				required: ['email', 'password'],
 			},
+			RefreshToken: {
+				type: 'object',
+				properties: {
+					refreshToken: { type: 'string' },
+				},
+				required: ['refreshToken'],
+			},
 		},
 	})
 

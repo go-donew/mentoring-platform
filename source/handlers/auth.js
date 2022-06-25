@@ -49,3 +49,24 @@ export const signin = async (request, reply) => {
 		data: { user, tokens },
 	}
 }
+
+/**
+ * Give the user a new access token when the old one expires.
+ */
+export const refreshToken = async (request, reply) => {
+	const server = request.server
+
+	logger.info('refreshing user bearer token')
+
+	const { tokens } = await server.auth.refreshToken({
+		refreshToken: request.body.refreshToken,
+	})
+
+	logger.info('sucessfully refreshed user tokens')
+
+	reply.code(200)
+	return {
+		meta: { status: 200 },
+		data: { tokens },
+	}
+}

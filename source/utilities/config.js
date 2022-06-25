@@ -18,6 +18,8 @@ const environment = env.NODE_ENV?.toLowerCase().startsWith('prod')
  * whether we are in a production or development environment.
  */
 const fetchServiceConfig = async () => {
+	const apiKey = env.GOOGLE_API_KEY
+
 	if (environment === 'production') {
 		const account = json.parse(env.GOOGLE_SERVICE_ACCOUNT)
 		const publicKeys = await fetch(
@@ -32,8 +34,10 @@ const fetchServiceConfig = async () => {
 					privateKey: account.private_key,
 					privateKeyId: account.private_key_id,
 					publicKeys,
+					apiKey,
 				},
-				host: 'identitytoolkit.googleapis.com',
+				identityServer: 'identitytoolkit.googleapis.com',
+				secureTokenServer: 'securetoken.googleapis.com',
 				projectId: account.project_id,
 			},
 		}
@@ -45,8 +49,10 @@ const fetchServiceConfig = async () => {
 			host: env.FIRESTORE_EMULATOR_HOST,
 		},
 		auth: {
+			credentials: { apiKey },
 			projectId: env.FIREBASE_PROJECT_ID,
-			host: `${env.IDENTITY_EMULATOR_HOST}/identitytoolkit.googleapis.com`,
+			identityServer: env.IDENTITY_EMULATOR_HOST,
+			secureTokenServer: env.SECURETOKEN_EMULATOR_HOST,
 		},
 	}
 }

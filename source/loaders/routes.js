@@ -27,6 +27,13 @@ export const routes = async (server) => {
 		handler: handlers.auth.signin,
 	})
 
+	server.post('/auth/refresh-token', {
+		schema: {
+			body: { $ref: 'dtos#/definitions/RefreshToken' },
+		},
+		handler: handlers.auth.refreshToken,
+	})
+
 	server.get('/users', {
 		preHandler: [authenticateUser(), authorizeUser('groot')],
 		handler: handlers.users.list,

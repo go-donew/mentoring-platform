@@ -21,12 +21,12 @@ const getServiceAccountToken = async () => {
 	if (config.prod) {
 		logger.silly('generating jwt for service account')
 
-		const { credentials, host } = config.services.auth
+		const { credentials, identityServer } = config.services.auth
 
 		const payload = {
 			iss: credentials.email,
 			sub: credentials.email,
-			aud: `https://${host}/`,
+			aud: `https://${identityServer}/`,
 			exp: Math.floor(Date.now() / 1000) + 60 * 60,
 		}
 		const headers = {
@@ -46,26 +46,43 @@ const getServiceAccountToken = async () => {
 }
 
 const token = await getServiceAccountToken()
+const identityPrefix = config.prod ? '' : 'identitytoolkit.googleapis.com/'
+const secureTokenPrefix = config.prod ? '' : 'securetoken.googleapis.com/'
 const endpoints = {
-	signup: 'v1/accounts:signUp',
-	signin: 'v1/accounts:signInWithPassword',
-	update: 'v1/accounts:update',
+	signup: `${identityPrefix}v1/accounts:signUp`,
+	signin: `${identityPrefix}v1/accounts:signInWithPassword`,
+	update: `${identityPrefix}v1/accounts:update`,
+	token: `${secureTokenPrefix}v1/token`,
 }
 
 /**
- * A custom instance of Got for making requests to the Firebase auth endpoints.
+ * Custom instances of Got for making requests to the Firebase auth endpoints.
  */
-const fetch = got.extend({
+const fetchFromIdentityServer = got.extend({
 	// Set the prefix URL to the server URL so we can mention only the endpoint
 	// path in the rest of the code.
 	prefixUrl: `${
-		config.services.auth.host.includes('localhost') ? 'http' : 'https'
-	}://${config.services.auth.host}/`,
+		config.services.auth.identityServer.includes('localhost') ? 'http' : 'https'
+	}://${config.services.auth.identityServer}/`,
 	// Don't throw errors, just return them as responses and we will handle
 	// the rest.
 	throwHttpErrors: false,
 	// Always add the bearer token to the request.
 	headers: { authorization: `Bearer ${token}` },
+})
+const fetchFromSecureTokenServer = got.extend({
+	// Set the prefix URL to the server URL so we can mention only the endpoint
+	// path in the rest of the code.
+	prefixUrl: `${
+		config.services.auth.secureTokenServer.includes('localhost')
+			? 'http'
+			: 'https'
+	}://${config.services.auth.secureTokenServer}/`,
+	// Don't throw errors, just return them as responses and we will handle
+	// the rest.
+	throwHttpErrors: false,
+	// Always add the bearer token to the request.
+	searchParams: { key: config.services.auth.credentials.apiKey },
 })
 
 export const auth = {
@@ -80,10 +97,13 @@ export const auth = {
 		logger.silly('creating account for user')
 
 		// First, create their account.
-		let { error, localId: id } = await fetch(endpoints.signup, {
-			method: 'post',
-			json: { email, password },
-		}).json()
+		let { error, localId: id } = await fetchFromIdentityServer(
+			endpoints.signup,
+			{
+				method: 'post',
+				json: { email, password },
+			},
+		).json()
 
 		// Handle any errors that the API might return.
 		if (error?.message) {
@@ -111,7 +131,7 @@ export const auth = {
 
 		// Once we have created the account, set profile details like name, phone
 		// number, etc. as custom claims on their bearer token.
-		;({ error } = await fetch(endpoints.update, {
+		;({ error } = await fetchFromIdentityServer(endpoints.update, {
 			method: 'post',
 			json: {
 				localId: id,
@@ -144,7 +164,7 @@ export const auth = {
 			error,
 			idToken: bearer,
 			refreshToken: refresh,
-		} = await fetch(endpoints.signin, {
+		} = await fetchFromIdentityServer(endpoints.signin, {
 			method: 'post',
 			json: { email, password, returnSecureToken: true },
 		}).json())
@@ -179,7 +199,7 @@ export const auth = {
 			error,
 			idToken: bearer,
 			refreshToken: refresh,
-		} = await fetch(endpoints.signin, {
+		} = await fetchFromIdentityServer(endpoints.signin, {
 			method: 'post',
 			json: { email, password, returnSecureToken: true },
 		}).json()
@@ -209,6 +229,59 @@ export const auth = {
 		// Then return the profile and tokens.
 		return {
 			user: await auth.parseToken(bearer),
+			tokens: {
+				bearer,
+				refresh,
+			},
+		}
+	},
+
+	/**
+	 * Give the user a new access token when the old one expires.
+	 *
+	 * @param {RefreshToken} tokenDto - The refresh token.
+	 *
+	 * @returns {Promise<Tokens>} - The user's profile and tokens.
+	 */
+	async refreshToken({ refreshToken }) {
+		logger.silly('rejuvenating tokens for user')
+
+		// Make an API call with the refresh token in the payload to get a new set
+		// of tokens.
+		const {
+			error,
+			id_token: bearer,
+			refresh_token: refresh,
+		} = await fetchFromSecureTokenServer(endpoints.token, {
+			method: 'post',
+			json: {
+				grant_type: 'refresh_token',
+				refresh_token: refreshToken,
+			},
+		}).json()
+
+		if (error?.message) {
+			if (error.message.startsWith('INVALID_REFRESH_TOKEN'))
+				throw new ServerError(
+					'improper-payload',
+					'The refresh token passed in the request body was invalid. Please try again with a valid refresh token.',
+				)
+			if (error.message.startsWith('TOKEN_EXPIRED'))
+				throw new ServerError(
+					'incorrect-credentials',
+					'The refresh token passed in the request body had expired. Please sign in to get a new set of tokens instead.',
+				)
+			if (error.message.startsWith('TOO_MANY_ATTEMPTS_TRY_LATER'))
+				throw new ServerError('too-many-requests')
+
+			logger.error(error, 'could not refresh token due to error')
+			throw new ServerError('backend-error')
+		}
+
+		logger.silly('sucessfully retrieved tokens for user')
+
+		// Then return the tokens.
+		return {
 			tokens: {
 				bearer,
 				refresh,
