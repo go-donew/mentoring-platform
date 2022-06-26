@@ -8,10 +8,10 @@ import fetch from 'got'
 import { json, number } from '../utilities/globals.js'
 
 const environment = env.NODE_ENV?.toLowerCase().startsWith('prod')
-	? 'production'
+	? /* c8 ignore next */ 'production'
 	: env.NODE_ENV?.toLowerCase().startsWith('test')
 	? 'test'
-	: 'development'
+	: /* c8 ignore next */ 'development'
 
 /**
  * Returns the configuration for the auth and database services, depending on
@@ -20,6 +20,7 @@ const environment = env.NODE_ENV?.toLowerCase().startsWith('prod')
 const fetchServiceConfig = async () => {
 	const apiKey = env.GOOGLE_API_KEY
 
+	/* c8 ignore start */
 	if (environment === 'production') {
 		const account = json.parse(env.GOOGLE_SERVICE_ACCOUNT)
 		const publicKeys = await fetch(
@@ -42,6 +43,7 @@ const fetchServiceConfig = async () => {
 			},
 		}
 	}
+	/* c8 ignore end */
 
 	return {
 		database: {

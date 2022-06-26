@@ -3,6 +3,8 @@
 
 import { auth } from './auth.js'
 import { users } from './users.js'
+import { misc } from './misc.js'
 
 describe('auth', auth)
 describe('users', users)
+describe('misc', misc)

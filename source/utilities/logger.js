@@ -31,6 +31,7 @@ const options = {
 }
 // Log colorfully when we are in a development environment, else use the
 // standard JSON logger.
+/* c8 ignore next */
 if (config.prod) delete options.transport
 // Log only errors in a test environment.
 if (config.test) options.level = 'error'

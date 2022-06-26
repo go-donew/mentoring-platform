@@ -18,6 +18,7 @@ import { json } from '../utilities/globals.js'
  */
 const getServiceAccountToken = async () => {
 	// In production, create a JWT token from the credentials passed to the service.
+	/* c8 ignore start */
 	if (config.prod) {
 		logger.silly('generating jwt for service account')
 
@@ -40,6 +41,7 @@ const getServiceAccountToken = async () => {
 
 		return token
 	}
+	/* c8 ignore end */
 
 	// The emulator only needs us to pass `owner` instead of an actual token.
 	return 'owner'
@@ -311,6 +313,7 @@ export const auth = {
 		)
 		logger.silly('successfully parsed jwt')
 
+		/* c8 ignore start */
 		if (config.prod) {
 			const publicKey = credentials.publicKeys[headers.kid]
 			if (!publicKey) {
@@ -332,8 +335,10 @@ export const auth = {
 				audience: projectId,
 				issuer: `https://securetoken.google.com/${projectId}`,
 			})
+
 			logger.silly('successfully verified jwt')
 		}
+		/* c8 ignore end */
 
 		return {
 			...payload.donew.profile,

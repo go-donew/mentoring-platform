@@ -68,6 +68,12 @@
 		"testMatch": [
 			"<rootDir>/tests/end-to-end/api.js"
 		],
+		"collectCoverageFrom": [
+			"source/**/*.js",
+			"tests/**/*.js",
+			"!source/server.js",
+			"!tests/helpers/*.js"
+		],
 		"transform": {},
 		"maxConcurrency": 1,
 		"collectCoverage": true,

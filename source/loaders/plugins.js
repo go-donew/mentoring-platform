@@ -18,10 +18,12 @@ import { ServerError } from '../utilities/errors.js'
 export const plugins = pluginify((server, _, done) => {
 	// Functions already parses the body for us, so we pass on the parsed body.
 	// See https://www.fastify.io/docs/latest/Guides/Serverless/#google-cloud-functions.
+	/* c8 ignore start */
 	if (!config.test)
 		server.addContentTypeParser('application/json', {}, (_, body, done) =>
 			done(undefined, body.body),
 		)
+	/* c8 ignore end */
 
 	// Log the request as it comes.
 	server.addHook('onRequest', (request, _, done) => {
@@ -69,6 +71,7 @@ export const plugins = pluginify((server, _, done) => {
 			// Then send the error.
 			reply.code(error.status).send(error.send())
 		} else {
+			/* c8 ignore start */
 			// Otherwise, return a 500 to the user and print out neat diagnostic
 			// information as to what the error was and where it occurred.
 			const stack = parse(caughtError.stack)[0]
@@ -83,6 +86,7 @@ export const plugins = pluginify((server, _, done) => {
 
 			const error = new ServerError('server-crash')
 			reply.code(error.status).send(error.send())
+			/* c8 ignore end */
 		}
 	})
 
