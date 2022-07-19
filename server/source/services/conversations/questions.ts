@@ -73,14 +73,14 @@ const find = async (
 
 		// Prepare to render the template by fetching the user and their attributes
 		if (!request.data.raw) {
+			userAttributes.userId = request.context!.user.id
+			const fetchedUserAttributes = await userAttributes.find([])
 			const user = await users.get(request.context!.user.id)
 			const input: Record<
 				string,
 				Attribute & { value: string | number | boolean }
 			> = {}
 
-			userAttributes.userId = request.context!.user.id
-			const fetchedUserAttributes = await userAttributes.find([])
 			for (const fetchedUserAttribute of fetchedUserAttributes) {
 				const attribute = await attributes.get(fetchedUserAttribute.id)
 				input[fetchedUserAttribute.id] = {
