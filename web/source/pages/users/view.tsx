@@ -188,19 +188,19 @@ export const ViewUserPage = (props: { userId: string }) => {
 			userAttributes: UserAttribute[],
 		): Promise<Array<Attribute & UserAttribute>> => {
 			const attributes = []
+			const attributeNamesResponse = await fetch<{ attributes: Attribute[] }>({
+				url: `/attributes`,
+				method: 'get',
+			})
+			if (isErrorResponse(attributeNamesResponse)) return []
 
 			for (const userAttribute of userAttributes) {
-				const response = await fetch<{ attribute: Attribute }>({
-					url: `/attributes/${userAttribute.id}`,
-					method: 'get',
-				})
-
-				// Ignore any errors that might arise...
-				if (isErrorResponse(response)) continue
-				// ...and if there are none, return the data.
+				const attributeName = attributeNamesResponse.attributes.find(
+					(attr: Attribute) => attr.id === userAttribute.id,
+				)!
 				attributes.push({
 					...userAttribute,
-					...response.attribute,
+					...attributeName,
 				})
 			}
 
