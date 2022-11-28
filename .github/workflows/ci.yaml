@@ -73,4 +73,4 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Deploy
-        run: pnpm deploy
+        run: pnpm run deploy
