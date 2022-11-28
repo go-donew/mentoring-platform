@@ -4,8 +4,8 @@
 import pluginify from 'fastify-plugin'
 import { parse } from 'stacktrace-parser'
 
-import { database } from '../services/database.js'
-import { auth } from '../services/auth.js'
+import { database } from '../services/database/index.js'
+import { auth } from '../services/auth/index.js'
 import { config } from '../utilities/config.js'
 import { logger } from '../utilities/logger.js'
 import { ServerError } from '../utilities/errors.js'

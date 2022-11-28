@@ -11,15 +11,16 @@ export const list = async (request, reply) => {
 
 	logger.silly('fetching user list from database')
 
-	const refs = await server.database.collection('users').get()
-	const users = refs.docs.filter((doc) => doc.exists).map((doc) => doc.data())
+	server.database.token = request.user.token
+	const refs = await server.database.list('users')
+	//const users = refs.docs.filter((doc) => doc.exists).map((doc) => doc.data())
 
 	logger.silly('fetched user list successfully')
 
 	reply.code(200)
 	return {
 		meta: { status: 200 },
-		data: { users },
+		data: { refs },
 	}
 }
 
