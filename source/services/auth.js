@@ -64,7 +64,7 @@ const fetchFromIdentityServer = got.extend({
 	// Set the prefix URL to the server URL so we can mention only the endpoint
 	// path in the rest of the code.
 	prefixUrl: `${
-		/localhost|127/.exec(config.services.auth.identityServer) ? 'http' : 'https'
+		/localhost|127/.test(config.services.auth.identityServer) ? 'http' : 'https'
 	}://${config.services.auth.identityServer}/`,
 	// Don't throw errors, just return them as responses and we will handle
 	// the rest.
@@ -76,7 +76,7 @@ const fetchFromSecureTokenServer = got.extend({
 	// Set the prefix URL to the server URL so we can mention only the endpoint
 	// path in the rest of the code.
 	prefixUrl: `${
-		/localhost|127/.exec(config.services.auth.secureTokenServer)
+		/localhost|127/.test(config.services.auth.secureTokenServer)
 			? 'http'
 			: 'https'
 	}://${config.services.auth.secureTokenServer}/`,
