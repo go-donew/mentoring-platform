@@ -20,7 +20,11 @@ await spinner(logger.status('starting emulators'), async () => {
 	// Let the process run in the background, and return when the Emulator UI is up.
 	// eslint-disable-next-line no-unused-expressions
 	$`pnpm firebase emulators:start --only firestore,auth --project donew-mentoring-api-sandbox`
-	await waitOn({ resources: ['http://localhost:4000'] })
+
+	// Do not use `localhost` here, since the emulators bind to the IPV4
+	// `127.0.0.1`, and not the IPV6 `::1`. `wait-on` checks for `::1` if
+	// you use `localhost`.
+	await waitOn({ resources: ['http://127.0.0.1:4000'] })
 })
 logger.success('successfully started emulators')
 

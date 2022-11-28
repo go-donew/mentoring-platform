@@ -1,4 +1,4 @@
-// source/provider/auth.js
+// source/services/auth.js
 // Defines and exports the auth service used by the server.
 
 import { Buffer as buffer } from 'node:buffer'
@@ -64,7 +64,7 @@ const fetchFromIdentityServer = got.extend({
 	// Set the prefix URL to the server URL so we can mention only the endpoint
 	// path in the rest of the code.
 	prefixUrl: `${
-		config.services.auth.identityServer.includes('localhost') ? 'http' : 'https'
+		/localhost|127/.exec(config.services.auth.identityServer) ? 'http' : 'https'
 	}://${config.services.auth.identityServer}/`,
 	// Don't throw errors, just return them as responses and we will handle
 	// the rest.
@@ -76,7 +76,7 @@ const fetchFromSecureTokenServer = got.extend({
 	// Set the prefix URL to the server URL so we can mention only the endpoint
 	// path in the rest of the code.
 	prefixUrl: `${
-		config.services.auth.secureTokenServer.includes('localhost')
+		/localhost|127/.exec(config.services.auth.secureTokenServer)
 			? 'http'
 			: 'https'
 	}://${config.services.auth.secureTokenServer}/`,

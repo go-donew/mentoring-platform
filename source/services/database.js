@@ -1,4 +1,4 @@
-// source/provider/database.js
+// source/services/database.js
 // Defines and exports the database service used by the server.
 
 import { Firestore } from '@bountyrush/firestore'
