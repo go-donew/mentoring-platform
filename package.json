@@ -5,6 +5,10 @@
 	"type": "module",
 	"main": "./source/server.js",
 	"exports": "./source/server.js",
+	"engines": {
+		"node": "16",
+		"pnpm": "7"
+	},
 	"scripts": {
 		"clean": "zx ./scripts/clean.mjs",
 		"develop": "zx ./scripts/develop.mjs",
