@@ -28,7 +28,10 @@ const fetchServiceConfig = async () => {
 		).json()
 
 		return {
-			database: { credentials: account },
+			database: {
+				credentials: account,
+				projectId: account.project_id,
+			},
 			auth: {
 				credentials: {
 					email: account.client_email,

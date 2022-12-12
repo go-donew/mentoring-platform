@@ -27,7 +27,7 @@ export const authenticateUser = () => async (request, _) => {
 	const user = await server.auth.parseToken(token)
 
 	// Add that to the request object, and off we go!
-	request.user = user
+	request.user = { ...user, token }
 	logger.info('sucessfully authenticated user %s', user.id)
 }
 

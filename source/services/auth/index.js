@@ -13,9 +13,13 @@ import { json } from '../../utilities/globals.js'
 
 import { getServiceAccountToken } from '../../utilities/token.js'
 
+const options = config.services.auth
 const token = await getServiceAccountToken(config)
+
 const identityPrefix = config.prod ? '' : 'identitytoolkit.googleapis.com/'
 const secureTokenPrefix = config.prod ? '' : 'securetoken.googleapis.com/'
+const protocol = /localhost|127/.test(options.identityServer) ? 'http' : 'https'
+
 const endpoints = {
 	signup: `${identityPrefix}v1/accounts:signUp`,
 	signin: `${identityPrefix}v1/accounts:signInWithPassword`,
@@ -29,9 +33,7 @@ const endpoints = {
 const fetchFromIdentityServer = got.extend({
 	// Set the prefix URL to the server URL so we can mention only the endpoint
 	// path in the rest of the code.
-	prefixUrl: `${
-		/localhost|127/.test(config.services.auth.identityServer) ? 'http' : 'https'
-	}://${config.services.auth.identityServer}/`,
+	prefixUrl: `${protocol}://${options.identityServer}/`,
 	// Don't throw errors, just return them as responses and we will handle
 	// the rest.
 	throwHttpErrors: false,
@@ -41,16 +43,12 @@ const fetchFromIdentityServer = got.extend({
 const fetchFromSecureTokenServer = got.extend({
 	// Set the prefix URL to the server URL so we can mention only the endpoint
 	// path in the rest of the code.
-	prefixUrl: `${
-		/localhost|127/.test(config.services.auth.secureTokenServer)
-			? 'http'
-			: 'https'
-	}://${config.services.auth.secureTokenServer}/`,
+	prefixUrl: `${protocol}://${options.secureTokenServer}/`,
 	// Don't throw errors, just return them as responses and we will handle
 	// the rest.
 	throwHttpErrors: false,
 	// Always add the bearer token to the request.
-	searchParams: { key: config.services.auth.credentials.apiKey },
+	searchParams: { key: options.credentials.apiKey },
 })
 
 export const auth = {
@@ -265,7 +263,7 @@ export const auth = {
 	 * @returns {Promise<User>} - The user profile.
 	 */
 	async parseToken(token) {
-		const { credentials, projectId } = config.services.auth
+		const { credentials, projectId } = options
 
 		logger.silly('parsing jwt for user profile')
 
