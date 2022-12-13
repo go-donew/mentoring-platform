@@ -28,6 +28,7 @@ export const authenticateUser = () => async (request, _) => {
 
 	// Add that to the request object, and off we go!
 	request.user = { ...user, token }
+	server.database.token = request.user.token
 	logger.info('sucessfully authenticated user %s', user.id)
 }
 

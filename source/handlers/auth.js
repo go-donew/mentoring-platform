@@ -16,10 +16,11 @@ export const signup = async (request, reply) => {
 		email: request.body.email,
 		password: request.body.password,
 	})
+	server.database.token = tokens.bearer
 
 	logger.silly('storing user in database')
 
-	// await server.database.doc(`users/${user.id}`).set(user)
+	await server.database.set(`users/${user.id}`, user)
 
 	logger.info('sucessfully created user account')
 
@@ -42,10 +43,11 @@ export const signin = async (request, reply) => {
 		email: request.body.email,
 		password: request.body.password,
 	})
+	server.database.token = tokens.bearer
 
 	logger.silly('storing user in database')
 
-	// await server.database.doc(`users/${user.id}`).set(user)
+	await server.database.set(`users/${user.id}`, user)
 
 	logger.info('sucessfully signed user into their account')
 
@@ -67,6 +69,7 @@ export const refreshToken = async (request, reply) => {
 	const { tokens } = await server.auth.refreshToken({
 		refreshToken: request.body.refreshToken,
 	})
+	server.database.token = tokens.bearer
 
 	logger.info('sucessfully refreshed user tokens')
 

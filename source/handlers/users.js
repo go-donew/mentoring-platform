@@ -11,7 +11,6 @@ export const list = async (request, reply) => {
 
 	logger.silly('fetching user list from database')
 
-	server.database.token = request.user.token
 	const users = await server.database.list('users')
 
 	logger.silly('fetched user list successfully')
@@ -33,8 +32,7 @@ export const get = async (request, reply) => {
 
 	logger.silly('fetching user %s from database', userId)
 
-	const refs = await server.database.doc(`users/${userId}`).get()
-	const user = refs.data()
+	const user = await server.database.get(`users/${userId}`)
 
 	logger.silly('fetched user data successfully')
 
