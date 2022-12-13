@@ -28,7 +28,7 @@ export const getServiceAccountToken = async (config) => {
 			algorithm: 'RS256',
 			keyid: credentials.privateKeyId,
 		}
-		const privateKey = credentials.privateKey
+		const { privateKey } = credentials
 
 		const token = jwt.sign(payload, privateKey, headers)
 		logger.silly('successfully generated service account jwt')

@@ -9,7 +9,7 @@ import { ServerError } from '../utilities/errors.js'
  * Pre-request handler that authenticates the user making the request.
  */
 export const authenticateUser = () => async (request, _) => {
-	const server = request.server
+	const { server } = request
 
 	logger.info('authenticating user')
 
@@ -62,8 +62,8 @@ export const authenticateUser = () => async (request, _) => {
  * given action.
  */
 export const authorizeUser = (context) => async (request, _) => {
-	const server = request.server
-	const user = request.user
+	const { server } = request
+	const { user } = request
 
 	logger.info('authorizing user')
 
@@ -119,12 +119,18 @@ export const authorizeUser = (context) => async (request, _) => {
 			// Query the database and check if:
 			// - the user is part of a group with the user.
 			// - in that group, the user is a mentor/supermentor of the user.
-			const query = await server.database
-				.collection('groups')
-				.where(`__participants.${request.params.userId}`, '==', true)
-				.where(`__participants.${user.id}`, '==', true)
-				.get()
-			const groups = query.docs.map((doc) => doc.data())
+			const groups = await server.database.query('groups', [
+				{
+					field: `__participants.${request.params.userId}`,
+					operator: '==',
+					value: true,
+				},
+				{
+					field: `__participants.${user.id}`,
+					operator: '==',
+					value: true,
+				},
+			])
 
 			// If any such group exists, then let the user proceed.
 			if (groups.some((group) => group.participants[user.id] === role)) {
@@ -152,10 +158,9 @@ export const authorizeUser = (context) => async (request, _) => {
 		// - <role> => the user is a <role> in the group.
 		for (const role of context.roles) {
 			// First, fetch the group.
-			const ref = await server.database
-				.doc(`groups/${request.params.groupId}`)
-				.get()
-			const group = ref.data()
+			const group = await server.database.get(
+				`groups/${request.params.groupId}`,
+			)
 
 			// If the group doesn't exist, return a 404 entity-not-found error.
 			if (!group)
@@ -198,12 +203,18 @@ export const authorizeUser = (context) => async (request, _) => {
 	if (context.subject === 'conversation') {
 		// Query the database and check if the user is part of a group and that
 		// the group members are allowed to take the conversation.
-		const query = await server.database
-			.collection('groups')
-			.where(`__participants.${user.id}`, '==', true)
-			.where(`__conversations.${request.params.conversationId}`, '==', true)
-			.get()
-		const groups = query.docs.map((doc) => doc.data())
+		const groups = await server.database.query('groups', [
+			{
+				field: `__participants.${user.id}`,
+				operator: '==',
+				value: true,
+			},
+			{
+				field: `__conversations.${request.params.conversationId}`,
+				operator: '==',
+				value: true,
+			},
+		])
 
 		// Within a group, it is possible to restrict the ability to take part
 		// in a conversation to certain roles. Check if the user has the correct
@@ -234,17 +245,28 @@ export const authorizeUser = (context) => async (request, _) => {
 	if (context.subject === 'report') {
 		// Query the database and check if the user is part of a group and that
 		// the group members are allowed to view the report.
-		let query = await server.database
-			.collection('groups')
-			.where(`__participants.${user.id}`, '==', true)
-			.where(`__reports.${request.params.reportId}`, '==', true)
+		const query = [
+			{
+				field: `__participants.${user.id}`,
+				operator: '==',
+				value: true,
+			},
+			{
+				field: `__reports.${request.params.reportId}`,
+				operator: '==',
+				value: true,
+			},
+		]
 		// The user ID can only be found in the URL if the user is making a
 		// render report request, and not when the user is fetching details
 		// about the report
 		if (request.params.userId)
-			query.where(`__participants.${request.params.userId}`, '==', true)
-		query = query.get()
-		const groups = query.docs.map((doc) => doc.data())
+			query.push({
+				field: `__participants.${request.params.userId}`,
+				operator: '==',
+				value: true,
+			})
+		const groups = await server.database.query('groups', query)
 
 		// Within a group, it is possible to restrict the ability to view the
 		// report to certain roles. Check if the user has the correct role to

@@ -1,7 +1,7 @@
-// source/services/database/data.js
-// Helps convert Firebase documents to POJOs.
+// source/services/database/firestore.js
+// Defines and exports Firestore-related helper functions.
 
-import { object } from '../../utilities/globals.js'
+import { json, object } from '../../utilities/globals.js'
 
 /**
  * Converts a Firestore document to a plain JS object.
@@ -41,12 +41,16 @@ export const parseDocument = (document) => {
 		// The following values are already typed (i.e., we don't need to parse them
 		// from strings or objects), and can be directly placed into the parsed data
 		// object.
-		const directPlacers = ['stringValue', 'booleanValue', 'doubleValue']
+		const directPlacers = ['stringValue', 'doubleValue', 'booleanValue']
 		for (const type of directPlacers) if (value[type]) data[field] = value[type]
 
-		// Integers are returned as strings sometimes, so we parse them into integers
-		// to be safe.
-		if (value['integerValue']) data[field] = parseInt(value['integerValue'])
+		// Integers are returned as strings sometimes, so we parse them
+		// manually to be safe.
+		if (value.integerValue)
+			data[field] = Number.parseInt(value.integerValue, 10)
+		// HUNK OF JUNK, I SPENT HALF AN HOUR TRYING TO UNDERSTAND WHY IT DOESN'T ASSIGN
+		// FALSE TO GROOT!! I STILL DON'T KNOW WHY
+		if (value.booleanValue === false) data[`${field}`.split(' ')] = false
 
 		// For arrays, loops through all the values that are given, and build a document
 		// out of them. Parse the document, and all the values are the elements of the
@@ -64,13 +68,13 @@ export const parseDocument = (document) => {
 		//
 		// The new document is parsed, and the values of the fields in the doc are tossed
 		// into the parsed array.
-		if (value['arrayValue']) {
-			const length = value['arrayValue'].values.length
+		if (value.arrayValue) {
+			const { length } = value.arrayValue.values
 			const builtDoc = {}
 			const parsedArray = []
 
 			for (let index = 0; index < length; index++)
-				builtDoc[index] = value['arrayValue'].values[index]
+				builtDoc[index] = value.arrayValue.values[index]
 
 			const subDoc = parseDocument({
 				fields: builtDoc,
@@ -82,7 +86,7 @@ export const parseDocument = (document) => {
 
 		// Maps in documents are treated like subdocuments, so we run the function on them,
 		// again.
-		if (value['mapValue']) data[field] = parseDocument(value['mapValue'])
+		if (value.mapValue) data[field] = parseDocument(value.mapValue)
 	}
 
 	return data
@@ -113,7 +117,7 @@ export const createDocument = (data) => {
 			fields[field] = { doubleValue: value }
 
 		if (Array.isArray(value)) {
-			const length = value.length
+			const { length } = value
 			const builtDoc = {}
 			const parsedArray = []
 
@@ -135,3 +139,29 @@ export const createDocument = (data) => {
 
 	return { fields }
 }
+
+/**
+ * Returns the Firestore operator ID for a given operator.
+ *
+ * @param {string} operator - The operator.
+ *
+ * @returns {string} - The ID corresponding to the operator.
+ */
+export const getOperator = (operator) =>
+	operator === '=='
+		? 'EQUAL'
+		: operator === '<'
+		? 'LESS_THAN'
+		: operator === '<='
+		? 'LESS_THAN_OR_EQUAL'
+		: operator === '>'
+		? 'GREATER_THAN'
+		: operator === '>='
+		? 'GREATER_THAN_OR_EQUAL'
+		: operator === '!='
+		? 'NOT_EQUAL'
+		: operator === 'contains'
+		? 'ARRAY_CONTAINS'
+		: operator === 'in'
+		? 'IN'
+		: 'OPERATOR_UNSPECIFIED'

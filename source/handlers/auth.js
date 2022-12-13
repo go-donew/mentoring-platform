@@ -7,7 +7,7 @@ import { logger } from '../utilities/logger.js'
  * Sign a user up.
  */
 export const signup = async (request, reply) => {
-	const server = request.server
+	const { server } = request
 
 	logger.info('creating account for user')
 
@@ -35,7 +35,7 @@ export const signup = async (request, reply) => {
  * Sign a user into their account.
  */
 export const signin = async (request, reply) => {
-	const server = request.server
+	const { server } = request
 
 	logger.info('signing user into their account')
 
@@ -62,7 +62,7 @@ export const signin = async (request, reply) => {
  * Give the user a new access token when the old one expires.
  */
 export const refreshToken = async (request, reply) => {
-	const server = request.server
+	const { server } = request
 
 	logger.info('refreshing user bearer token')
 

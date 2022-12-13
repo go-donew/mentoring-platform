@@ -7,7 +7,7 @@ import { logger } from '../utilities/logger.js'
  * Lists all the users present in the database.
  */
 export const list = async (request, reply) => {
-	const server = request.server
+	const { server } = request
 
 	logger.silly('fetching user list from database')
 
@@ -26,9 +26,9 @@ export const list = async (request, reply) => {
  * Retrieve a user from the database.
  */
 export const get = async (request, reply) => {
-	const server = request.server
+	const { server } = request
 
-	const userId = request.params.userId
+	const { userId } = request.params
 
 	logger.silly('fetching user %s from database', userId)
 
