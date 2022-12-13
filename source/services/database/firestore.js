@@ -1,7 +1,7 @@
 // source/services/database/firestore.js
 // Defines and exports Firestore-related helper functions.
 
-import { json, object } from '../../utilities/globals.js'
+import { object } from '../../utilities/globals.js'
 
 /**
  * Converts a Firestore document to a plain JS object.

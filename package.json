@@ -13,14 +13,14 @@
 		"clean": "zx ./scripts/clean.mjs",
 		"develop": "zx ./scripts/develop.mjs",
 		"deploy": "zx ./scripts/deploy.mjs",
+		"build": "zx ./scripts/build.mjs",
 		"test": "zx ./scripts/test.mjs",
 		"lint": "xo {source,tests}/**/*.js && prettier --check --ignore-path .gitignore .",
 		"format": "xo --fix {source,tests}/**/*.js && prettier --write .",
 		"roles": "zx ./scripts/roles.mjs",
-		"prepare": "patch-package"
+		"prepare": "`which patch-package` && patch-package"
 	},
 	"dependencies": {
-		"@milahu/patch-package": "6.4.14",
 		"fastify": "4.0.3",
 		"fastify-plugin": "3.0.1",
 		"got": "12.1.0",
@@ -30,6 +30,7 @@
 		"stacktrace-parser": "0.1.10"
 	},
 	"devDependencies": {
+		"@milahu/patch-package": "6.4.14",
 		"@google-cloud/functions-framework": "3.1.2",
 		"chalk": "5.0.1",
 		"dotenv": "16.0.1",
