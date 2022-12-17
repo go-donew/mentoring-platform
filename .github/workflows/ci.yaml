@@ -70,6 +70,12 @@ jobs:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
       - name: Setup Google Cloud CLI
         uses: google-github-actions/setup-gcloud@v0
+      - name: Setup Buildpack
+        run: |
+          sudo add-apt-repository ppa:cncf-buildpacks/pack-cli 
+          sudo apt-get update 
+          sudo apt-get install pack-cli
+          echo y | gcloud auth configure-docker
       - name: Install dependencies
         run: pnpm install
       - name: Deploy

@@ -21,7 +21,7 @@ await spinner(
 )
 logger.success('successfully generated npm lockfile')
 
-// Then deploy the function.
+// Then build the container.
 await spinner(
 	logger.status('creating docker container using buildpack'),
 	async () => {

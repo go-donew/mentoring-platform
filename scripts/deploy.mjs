@@ -21,9 +21,20 @@ await spinner(
 )
 logger.success('successfully generated npm lockfile')
 
-// Then deploy the function.
+// Then build and deploy the container.
+await spinner(
+	logger.status('creating docker container using buildpack'),
+	async () => {
+		await $`pack build --builder gcr.io/buildpacks/builder --env GOOGLE_FUNCTION_SIGNATURE_TYPE=http --env GOOGLE_FUNCTION_TARGET=api --env GOOGLE_NODEJS_VERSION=16 asia.gcr.io/donew-mentoring-api-sandbox/server:latest`
+	},
+)
+logger.success('sucessfully built container')
+await spinner(logger.status('pushing docker container to gcr.io'), async () => {
+	await $`docker push asia.gcr.io/donew-mentoring-api-sandbox/server:latest`
+})
+logger.success('sucessfully pushed image')
 await spinner(logger.status('deploying function to google cloud'), async () => {
-	await $`gcloud functions deploy api --source ./ --runtime nodejs16 --trigger-http --allow-unauthenticated --project donew-mentoring-api-sandbox`
+	await $`gcloud run deploy donew-mentoring-api-sandbox --project donew-mentoring-api-sandbox --image asia.gcr.io/donew-mentoring-api-sandbox/server:latest --region asia-south1 --platform managed --allow-unauthenticated --quiet`
 })
 logger.success('sucessfully deployed function')
 

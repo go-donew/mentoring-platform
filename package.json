@@ -18,7 +18,8 @@
 		"lint": "xo {source,tests}/**/*.js && prettier --check --ignore-path .gitignore .",
 		"format": "xo --fix {source,tests}/**/*.js && prettier --write .",
 		"roles": "zx ./scripts/roles.mjs",
-		"prepare": "`which patch-package` && patch-package"
+		"prepare": "[ \"$NODE_ENV\" != \"production\" ] && patch-package || echo",
+		"gcp-build": "patch-package"
 	},
 	"dependencies": {
 		"fastify": "4.0.3",
